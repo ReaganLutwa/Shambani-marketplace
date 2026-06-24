@@ -1,0 +1,171 @@
+{
+  "nav": {
+    "browse": "Nona Emboga",
+    "farmers": "Kubalimi",
+    "howItWorks": "Engeri Gyekola",
+    "ussd": "USSD (*144#)",
+    "about": "Ebifa",
+    "signIn": "Yingira"
+  },
+  "hero": {
+    "tagline": "Katale ka Balimi ba East Africa",
+    "headline": "Emboga Empya Okuva Mu Kibanja — Ezikutusiza",
+    "subtitle": "Yunga ne balimi mu Uganda, Kenya, Tanzania, ne Rwanda. Okuva mu kibanja kitono ennyo okutuuka ku mmwawa enene — ShambaNi kileeta katale eri buli omulimi.",
+    "browseCta": "Nona Emboga Empya",
+    "listCta": "Wandiisa Ekibanja Kyo"
+  },
+  "stats": {
+    "farmers": "Balimi Abaakola",
+    "districts": "Distulikti Ezifunikiddwa",
+    "buyers": "Abagula Abasanyufu",
+    "countries": "Ensi za East Africa",
+    "fee": "Musolo gw'Ensi"
+  },
+  "categories": {
+    "title": "Emboga Empya Ewereddwa Kati",
+    "subtitle": "Okuva mu Balimi ba East Africa",
+    "all": "Byonna",
+    "vegetables": "Emboga",
+    "fruits": "Ebibala",
+    "grains": "Obutta",
+    "livestock": "Ente",
+    "dairy": "Amata",
+    "spices": "Ebyokunyigisa",
+    "nuts": "Obwaku ne Mbeeyi",
+    "roots": "Ebyomu Mmese",
+    "browseAll": "Nona Emboga Yonna"
+  },
+  "howItWorks": {
+    "eyebrow": "Engeri Gyekola",
+    "title": "Yangu. Mangu. Kirungi.",
+    "step1Title": "Omulimu Atandika Okutunda",
+    "step1Desc": "Omulimi yenna ayinza okuwandiisa ku yintaneti oba okubaka *144# ku ssimu yonna — tetaagisa ssimu ya smartphone. Wandiisa ebikoola byo mu katono, teka omutengo gwo, era tuuka ku abagula ba kijjulo.",
+    "step2Title": "Owegula Asaba Order",
+    "step2Desc": "Amasomero, bizinensi, n'amaka galambula emboga empya ne basaba obuguzi butereevu ne balimi. Yerabira ku district, category, oba omutengo.",
+    "step3Title": "Okuleetera Emboga",
+    "step3Desc": "Omulimi alamba okuleetera. Ssula mu ngeri entuufu okuyita mu Airtel Money, MTN Mobile Money, PayPal, oba Bank Transfer. Musolo gw'ensi 2.5% gyokka — ekirala kigenda butereevu eri omulimi."
+  },
+  "ussd": {
+    "eyebrow": "Eri Balimi Bonna",
+    "title": "Tossa Smartphone? Tewali Wazzewo!",
+    "code": "*144#",
+    "description": "Dyaaya *144# ku ssimu yonna okuwandiisa ebikoola byo, okulaba order zo, n'okufuna ssente — ne ku ssimu ya kikadde.",
+    "feature1": "Wandiisa ebikoola byo mu katono",
+    "feature2": "Funa SMS ebigambo nga order zituuse",
+    "feature3": "Laba embeera y'okusasula essaawa yonna",
+    "feature4": "Kiwereere mu Lungeleza, Luganda, Kiswahili ne Runyarwanda",
+    "cta": "Manya Ebisingawo Ku USSD"
+  },
+  "crossBorder": {
+    "eyebrow": "Okusala Ensi",
+    "title": "Okuva mu Uganda Kugenda mu East Africa",
+    "description": "ShambaNi yatandika mu Uganda, naye okulaba kwaffe kwatuse mu East Africa yonna. Tuzimba ennyungu z'abantu ne balimi n'abagula mu nsi nnya, nga tuvunula emizinga n'omutimbagano ogukola ku ssimu yonna.",
+    "uganda": "111 districts, Lungeleza/Luganda/Kiswahili",
+    "kenya": "47 counties, Lungeleza/Kiswahili",
+    "tanzania": "31 regions, Kiswahili/Lungeleza",
+    "rwanda": "30 districts, Kinyarwanda/Lungeleza",
+    "cta": "Weegatte ku Ntambula"
+  },
+  "payments": {
+    "eyebrow": "Okusasula Okwetasse",
+    "title": "Ssula Engeri Yo — Okufuga mu Ngeri Entuufu",
+    "airtelTitle": "Airtel Money",
+    "airtelDesc": "Okusasula okumangu okuyita mu ssimu mu East Africa yonna. Kiwereere mu Uganda, Kenya, Tanzania, ne Rwanda.",
+    "mtnTitle": "MTN Mobile Money",
+    "mtnDesc": "Ekifo ekinene ennyo eky'okusasula mu Uganda. Okusasula okumangu, tetaagisa akawunti ya banki.",
+    "paypalTitle": "PayPal",
+    "paypalDesc": "Okusasula okw'ensi yonna okukozesa PayPal. Akawunti: @LutwamaReagan. Okukuuma owegula kwereddwa.",
+    "bankTitle": "Bank Transfer",
+    "bankDesc": "Okusasula okugenda butereevu ku banki ez'enene mu East Africa zonna.",
+    "feeNotice": "Musolo gw'ensi 2.5% gyokka — omutofo ku kitundu. Ekirala kigenda butereevu eri balimi baffe."
+  },
+  "testimonials": {
+    "eyebrow": "Ebyo Abantu Bagamba",
+    "title": "Eby'amazima Okuva mu Balimi n'Abagula",
+    "quote1": "Oluvannyuma lw'e ShambaNi nandiba nga nkubula kabbaagi ennyingi. Kaakati ntunda byonna! Mwezi guwedde nfunye UGX 180,000 okuva mu kibanja kyange ekitono. Enkola eno kyeyawadde obulamu bwange.",
+    "name1": "Nakamya Josephine",
+    "role1": "Omulimi wa Kibanja Kitono, Kampala",
+    "quote2": "Tugula ennyanya ne matooke butereevu okuva mu balimi. Emboga empya, emitengo egisu, era tumanyi gyegiturira. Abayizi baffe balya obulungi olw'e ShambaNi.",
+    "name2": "Mukulu Ssekatawa",
+    "role2": "Omufulumya wa Canteen ya Somero, Wakiso",
+    "quote3": "Ssina smartphone naye mbuuka *144# okuwandiisa obwaku bwange. Nfunye order 3 mu mmwezi guno! Wadde nga ssi na yintaneti, nsobola okutunda emboga zange.",
+    "name3": "Acen Mary",
+    "role3": "Omulimi, District ya Gulu"
+  },
+  "cta": {
+    "title": "Weteefu Okwegatta ku Katale ka Balimi ba East Africa?",
+    "subtitle": "Oba oli mulimi ayagala okutunda oba owegula ayagala emboga empya — ShambaNi kikukuuma.",
+    "sell": "Tandika Okutunda",
+    "buy": "Tandika Okugula"
+  },
+  "footer": {
+    "tagline": "Okusitula abalimi ba East Africa — okuva mu kibanja kitono okutuuka ku kinene.",
+    "platform": "Enkola",
+    "forFarmers": "Kubalimi",
+    "paymentsLegal": "Okusasula n'Amateeka",
+    "listFarm": "Wandiisa Ekibanja Kyo",
+    "farmerLogin": "Yingira nga Omulimi",
+    "ussdGuide": "Amagezi ku USSD",
+    "successStories": "Eby'obuwanguzi",
+    "terms": "Amateeka ga Kampuni",
+    "privacy": "Ebyekyama",
+    "copyright": "2026 ShambaNi. Okusitula Abalimi ba East Africa.",
+    "switchLang": "Kyuusa Olulimi"
+  },
+  "product": {
+    "addToCart": "Gatta mu Kaliga",
+    "inStock": "wereddwa",
+    "lowStock": "tonotono",
+    "outOfStock": "Tewali Kuberayo",
+    "unit": "omuzira",
+    "kg": "kg",
+    "liters": "lita",
+    "bunch": "ekitundu",
+    "head": "mutwe",
+    "tray": "tulee",
+    "dozen": "dazeni"
+  },
+  "cart": {
+    "title": "Kaliga y'Okugula",
+    "empty": "Kaliga yo njereere",
+    "total": "Omuwendo",
+    "checkout": "Genda Osasule",
+    "remove": "Jjawo"
+  },
+  "farmerRegister": {
+    "title": "Wandiisa Ekibanja Kyo",
+    "farmName": "Erinya ly'Ekibanja",
+    "phone": "Ennamba ya Ssimu",
+    "about": "Ebifa Ku Kibanja Kyo",
+    "country": "Ensi",
+    "district": "Distulikiti",
+    "village": "Ekyaalo/Ekitundu",
+    "paymentMethod": "Engeri y'Okusasula",
+    "submit": "Wereza Okuwandiisa"
+  },
+  "admin": {
+    "dashboard": "Dashiboodi",
+    "farmers": "Balimi",
+    "orders": "Order",
+    "products": "Ebyetundwa",
+    "payments": "Okusasula",
+    "analytics": "Okwekenneenya",
+    "settings": "Enteekateeka",
+    "pendingApprovals": "Ezirindirirwa Okukirizibwa",
+    "totalRevenue": "Ssente Zonna",
+    "platformFee": "Musolo gw'Ensi"
+  },
+  "common": {
+    "loading": "Bikola...",
+    "comingSoon": "Kijja Mangu",
+    "error": "Wabadewo Ensobi",
+    "retry": "Ddamu",
+    "cancel": "Sazaamu",
+    "save": "Kuuma",
+    "edit": "Kyusa",
+    "delete": "Jjawo",
+    "search": "Noonya",
+    "filter": "Yera",
+    "sort": "Tereeza"
+  }
+}

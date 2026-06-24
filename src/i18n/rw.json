@@ -1,0 +1,171 @@
+{
+  "nav": {
+    "browse": "Kugura Ibihingwa",
+    "farmers": "Kubahinzi",
+    "howItWorks": "Uko Bikora",
+    "ussd": "USSD (*144#)",
+    "about": "Ibyerekeye",
+    "signIn": "Injira"
+  },
+  "hero": {
+    "tagline": "Isoko ry'Abahinzi b'Afurika y'Iburasirazuba",
+    "headline": "Ibihugu Bishya Biturutse Ku Muguda — Bitugejejeho",
+    "subtitle": "Uhuza n'abahinzi mu Uganda, Kenya, Tanzania, na Rwanda. Kuva mu murima muto w'aho waba ugereye kugera ku myuga minini — ShambaNi mugeza isoko ku muhinzi wese.",
+    "browseCta": "Shakisha Ibihugu Bishya",
+    "listCta": "Andikisha Uwugore Bwawe"
+  },
+  "stats": {
+    "farmers": "Abahinzi Bafite Akazi",
+    "districts": "Uturere Dufite",
+    "buyers": "Abaguzi Bashimishijwe",
+    "countries": "Ibihugu by'Afurika y'Iburasirazuba",
+    "fee": "Amafaranga y'Ikigo"
+  },
+  "categories": {
+    "title": "Ibihugu Bishya Bihari Ubu",
+    "subtitle": "Biturutse Kubahinzi b'Afurika y'Iburasirazuba",
+    "all": "Byose",
+    "vegetables": "Imboga",
+    "fruits": "Imbuto",
+    "grains": "Ibigori",
+    "livestock": "Amatungo",
+    "dairy": "Amata",
+    "spices": "Ibisabune",
+    "nuts": "Indabo n'Imbuto",
+    "roots": "Imizi",
+    "browseAll": "Shakisha Ibihugu Byose"
+  },
+  "howItWorks": {
+    "eyebrow": "Uko Bikora",
+    "title": "Byoroshye. Vuba. Byiza.",
+    "step1Title": "Umuhinzi Aha Ibihugu",
+    "step1Desc": "Umuhinzi wese yandikisha ibihugu binyuze kuri interineti cyangwa akamagara *144# kuri telefoni yose — nta telefoni y'ubwenge ikenewe. Andikisha ibihugu byawe mu misi mike, shyira igiciro, kandi ugere ku baguzi baba benshi.",
+    "step2Title": "Umuguzi Aha Order",
+    "step2Desc": "Amashuri, amasosiyete, n'imiryango ireba ibihugu bishya kandi iha amabwiriza aturutse ku bahinzi. Shungura hakurikijwe akarere, icyiciro, cyangwa igiciro.",
+    "step3Title": "Ihagase Ry'Imbuga",
+    "step3Desc": "Umuhinzi aha ibihugu. Ishyura mu buryo bwa Airtel Money, MTN Mobile Money, PayPal, cyangwa Bank Transfer. Amafaranga y'ikigo ni 2.5% gusa — iyindi yahererekera umuhinzi."
+  },
+  "ussd": {
+    "eyebrow": "Kubahinzi Bose",
+    "title": "Nta Telefoni Y'ubwenge? Ntakibazo!",
+    "code": "*144#",
+    "description": "Kanda *144# kuri telefoni yose wemeze ibihugu byawe, reba amabwiriza yawe, kandi wishyure — ndetse na telefoni yoroshye.",
+    "feature1": "Andikisha ibihugu byawe mu misi mike",
+    "feature2": "Wemeze ubutumwa bw'amabwiriza",
+    "feature3": "Reba uko wishyura igihe cyose",
+    "feature4": "Bihari mu Cyongereza, Luganda, Kiswahili & Runyarwanda",
+    "cta": "Menya Byinshi Kuri USSD"
+  },
+  "crossBorder": {
+    "eyebrow": "Kugera Hakurya y'Imbibi",
+    "title": "Kuva mu Uganda Kugera mu Burasirazuba bwa Afurika",
+    "description": "ShambaNi yatangiriye mu Uganda, ariko igitekerezo cyacu kigeza mu Burasirazuba bwa Afurika bwose. Twubakanya uhuza abahinzi n'abaguzi mu bihugu bine, tuvunagura imbogamizi n'ikoranabuhanga.",
+    "uganda": "111 uturere, Cyongereza/Luganda/Kiswahili",
+    "kenya": "47 counties, Cyongereza/Kiswahili",
+    "tanzania": "31 regions, Kiswahili/Cyongereza",
+    "rwanda": "30 districts, Kinyarwanda/Cyongereza/Igifaransa",
+    "cta": "Injira mu Mukino"
+  },
+  "payments": {
+    "eyebrow": "Uburyo Bwizigamiye",
+    "title": "Wishyura Uko Ushaka — Bya Ruguru",
+    "airtelTitle": "Airtel Money",
+    "airtelDesc": "Ubworohere mu kohereza amafaranga muri Afurika y'Iburasirazuba yose. Buhari muri Uganda, Kenya, Tanzania, na Rwanda.",
+    "mtnTitle": "MTN Mobile Money",
+    "mtnDesc": "Urusobe rukuru rwa mobile money mu Rwanda na Uganda. Kohereza amafaranga vuba, nta konti ya banki isabwa.",
+    "paypalTitle": "PayPal",
+    "paypalDesc": "Amahawa y'isi yose yakoreshejwe na PayPal. Ukoresheje: @LutwamaReagan. Umutekano w'umuguzi wahujwe.",
+    "bankTitle": "Bank Transfer",
+    "bankDesc": "Ubworohere bw'ama banki yose mu bihugu by'Afurika y'Iburasirazuba.",
+    "feeNotice": "Amafaranga y'ikigo ni 2.5% gusa — makaba munini mu karere ka bose. Iyindi ihererekera abahinzi bacu."
+  },
+  "testimonials": {
+    "eyebrow": "Ibyo Abantu Bavuga",
+    "title": "Inkuru Z'ukuri Ziturutse ku Bahinzi n'Abaguzi",
+    "quote1": "Mbere ya ShambaNi nari ncura kabaga zisigaye. Ubu ndacyohereza byose! Ukwezi gushize natsinze UGX 180,000 mu murima wange muto. Iyi nkuta yahinduye ubuzima bwanjye.",
+    "name1": "Nakamya Josephine",
+    "role1": "Umuhinzi w'Umurima Muto, Kampala",
+    "quote2": "Tugura inyanya na matooke biturutse ku bahinzi. Ibihugu bishya, ibiciro byiza, kandi tuzi neza aho biturutse. Abanyeshuri bacu bararya neza kubera ShambaNi.",
+    "name2": "Mugabo Ssekatawa",
+    "role2": "Umuyobozi wa Canteen, Wakiso",
+    "quote3": "Nta telefoni y'ubwenge mfite ariko mpiga *144# nemeze ubunyobwa bwanjye. Nemeje amabwiriza 3 muri iyi cyumweru! Nta interineti, nshobora kohereza ibihugu byanjye.",
+    "name3": "Acen Mary",
+    "role3": "Umuhinzi, Akarere ka Gulu"
+  },
+  "cta": {
+    "title": "Witeguye Kwijira mu Isoko ry'Abahinzi b'Afurika y'Iburasirazuba?",
+    "subtitle": "Niba uri umuhinzi ushaka kugurisha cyangwa umuguzi ushaka ibihugu bishya — ShambaNi ibahuza.",
+    "sell": "Tangira Kugurisha",
+    "buy": "Tangira Kugura"
+  },
+  "footer": {
+    "tagline": "Gukomeza abahinzi b'Afurika y'Iburasirazuba — kuva ku murima muto kugera ku wukuru.",
+    "platform": "Ikigo",
+    "forFarmers": "Kubahinzi",
+    "paymentsLegal": "Malipo & Amategeko",
+    "listFarm": "Andikisha Uwugore Bwawe",
+    "farmerLogin": "Injira",
+    "ussdGuide": "Inyobora ya USSD",
+    "successStories": "Inkuru z'Intsinzi",
+    "terms": "Amategeko",
+    "privacy": "Politiki y'Ibanga",
+    "copyright": "2026 ShambaNi. Gukomeza Abahinzi b'Afurika y'Iburasirazuba.",
+    "switchLang": "Hindura Ururimi"
+  },
+  "product": {
+    "addToCart": "Ongera Mu Igare",
+    "inStock": "bihari",
+    "lowStock": "biringanine",
+    "outOfStock": "Nta Bihari",
+    "unit": "igipimo",
+    "kg": "kg",
+    "liters": "lita",
+    "bunch": "umutwe",
+    "head": "umutwe",
+    "tray": "treyi",
+    "dozen": "dazeni"
+  },
+  "cart": {
+    "title": "Igare ryo Kugura",
+    "empty": "Igare ryawe ni ubusa",
+    "total": "Igiteranyo",
+    "checkout": "Komeza Wishyure",
+    "remove": "Kuraho"
+  },
+  "farmerRegister": {
+    "title": "Andikisha Uwugore Bwawe",
+    "farmName": "Izina ry'Uwugore",
+    "phone": "Telefoni",
+    "about": "Ibyerekeye Uwugore Bwawe",
+    "country": "Igihugu",
+    "district": "Akarere",
+    "village": "Umudugudu",
+    "paymentMethod": "Uburyo Bwishyuwa",
+    "submit": "Ohereza"
+  },
+  "admin": {
+    "dashboard": "Ikibaho",
+    "farmers": "Abahinzi",
+    "orders": "Amabwiriza",
+    "products": "Ibicuruzwa",
+    "payments": "Ubwishyu",
+    "analytics": "Ibyatanzwe",
+    "settings": "Igenamiterere",
+    "pendingApprovals": "Gutegereza Kwemeza",
+    "totalRevenue": "Amafaranga Yose",
+    "platformFee": "Amafaranga y'Ikigo"
+  },
+  "common": {
+    "loading": "Birakorwa...",
+    "comingSoon": "Iraza vuba",
+    "error": "Habayeho ikosa",
+    "retry": "Ongera",
+    "cancel": "Hagarika",
+    "save": "Kubika",
+    "edit": "Guhindura",
+    "delete": "Gusiba",
+    "search": "Gushakisha",
+    "filter": "Guhitamo",
+    "sort": "Gutondeka"
+  }
+}

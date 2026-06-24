@@ -1,0 +1,171 @@
+{
+  "nav": {
+    "browse": "Browse Produce",
+    "farmers": "For Farmers",
+    "howItWorks": "How It Works",
+    "ussd": "USSD (*144#)",
+    "about": "About",
+    "signIn": "Sign In"
+  },
+  "hero": {
+    "tagline": "East Africa's Farmers Marketplace",
+    "headline": "Fresh From the Farm — Delivered to You",
+    "subtitle": "Connect directly with farmers across Uganda, Kenya, Tanzania, and Rwanda. From the smallest village garden to large plantations — ShambaNi brings the market to every farmer.",
+    "browseCta": "Browse Fresh Produce",
+    "listCta": "List Your Farm"
+  },
+  "stats": {
+    "farmers": "Active Farmers",
+    "districts": "Districts Covered",
+    "buyers": "Happy Buyers",
+    "countries": "East African Countries",
+    "fee": "Platform Fee"
+  },
+  "categories": {
+    "title": "Fresh Produce Available Now",
+    "subtitle": "Direct from Farmers Across East Africa",
+    "all": "All",
+    "vegetables": "Vegetables",
+    "fruits": "Fruits",
+    "grains": "Grains",
+    "livestock": "Livestock",
+    "dairy": "Dairy",
+    "spices": "Spices",
+    "nuts": "Nuts & Seeds",
+    "roots": "Root Crops",
+    "browseAll": "Browse All Produce"
+  },
+  "howItWorks": {
+    "eyebrow": "How It Works",
+    "title": "Simple. Fast. Fair.",
+    "step1Title": "Farmer Lists Produce",
+    "step1Desc": "Any farmer can list via web or simply dial *144# on any phone — no smartphone needed. List your crops in seconds, set your price, and reach thousands of buyers.",
+    "step2Title": "Buyer Places Order",
+    "step2Desc": "Schools, businesses, and households browse fresh produce and place orders directly with farmers. Filter by district, category, or price to find exactly what you need.",
+    "step3Title": "Farm-Fresh Delivery",
+    "step3Desc": "Farmer coordinates delivery. Pay securely via Airtel Money, MTN Mobile Money, PayPal, or Bank Transfer. Just 2.5% platform fee — the rest goes straight to the farmer."
+  },
+  "ussd": {
+    "eyebrow": "For All Farmers",
+    "title": "No Smartphone? No Problem!",
+    "code": "*144#",
+    "description": "Dial *144# on any phone to list your produce, check your orders, and get paid — even on a basic feature phone.",
+    "feature1": "List your crops in seconds",
+    "feature2": "Get SMS alerts when orders come in",
+    "feature3": "Check payment status anytime",
+    "feature4": "Available in English, Luganda, Kiswahili & Runyarwanda",
+    "cta": "Learn More About USSD"
+  },
+  "crossBorder": {
+    "eyebrow": "Crossing Borders",
+    "title": "From Uganda to East Africa",
+    "description": "ShambaNi started in Uganda, but our vision spans all of East Africa. We are building connections between farmers and buyers across four nations, breaking down barriers with technology that works on any phone.",
+    "uganda": "111 districts, English/Luganda/Swahili",
+    "kenya": "47 counties, English/Swahili",
+    "tanzania": "31 regions, Swahili/English",
+    "rwanda": "30 districts, Kinyarwanda/English/French",
+    "cta": "Join the Movement"
+  },
+  "payments": {
+    "eyebrow": "Secure Payments",
+    "title": "Pay Your Way — Administered Securely",
+    "airtelTitle": "Airtel Money",
+    "airtelDesc": "Fast mobile money transfers across East Africa. Available in Uganda, Kenya, Tanzania, and Rwanda.",
+    "mtnTitle": "MTN Mobile Money",
+    "mtnDesc": "Uganda's largest mobile money network. Instant transfers, no bank account needed.",
+    "paypalTitle": "PayPal",
+    "paypalDesc": "International payments powered by PayPal. Handle: @LutwamaReagan. Secure buyer protection included.",
+    "bankTitle": "Bank Transfer",
+    "bankDesc": "Direct bank transfers for large orders. All major East African banks supported.",
+    "feeNotice": "Just 2.5% platform fee — the lowest in the region. The rest goes directly to our farmers."
+  },
+  "testimonials": {
+    "eyebrow": "What People Are Saying",
+    "title": "Real Stories from Farmers and Buyers",
+    "quote1": "Before ShambaNi I used to throw away excess cabbage. Now I sell everything! Last month I earned UGX 180,000 from my small garden. This platform changed my life.",
+    "name1": "Nakamya Josephine",
+    "role1": "Small Garden Farmer, Kampala",
+    "quote2": "We buy tomatoes and matooke directly from farmers. Fresher produce, cheaper prices, and we know exactly where it comes from. Our students eat better because of ShambaNi.",
+    "name2": "Mr. Ssekatawa",
+    "role2": "School Canteen Manager, Wakiso",
+    "quote3": "I don't have a smartphone but I dial *144# to list my groundnuts. I have received 3 orders already this week! Even without internet, I can sell my produce.",
+    "name3": "Acen Mary",
+    "role3": "Farmer, Gulu District"
+  },
+  "cta": {
+    "title": "Ready to Join East Africa's Farm Marketplace?",
+    "subtitle": "Whether you're a farmer looking to sell or a buyer seeking fresh produce — ShambaNi connects you.",
+    "sell": "Start Selling",
+    "buy": "Start Buying"
+  },
+  "footer": {
+    "tagline": "Empowering East Africa's farmers — from the smallest garden to the largest plantation.",
+    "platform": "Platform",
+    "forFarmers": "For Farmers",
+    "paymentsLegal": "Payments & Legal",
+    "listFarm": "List Your Farm",
+    "farmerLogin": "Farmer Login",
+    "ussdGuide": "USSD Guide",
+    "successStories": "Success Stories",
+    "terms": "Terms of Service",
+    "privacy": "Privacy Policy",
+    "copyright": "2026 ShambaNi. Empowering East African Farmers.",
+    "switchLang": "Switch Language"
+  },
+  "product": {
+    "addToCart": "Add to Cart",
+    "inStock": "in stock",
+    "lowStock": "low stock",
+    "outOfStock": "Out of stock",
+    "unit": "unit",
+    "kg": "kg",
+    "liters": "liters",
+    "bunch": "bunch",
+    "head": "head",
+    "tray": "tray",
+    "dozen": "dozen"
+  },
+  "cart": {
+    "title": "Shopping Cart",
+    "empty": "Your cart is empty",
+    "total": "Total",
+    "checkout": "Proceed to Checkout",
+    "remove": "Remove"
+  },
+  "farmerRegister": {
+    "title": "Register Your Farm",
+    "farmName": "Farm Name",
+    "phone": "Phone Number",
+    "about": "About Your Farm",
+    "country": "Country",
+    "district": "District",
+    "village": "Village/Area",
+    "paymentMethod": "Payment Method",
+    "submit": "Submit Registration"
+  },
+  "admin": {
+    "dashboard": "Dashboard",
+    "farmers": "Farmers",
+    "orders": "Orders",
+    "products": "Products",
+    "payments": "Payments",
+    "analytics": "Analytics",
+    "settings": "Settings",
+    "pendingApprovals": "Pending Approvals",
+    "totalRevenue": "Total Revenue",
+    "platformFee": "Platform Fee"
+  },
+  "common": {
+    "loading": "Loading...",
+    "comingSoon": "Coming Soon",
+    "error": "Something went wrong",
+    "retry": "Retry",
+    "cancel": "Cancel",
+    "save": "Save",
+    "edit": "Edit",
+    "delete": "Delete",
+    "search": "Search",
+    "filter": "Filter",
+    "sort": "Sort"
+  }
+}

@@ -1,0 +1,171 @@
+{
+  "nav": {
+    "browse": "Vinjari Mazao",
+    "farmers": "Kwa Wakulima",
+    "howItWorks": "Jinsi Inavyofanya Kazi",
+    "ussd": "USSD (*144#)",
+    "about": "Kuhusu",
+    "signIn": "Ingia"
+  },
+  "hero": {
+    "tagline": "Soko la Wakulima wa Afrika Mashariki",
+    "headline": "Mazao Mpya Kutoka Shambani — Yanakufikia",
+    "subtitle": "Unganishwa na wakulima nchini Uganda, Kenya, Tanzania, na Rwanda. Kutoka bustani ndogo ya kijiji hadi mashamba makubwa — ShambaNi lileta soko kwa kila mkulima.",
+    "browseCta": "Vinjari Mazao Mpya",
+    "listCta": "Andika Shamba Lako"
+  },
+  "stats": {
+    "farmers": "Wakulima Hai",
+    "districts": "Wilaya Zilizofunikwa",
+    "buyers": "Wanunuzi Wanaofurahia",
+    "countries": "Nchi za Afrika Mashariki",
+    "fee": "Ada ya Jukwaa"
+  },
+  "categories": {
+    "title": "Mazao Mpya Yanayopatikana Sasa",
+    "subtitle": "Moja kwa Moja Kutoka kwa Wakulima wa Afrika Mashariki",
+    "all": "Yote",
+    "vegetables": "Mboga",
+    "fruits": "Matunda",
+    "grains": "Nafaka",
+    "livestock": "Mifugo",
+    "dairy": "Maziwa",
+    "spices": "Viungo",
+    "nuts": "Karanga na Mbegu",
+    "roots": "Mizizi",
+    "browseAll": "Vinjari Mazao Yote"
+  },
+  "howItWorks": {
+    "eyebrow": "Jinsi Inavyofanya Kazi",
+    "title": "Rahisi. Haraka. Haki.",
+    "step1Title": "Mkulima Aorodhesha Mazao",
+    "step1Desc": "Kila mkulima anaweza kuorodhesha kupitia wavuti au kupiga *144# kwenye simu yoyote — hahitaji simu janja. Orodhesha mazao yako katika sekunde, weka bei yako, na ufikie maelfu ya wanunuzi.",
+    "step2Title": "Mnunuzi Aweka Oda",
+    "step2Desc": "Shule, biashara, na nyumba huvinjari mazao mpya na kuweka maagizo moja kwa moja na wakulima. Chuja kwa wilaya, kategoria, au bei kupata unachohitaji.",
+    "step3Title": "Uwasilishaji Mpya kutoka Shambani",
+    "step3Desc": "Mkulima hupanga utoaji. Lipa kwa usalama kupitia Airtel Money, MTN Mobile Money, PayPal, au Uhamisho wa Benki. Ada ya jukwaa ni 2.5% tu — mengineyo yanaenda moja kwa moja kwa mkulima."
+  },
+  "ussd": {
+    "eyebrow": "Kwa Wakulima Wote",
+    "title": "Huna Simu Janja? Hakuna Shida!",
+    "code": "*144#",
+    "description": "Piga *144# kwenye simu yoyote kuorodhesha mazao yako, kuangalia maagizo yako, na kulipwa — hata kwa simu rahisi ya kawaida.",
+    "feature1": "Orodhesha mazao yako katika sekunde",
+    "feature2": "Pata arifa za SMS maagizo yanapokuja",
+    "feature3": "Angalia hali ya malipo wakati wowote",
+    "feature4": "Inapatikana kwa Kiingereza, Luganda, Kiswahili na Runyarwanda",
+    "cta": "Jifunze Zaidi Kuhusu USSD"
+  },
+  "crossBorder": {
+    "eyebrow": "Kuvuka Mipaka",
+    "title": "Kutoka Uganda Hadi Afrika Mashariki",
+    "description": "ShambaNi ilianza Uganda, lakini maono yetu yanafunikia Afrika Mashariki yote. Tunaunganishwa wakulima na wanunuzi katika nchi nne, tukivunja vizuizi kwa teknolojia inayofanya kazi kwenye simu yoyote.",
+    "uganda": "111 wilaya, Kiingereza/Luganda/Kiswahili",
+    "kenya": "47 kaunti, Kiingereza/Kiswahili",
+    "tanzania": "31 mikoa, Kiswahili/Kiingereza",
+    "rwanda": "30 wilaya, Kinyarwanda/Kiingereza/Kifaransa",
+    "cta": "Jiunge na Harakati"
+  },
+  "payments": {
+    "eyebrow": "Malipo Salama",
+    "title": "Lipa Njia Yako — Kudhibitiwa kwa Usalama",
+    "airtelTitle": "Airtel Money",
+    "airtelDesc": "Uhamisho wa pesa kwa simu haraka kote Afrika Mashariki. Inapatikana Uganda, Kenya, Tanzania, na Rwanda.",
+    "mtnTitle": "MTN Mobile Money",
+    "mtnDesc": "Mtandao mkubwa zaidi wa pesa kwa simu nchini Uganda. Uhamisho wa papo hapo, hahitaji akaunti ya benki.",
+    "paypalTitle": "PayPal",
+    "paypalDesc": "Malipo ya kimataifa yanayoendeshwa na PayPal. Mshikaji: @LutwamaReagan. Ulinzi wa mnunuzi umejumuishwa.",
+    "bankTitle": "Uhamisho wa Benki",
+    "bankDesc": "Uhamisho wa moja kwa moja wa benki kwa maagizo makubwa. Benki zote kubwa za Afrika Mashariki zinaungwa mkono.",
+    "feeNotice": "Ada ya jukwaa ni 2.5% tu — ndogo zaidi katika eneo hili. Mengineyo yanaenda moja kwa moja kwa wakulima wetu."
+  },
+  "testimonials": {
+    "eyebrow": "Watu Wanasemaje",
+    "title": "Hadithi Za Kweli Kutoka Kwa Wakulima na Wanunuzi",
+    "quote1": "Kabla ya ShambaNi nilikuwa natupa kabichi iliyobaki. Sasa nauza kila kitu! Mwezi uliopita nilipata UGX 180,000 kutoka bustani yangu ndogo. Jukwaa hili lilibadilisha maisha yangu.",
+    "name1": "Nakamya Josephine",
+    "role1": "Mkulima wa Bustani Ndogo, Kampala",
+    "quote2": "Tununua nyanya na matooke moja kwa moja kutoka kwa wakulima. Mazao mpya, bei nafuu, na tunajua haswa yanatoka wapi. Wanafunzi wetu wanakula vyema kutokana na ShambaNi.",
+    "name2": "Bwana Ssekatawa",
+    "role2": "Msimamizi wa Bweni la Shule, Wakiso",
+    "quote3": "Sina simu janja lakini napiga *144# kuorodhesha karanga zangu. Nimepokea maagizo 3 tayari wiki hii! Hata bila intaneti, ninaweza kuuza mazao yangu.",
+    "name3": "Acen Mary",
+    "role3": "Mkulima, Wilaya ya Gulu"
+  },
+  "cta": {
+    "title": "Tayari Kujiunga na Soko la Wakulima wa Afrika Mashariki?",
+    "subtitle": "Iwe wewe ni mkulima anayetafuta kuuza au mnunuzi anayetafuta mazao mpya — ShambaNi inakuunganisha.",
+    "sell": "Anza Kuuza",
+    "buy": "Anza Kununua"
+  },
+  "footer": {
+    "tagline": "Kuwaamsha wakulima wa Afrika Mashariki — kutoka bustani ndogo hadi shamba kubwa zaidi.",
+    "platform": "Jukwaa",
+    "forFarmers": "Kwa Wakulima",
+    "paymentsLegal": "Malipo na Kisheria",
+    "listFarm": "Andika Shamba Lako",
+    "farmerLogin": "Ingia Kama Mkulima",
+    "ussdGuide": "Mwongozo wa USSD",
+    "successStories": "Hadithi za Mafanikio",
+    "terms": "Masharti ya Huduma",
+    "privacy": "Sera ya Faragha",
+    "copyright": "2026 ShambaNi. Kuwaamsha Wakulima wa Kiafrika.",
+    "switchLang": "Badilisha Lugha"
+  },
+  "product": {
+    "addToCart": "Ongeza Kwa Kikapu",
+    "inStock": "zipo",
+    "lowStock": "zipo chache",
+    "outOfStock": "Hazipo",
+    "unit": "kipimo",
+    "kg": "kg",
+    "liters": "lita",
+    "bunch": "kichuma",
+    "head": "kichwa",
+    "tray": "treyi",
+    "dozen": "dazeni"
+  },
+  "cart": {
+    "title": "Kikapu cha Manunuzi",
+    "empty": "Kikapu chako hakina chochote",
+    "total": "Jumla",
+    "checkout": "Endelea na Kulipa",
+    "remove": "Ondoa"
+  },
+  "farmerRegister": {
+    "title": "Sajili Shamba Lako",
+    "farmName": "Jina la Shamba",
+    "phone": "Nambari ya Simu",
+    "about": "Kuhusu Shamba Lako",
+    "country": "Nchi",
+    "district": "Wilaya",
+    "village": "Kijiji/Eneo",
+    "paymentMethod": "Njia ya Malipo",
+    "submit": "Wasilisha Usajili"
+  },
+  "admin": {
+    "dashboard": "Dashibodi",
+    "farmers": "Wakulima",
+    "orders": "Maagizo",
+    "products": "Bidhaa",
+    "payments": "Malipo",
+    "analytics": "Takwimu",
+    "settings": "Mipangilio",
+    "pendingApprovals": "Idhini Zinazosubiri",
+    "totalRevenue": "Mapato Yote",
+    "platformFee": "Ada ya Jukwaa"
+  },
+  "common": {
+    "loading": "Inapakia...",
+    "comingSoon": "Inakuja Hivi Karibuni",
+    "error": "Kuna hitilafu imetokea",
+    "retry": "Jaribu Tena",
+    "cancel": "Ghairi",
+    "save": "Hifadhi",
+    "edit": "Hariri",
+    "delete": "Futa",
+    "search": "Tafuta",
+    "filter": "Chuja",
+    "sort": "Panga"
+  }
+}
