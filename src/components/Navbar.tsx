@@ -45,7 +45,7 @@ export default function Navbar() {
       <div className="container-main h-full flex items-center justify-between">
         {/* Logo */}
         <Link to="/" className="flex items-center gap-2 shrink-0">
-          <img src="/logo.svg" alt="ShambaNi" className="h-9 w-auto" />
+          <img src="logo.svg" alt="ShambaNi" className="h-9 w-auto" />
         </Link>
 
         {/* Desktop Nav Links */}

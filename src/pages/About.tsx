@@ -246,7 +246,7 @@ function CoverageMap({ t }: { t: (k: string) => string }) {
             className="relative"
           >
             <img
-              src="/map-east-africa.svg"
+              src="map-east-africa.svg"
               alt="East Africa Map"
               className="w-full h-auto rounded-2xl"
             />

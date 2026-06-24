@@ -209,7 +209,7 @@ function HeroSection({ t }: { t: (k: string) => string }) {
             className="hidden lg:flex justify-center"
           >
             <img
-              src="/ussd-phone-mockup.png"
+              src="ussd-phone-mockup.png"
               alt="USSD Phone"
               className="max-w-[280px] drop-shadow-[0_20px_60px_rgba(0,0,0,0.3)]"
             />

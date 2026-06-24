@@ -155,7 +155,7 @@ export default function Home() {
         {/* Background image */}
         <div className="absolute inset-0 z-0">
           <img
-            src="/hero-farmer.jpg"
+            src="hero-farmer.jpg"
             alt=""
             className="absolute right-0 top-0 w-full md:w-[55%] h-full object-cover"
           />
@@ -433,7 +433,7 @@ export default function Home() {
             >
               <div className="relative max-w-[280px] md:max-w-[320px] rotate-[-3deg]">
                 <img
-                  src="/ussd-phone-mockup.png"
+                  src="ussd-phone-mockup.png"
                   alt="USSD *220# feature phone"
                   className="w-full h-auto drop-shadow-2xl"
                 />
@@ -460,7 +460,7 @@ export default function Home() {
               transition={{ duration: 0.8 }}
             >
               <img
-                src="/map-east-africa.svg"
+                src="map-east-africa.svg"
                 alt="East Africa map"
                 className="w-full h-auto rounded-2xl"
               />

@@ -20,7 +20,7 @@ export default function Footer() {
           {/* Brand Column */}
           <div className="sm:col-span-2 lg:col-span-1">
             <Link to="/" className="inline-block mb-4">
-              <img src="/logo.svg" alt="ShambaNi" className="h-10 w-auto brightness-0 invert" />
+              <img src="logo.svg" alt="ShambaNi" className="h-10 w-auto brightness-0 invert" />
             </Link>
             <p className="text-sm leading-relaxed text-cream/70 max-w-xs">
               {t('footer.tagline')}
