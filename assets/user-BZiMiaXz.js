@@ -1,0 +1,1 @@
+import{c}from"./index-DZXly_xy.js";const e=[["path",{d:"M20 6 9 17l-5-5",key:"1gmf2c"}]],t=c("check",e);const o=[["path",{d:"M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2",key:"975kel"}],["circle",{cx:"12",cy:"7",r:"4",key:"17ys0d"}]],a=c("user",o);export{t as C,a as U};

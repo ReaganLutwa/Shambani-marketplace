@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ShambaNi Admin Dashboard</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#0f172a;color:#e2e8f0;min-height:100vh}
+.sidebar{position:fixed;left:0;top:0;bottom:0;width:250px;background:#1e293b;border-right:1px solid #334155;overflow-y:auto;z-index:100;transform:translateX(-100%);transition:transform .3s}
+.sidebar.open{transform:translateX(0)}
+.sidebar-brand{padding:16px;border-bottom:1px solid #334155;display:flex;align-items:center;gap:8px}
+.sidebar-brand span{font-size:18px;font-weight:700;color:#4caf50}
+.sidebar-brand .badge{font-size:10px;background:#334155;color:#94a3b8;padding:2px 8px;border-radius:4px}
+.nav-item{display:flex;align-items:center;gap:12px;padding:12px 16px;color:#94a3b8;text-decoration:none;font-size:14px;transition:all .2s;border-left:3px solid transparent}
+.nav-item:hover{background:#334155;color:#e2e8f0}
+.nav-item.active{background:rgba(76,175,80,.15);color:#4caf50;border-left-color:#4caf50;font-weight:500}
+.nav-item svg{width:18px;height:18px}
+.main{min-height:100vh}
+.topbar{height:56px;background:#1e293b;border-bottom:1px solid #334155;display:flex;align-items:center;justify-content:space-between;padding:0 16px;position:sticky;top:0;z-index:50}
+.menu-btn{background:none;border:none;color:#94a3b8;cursor:pointer;padding:8px}
+.topbar-title{font-size:16px;font-weight:600}
+.topbar-right{display:flex;align-items:center;gap:12px}
+.avatar{width:32px;height:32px;border-radius:50%;background:#4caf50;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff}
+.content{padding:16px;max-width:1200px}
+.stats-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:20px}
+.stat-card{background:#1e293b;border:1px solid #334155;border-radius:8px;padding:16px}
+.stat-icon{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;margin-bottom:8px}
+.stat-value{font-size:22px;font-weight:700;color:#fff}
+.stat-label{font-size:11px;color:#94a3b8;margin-top:2px}
+.stat-change{font-size:11px;font-weight:500;margin-top:4px}
+.up{color:#4ade80}.down{color:#f87171}
+.card{background:#1e293b;border:1px solid #334155;border-radius:8px;margin-bottom:16px;overflow:hidden}
+.card-header{padding:14px 16px;border-bottom:1px solid #334155;display:flex;justify-content:space-between;align-items:center}
+.card-title{font-size:14px;font-weight:600;color:#fff}
+.card-body{padding:0}
+.row{padding:12px 16px;border-bottom:1px solid #334155;display:flex;justify-content:space-items;align-items:center;gap:8px}
+.row:last-child{border-bottom:none}
+.row-info{flex:1;min-width:0}
+.row-title{font-size:13px;font-weight:500;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row-sub{font-size:11px;color:#94a3b8;margin-top:2px}
+.badge{font-size:10px;padding:3px 8px;border-radius:12px;font-weight:500}
+.badge-green{background:rgba(74,222,128,.15);color:#4ade80}
+.badge-blue{background:rgba(96,165,250,.15);color:#60a5fa}
+.badge-amber{background:rgba(251,191,36,.15);color:#fbbf24}
+.badge-red{background:rgba(248,113,113,.15);color:#f87171}
+.amount{font-size:13px;font-weight:600;color:#fff;white-space:nowrap}
+.btn-sm{padding:6px 12px;border-radius:6px;font-size:11px;font-weight:500;border:none;cursor:pointer;display:inline-flex;align-items:center;gap:4px}
+.btn-green{background:rgba(74,222,128,.15);color:#4ade80}
+.btn-red{background:rgba(248,113,113,.15);color:#f87171}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:99;display:none}
+.overlay.show{display:block}
+.tabs{display:flex;gap:8px;margin-bottom:16px;border-bottom:1px solid #334155;padding-bottom:8px;overflow-x:auto}
+.tab-btn{padding:8px 14px;border-radius:6px;font-size:12px;font-weight:500;border:none;background:transparent;color:#94a3b8;cursor:pointer;white-space:nowrap}
+.tab-btn.active{background:#4caf50;color:#fff}
+.toggle-switch{width:44px;height:24px;border-radius:12px;background:#334155;position:relative;cursor:pointer;transition:background .2s;flex-shrink:0}
+.toggle-switch.on{background:#4caf50}
+.toggle-switch::after{content:'';position:absolute;width:20px;height:20px;border-radius:50%;background:#fff;top:2px;left:2px;transition:left .2s}
+.toggle-switch.on::after{left:22px}
+.settings-row{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;border-bottom:1px solid #334155}
+.settings-row:last-child{border-bottom:none}
+.slider{width:100%;height:6px;border-radius:3px;background:#334155;outline:none;-webkit-appearance:none;margin:8px 0}
+.slider::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:#4caf50;cursor:pointer}
+.chart-container{display:flex;align-items:end;gap:6px;height:120px;padding:12px 0}
+.chart-bar{flex:1;background:rgba(76,175,80,.6);border-radius:4px 4px 0 0;min-height:8px;transition:height .3s}
+.bar-label{text-align:center;font-size:10px;color:#64748b;margin-top:4px}
+.bar-value{text-align:center;font-size:10px;color:#94a3b8}
+.progress-bar{height:8px;background:#334155;border-radius:4px;overflow:hidden;margin-top:4px}
+.progress-fill{height:100%;border-radius:4px;transition:width .3s}
+@media(min-width:768px){
+.sidebar{transform:translateX(0)!important;position:static;width:auto;min-width:220px}
+.main{display:flex}
+.menu-btn{display:none}
+.content{padding:24px;flex:1}
+.stats-grid{grid-template-columns:repeat(3,1fr)}
+.overlay{display:none!important}
+}
+@media(min-width:1024px){.stats-grid{grid-template-columns:repeat(6,1fr)}}
+</style>
+</head>
+<body>
+<div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+<div class="main">
+<aside class="sidebar" id="sidebar">
+<div class="sidebar-brand">
+<span>ShambaNi</span>
+<span class="badge">Admin</span>
+</div>
+<nav>
+<a href="#" class="nav-item active" onclick="showPage('dashboard',this)">
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+Dashboard
+</a>
+<a href="#" class="nav-item" onclick="showPage('farmers',this)">
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+Farmers
+</a>
+<a href="#" class="nav-item" onclick="showPage('orders',this)">
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+Orders
+</a>
+<a href="#" class="nav-item" onclick="showPage('products',this)">
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg>
+Products
+</a>
+<a href="#" class="nav-item" onclick="showPage('payments',this)">
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg>
+Payments
+</a>
+<a href="#" class="nav-item" onclick="showPage('analytics',this)">
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" x2="18" y1="20" y2="10"/><line x1="12" x2="12" y1="20" y2="4"/><line x1="6" x2="6" y1="20" y2="14"/></svg>
+Analytics
+</a>
+<a href="#" class="nav-item" onclick="showPage('settings',this)">
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+Settings
+</a>
+</nav>
+</aside>
+
+<div style="flex:1">
+<div class="topbar">
+<button class="menu-btn" onclick="toggleSidebar()">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+</button>
+<span class="topbar-title" id="pageTitle">Dashboard</span>
+<div class="topbar-right">
+<div class="avatar">RL</div>
+</div>
+</div>
+
+<div class="content" id="content">
+<!-- Dashboard -->
+<div id="dashboard">
+<div class="stats-grid">
+<div class="stat-card">
+<div class="stat-icon" style="background:rgba(96,165,250,.15);color:#60a5fa">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+</div>
+<div class="stat-value">3,842</div>
+<div class="stat-label">Total Orders</div>
+<div class="stat-change up">+12%</div>
+</div>
+<div class="stat-card">
+<div class="stat-icon" style="background:rgba(74,222,128,.15);color:#4ade80">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/></svg>
+</div>
+<div class="stat-value">156</div>
+<div class="stat-label">Products</div>
+<div class="stat-change up">+8%</div>
+</div>
+<div class="stat-card">
+<div class="stat-icon" style="background:rgba(251,191,36,.15);color:#fbbf24">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+</div>
+<div class="stat-value">1,247</div>
+<div class="stat-label">Farmers</div>
+<div class="stat-change up">+24%</div>
+</div>
+<div class="stat-card">
+<div class="stat-icon" style="background:rgba(192,132,252,.15);color:#c084fc">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg>
+</div>
+<div class="stat-value">UGX 245M</div>
+<div class="stat-label">Revenue</div>
+<div class="stat-change up">+18%</div>
+</div>
+<div class="stat-card">
+<div class="stat-icon" style="background:rgba(248,113,113,.15);color:#f87171">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+</div>
+<div class="stat-value">23</div>
+<div class="stat-label">Pending Orders</div>
+<div class="stat-change down">-5%</div>
+</div>
+<div class="stat-card">
+<div class="stat-icon" style="background:rgba(52,211,153,.15);color:#34d399">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+</div>
+<div class="stat-value">UGX 6.1M</div>
+<div class="stat-label">Commission (2.5%)</div>
+<div class="stat-change up">+18%</div>
+</div>
+</div>
+
+<div class="card">
+<div class="card-header">
+<span class="card-title">Recent Orders</span>
+</div>
+<div class="card-body">
+<div class="row">
+<div class="row-info">
+<div style="display:flex;gap:8px;align-items:center">
+<span style="font-size:11px;color:#94a3b8">#ORD-2847</span>
+<span class="badge badge-green">completed</span>
+</div>
+<div class="row-sub">Kampala Secondary School - Reagan Lutwama</div>
+</div>
+<span class="amount">UGX 575,000</span>
+</div>
+<div class="row">
+<div class="row-info">
+<div style="display:flex;gap:8px;align-items:center">
+<span style="font-size:11px;color:#94a3b8">#ORD-2846</span>
+<span class="badge badge-blue">processing</span>
+</div>
+<div class="row-sub">Green Valley Restaurant - Namukwaya Sarah</div>
+</div>
+<span class="amount">UGX 350,000</span>
+</div>
+<div class="row">
+<div class="row-info">
+<div style="display:flex;gap:8px;align-items:center">
+<span style="font-size:11px;color:#94a3b8">#ORD-2845</span>
+<span class="badge badge-amber">pending</span>
+</div>
+<div class="row-sub">St. Mary's Hospital - Kato John</div>
+</div>
+<span class="amount">UGX 450,000</span>
+</div>
+<div class="row">
+<div class="row-info">
+<div style="display:flex;gap:8px;align-items:center">
+<span style="font-size:11px;color:#94a3b8">#ORD-2844</span>
+<span class="badge badge-green">completed</span>
+</div>
+<div class="row-sub">Jinja Market Vendor - Acen Mary</div>
+</div>
+<span class="amount">UGX 400,000</span>
+</div>
+<div class="row">
+<div class="row-info">
+<div style="display:flex;gap:8px;align-items:center">
+<span style="font-size:11px;color:#94a3b8">#ORD-2843</span>
+<span class="badge badge-blue">processing</span>
+</div>
+<div class="row-sub">Mukono Supermarket - Nakamya Josephine</div>
+</div>
+<span class="amount">UGX 400,000</span>
+</div>
+</div>
+</div>
+
+<div class="card">
+<div class="card-header">
+<span class="card-title">Pending Farmer Approvals <span class="badge badge-amber">3</span></span>
+</div>
+<div class="card-body">
+<div class="row">
+<div class="row-info">
+<div class="row-title">Okello David</div>
+<div class="row-sub">Okello Organic Farms - Gulu - +256 772 345 678</div>
+</div>
+<div style="display:flex;gap:6px;flex-shrink:0">
+<button class="btn-sm btn-green" onclick="this.closest('.row').style.opacity='0.5';setTimeout(()=>this.closest('.row').remove(),300)">Approve</button>
+<button class="btn-sm btn-red" onclick="this.closest('.row').remove()">Reject</button>
+</div>
+</div>
+<div class="row">
+<div class="row-info">
+<div class="row-title">Nambi Rose</div>
+<div class="row-sub">Rose Dairy Farm - Mbarara - +256 701 234 567</div>
+</div>
+<div style="display:flex;gap:6px;flex-shrink:0">
+<button class="btn-sm btn-green" onclick="this.closest('.row').style.opacity='0.5';setTimeout(()=>this.closest('.row').remove(),300)">Approve</button>
+<button class="btn-sm btn-red" onclick="this.closest('.row').remove()">Reject</button>
+</div>
+</div>
+<div class="row">
+<div class="row-info">
+<div class="row-title">Mugisha Peter</div>
+<div class="row-sub">Bwindi Fresh Produce - Kabale - +256 782 345 901</div>
+</div>
+<div style="display:flex;gap:6px;flex-shrink:0">
+<button class="btn-sm btn-green" onclick="this.closest('.row').style.opacity='0.5';setTimeout(()=>this.closest('.row').remove(),300)">Approve</button>
+<button class="btn-sm btn-red" onclick="this.closest('.row').remove()">Reject</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- Farmers -->
+<div id="farmers" style="display:none">
+<div class="tabs">
+<button class="tab-btn active" onclick="filterFarmers('all',this)">All</button>
+<button class="tab-btn" onclick="filterFarmers('approved',this)">Approved</button>
+<button class="tab-btn" onclick="filterFarmers('pending',this)">Pending</button>
+</div>
+<div class="stats-grid" style="grid-template-columns:repeat(3,1fr)">
+<div class="stat-card" style="text-align:center"><div style="font-size:20px;color:#60a5fa;margin-bottom:4px">1,247</div><div style="font-size:10px;color:#94a3b8">Total</div></div>
+<div class="stat-card" style="text-align:center"><div style="font-size:20px;color:#4ade80;margin-bottom:4px">1,244</div><div style="font-size:10px;color:#94a3b8">Approved</div></div>
+<div class="stat-card" style="text-align:center"><div style="font-size:20px;color:#fbbf24;margin-bottom:4px">3</div><div style="font-size:10px;color:#94a3b8">Pending</div></div>
+</div>
+<div id="farmersList"></div>
+</div>
+
+<!-- Orders -->
+<div id="orders" style="display:none">
+<div class="tabs">
+<button class="tab-btn active" onclick="filterOrders('all',this)">All</button>
+<button class="tab-btn" onclick="filterOrders('pending',this)">Pending</button>
+<button class="tab-btn" onclick="filterOrders('processing',this)">Processing</button>
+<button class="tab-btn" onclick="filterOrders('completed',this)">Completed</button>
+</div>
+<div id="ordersList"></div>
+</div>
+
+<!-- Products -->
+<div id="products" style="display:none">
+<div class="tabs">
+<button class="tab-btn active" onclick="filterProducts('all',this)">All</button>
+<button class="tab-btn" onclick="filterProducts('active',this)">Active</button>
+<button class="tab-btn" onclick="filterProducts('inactive',this)">Inactive</button>
+</div>
+<div id="productsList"></div>
+</div>
+
+<!-- Payments -->
+<div id="payments" style="display:none">
+<div class="stats-grid" style="grid-template-columns:repeat(3,1fr)">
+<div class="stat-card" style="text-align:center"><div style="font-size:18px;color:#4ade80;margin-bottom:4px">UGX 245M</div><div style="font-size:10px;color:#94a3b8">Total Revenue</div></div>
+<div class="stat-card" style="text-align:center"><div style="font-size:18px;color:#60a5fa;margin-bottom:4px">UGX 6.1M</div><div style="font-size:10px;color:#94a3b8">Commission (2.5%)</div></div>
+<div class="stat-card" style="text-align:center"><div style="font-size:18px;color:#fbbf24;margin-bottom:4px">3</div><div style="font-size:10px;color:#94a3b8">Pending Withdrawals</div></div>
+</div>
+<div class="tabs">
+<button class="tab-btn active" onclick="showPayTab('txns',this)">Transactions</button>
+<button class="tab-btn" onclick="showPayTab('withdrawals',this)">Withdrawals</button>
+<button class="tab-btn" onclick="showPayTab('methods',this)">Methods</button>
+</div>
+<div id="payTabContent"></div>
+</div>
+
+<!-- Analytics -->
+<div id="analytics" style="display:none">
+<div class="stats-grid">
+<div class="stat-card" style="text-align:center"><div style="font-size:18px;color:#60a5fa;margin-bottom:4px">3,842</div><div style="font-size:10px;color:#94a3b8">Total Orders</div></div>
+<div class="stat-card" style="text-align:center"><div style="font-size:18px;color:#4ade80;margin-bottom:4px">1,247</div><div style="font-size:10px;color:#94a3b8">Active Farmers</div></div>
+<div class="stat-card" style="text-align:center"><div style="font-size:18px;color:#c084fc;margin-bottom:4px">UGX 245M</div><div style="font-size:10px;color:#94a3b8">Total Revenue</div></div>
+<div class="stat-card" style="text-align:center"><div style="font-size:18px;color:#fbbf24;margin-bottom:4px">+24%</div><div style="font-size:10px;color:#94a3b8">Growth (6mo)</div></div>
+</div>
+<div class="card">
+<div class="card-header"><span class="card-title">Monthly Orders</span></div>
+<div style="padding:16px">
+<div class="chart-container">
+<div style="flex:1;text-align:center"><div class="chart-bar" style="height:35%"></div><div class="bar-value">120</div><div class="bar-label">Jan</div></div>
+<div style="flex:1;text-align:center"><div class="chart-bar" style="height:42%"></div><div class="bar-value">145</div><div class="bar-label">Feb</div></div>
+<div style="flex:1;text-align:center"><div class="chart-bar" style="height:53%"></div><div class="bar-value">180</div><div class="bar-label">Mar</div></div>
+<div style="flex:1;text-align:center"><div class="chart-bar" style="height:65%"></div><div class="bar-value">220</div><div class="bar-label">Apr</div></div>
+<div style="flex:1;text-align:center"><div class="chart-bar" style="height:82%"></div><div class="bar-value">280</div><div class="bar-label">May</div></div>
+<div style="flex:1;text-align:center"><div class="chart-bar" style="height:100%"></div><div class="bar-value">340</div><div class="bar-label">Jun</div></div>
+</div>
+</div>
+</div>
+<div class="card">
+<div class="card-header"><span class="card-title">Revenue by Country</span></div>
+<div style="padding:16px">
+<div style="margin-bottom:12px"><div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="font-size:12px;color:#fff">Uganda</span><span style="font-size:12px;color:#94a3b8">UGX 195M (80%)</span></div><div class="progress-bar"><div class="progress-fill" style="width:80%;background:#22c55e"></div></div></div>
+<div style="margin-bottom:12px"><div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="font-size:12px;color:#fff">Kenya</span><span style="font-size:12px;color:#94a3b8">UGX 32M (13%)</span></div><div class="progress-bar"><div class="progress-fill" style="width:13%;background:#3b82f6"></div></div></div>
+<div style="margin-bottom:12px"><div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="font-size:12px;color:#fff">Tanzania</span><span style="font-size:12px;color:#94a3b8">UGX 12M (5%)</span></div><div class="progress-bar"><div class="progress-fill" style="width:5%;background:#f59e0b"></div></div></div>
+<div><div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="font-size:12px;color:#fff">Rwanda</span><span style="font-size:12px;color:#94a3b8">UGX 6M (2%)</span></div><div class="progress-bar"><div class="progress-fill" style="width:2%;background:#a855f7"></div></div></div>
+</div>
+</div>
+</div>
+
+<!-- Settings -->
+<div id="settings" style="display:none">
+<div class="card">
+<div class="card-header"><span class="card-title">Platform Fee</span></div>
+<div style="padding:16px">
+<div style="display:flex;align-items:center;gap:16px">
+<input type="range" class="slider" min="0" max="10" step="0.5" value="2.5" id="feeSlider" style="flex:1" oninput="document.getElementById('feeValue').textContent=this.value+'%'">
+<span style="font-size:22px;font-weight:700;color:#4caf50;min-width:60px;text-align:right" id="feeValue">2.5%</span>
+</div>
+<div style="margin-top:12px;padding:12px;background:#0f172a;border-radius:6px">
+<p style="font-size:12px;color:#94a3b8">At <span style="color:#fff;font-weight:500" id="feeDisplay">2.5%</span>, farmers keep <span style="color:#4ade80;font-weight:500" id="farmerKeep">97.5%</span> of every sale</p>
+</div>
+</div>
+</div>
+<div class="card">
+<div class="card-header"><span class="card-title">Payment Methods</span></div>
+<div class="card-body">
+<div class="settings-row"><div><p style="font-size:13px;color:#fff">Airtel Money</p><p style="font-size:10px;color:#64748b">Fast mobile money across East Africa</p></div><div class="toggle-switch on" onclick="this.classList.toggle('on')"></div></div>
+<div class="settings-row"><div><p style="font-size:13px;color:#fff">MTN Mobile Money</p><p style="font-size:10px;color:#64748b">Uganda's largest mobile network</p></div><div class="toggle-switch on" onclick="this.classList.toggle('on')"></div></div>
+<div class="settings-row"><div><p style="font-size:13px;color:#fff">PayPal</p><p style="font-size:10px;color:#64748b">Handle: @LutwamaReagan</p></div><div class="toggle-switch on" onclick="this.classList.toggle('on')"></div></div>
+<div class="settings-row"><div><p style="font-size:13px;color:#fff">Bank Transfer</p><p style="font-size:10px;color:#64748b">Direct transfers for large orders</p></div><div class="toggle-switch on" onclick="this.classList.toggle('on')"></div></div>
+</div>
+</div>
+<div class="card">
+<div class="card-header"><span class="card-title">Admin Info</span></div>
+<div style="padding:16px">
+<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #334155"><span style="font-size:12px;color:#94a3b8">PayPal Handle</span><span style="font-size:12px;color:#fff;font-weight:500">@LutwamaReagan</span></div>
+<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #334155"><span style="font-size:12px;color:#94a3b8">Platform Fee</span><span style="font-size:12px;color:#fff;font-weight:500">2.5%</span></div>
+<div style="display:flex;justify-content:space-between;padding:8px 0"><span style="font-size:12px;color:#94a3b8">Active Countries</span><span style="font-size:12px;color:#fff;font-weight:500">4/4</span></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<script>
+const farmers=[
+{name:"Reagan Lutwama",farm:"Lutwama Family Farm",district:"Kampala",status:"approved"},
+{name:"Namukwaya Sarah",farm:"Sarah's Fresh Garden",district:"Wakiso",status:"approved"},
+{name:"Kato John",farm:"Kato Banana Plantation",district:"Mukono",status:"approved"},
+{name:"Acen Mary",farm:"Mary's Organic Foods",district:"Gulu",status:"approved"},
+{name:"Nakamya Josephine",farm:"Nakamya Veggie Farm",district:"Kampala",status:"approved"},
+{name:"Ochieng Peter",farm:"Lira Fresh Produce",district:"Lira",status:"approved"},
+{name:"Nantume Grace",farm:"Grace Dairy & Farm",district:"Jinja",status:"approved"},
+{name:"Okello David",farm:"Okello Organic Farms",district:"Gulu",status:"pending"},
+{name:"Nambi Rose",farm:"Rose Dairy Farm",district:"Mbarara",status:"pending"},
+{name:"Mugisha Peter",farm:"Bwindi Fresh Produce",district:"Kabale",status:"pending"}
+];
+
+const orders=[
+{id:"#ORD-2847",buyer:"Kampala Secondary School",farmer:"Reagan Lutwama",amount:"UGX 575,000",status:"completed"},
+{id:"#ORD-2846",buyer:"Green Valley Restaurant",farmer:"Namukwaya Sarah",amount:"UGX 350,000",status:"processing"},
+{id:"#ORD-2845",buyer:"St. Mary's Hospital",farmer:"Kato John",amount:"UGX 450,000",status:"pending"},
+{id:"#ORD-2844",buyer:"Jinja Market Vendor",farmer:"Acen Mary",amount:"UGX 400,000",status:"completed"},
+{id:"#ORD-2843",buyer:"Mukono Supermarket",farmer:"Nakamya Josephine",amount:"UGX 400,000",status:"processing"},
+{id:"#ORD-2842",buyer:"Lira Hotel",farmer:"Ochieng Peter",amount:"UGX 150,000",status:"completed"},
+{id:"#ORD-2841",buyer:"Entebbe Cafe",farmer:"Nantume Grace",amount:"UGX 100,000",status:"pending"}
+];
+
+const products=[
+{name:"Fresh Eggs",category:"Livestock",farmer:"Reagan Lutwama",price:"UGX 11,500",stock:45,status:"active"},
+{name:"Free-Range Chicken",category:"Livestock",farmer:"Reagan Lutwama",price:"UGX 25,000",stock:20,status:"active"},
+{name:"Ripe Tomatoes",category:"Vegetables",farmer:"Namukwaya Sarah",price:"UGX 3,500",stock:120,status:"active"},
+{name:"Green Matooke",category:"Vegetables",farmer:"Kato John",price:"UGX 15,000",stock:60,status:"active"},
+{name:"Fresh Cabbage",category:"Vegetables",farmer:"Nakamya Josephine",price:"UGX 2,000",stock:200,status:"active"},
+{name:"Groundnuts",category:"Nuts & Seeds",farmer:"Acen Mary",price:"UGX 8,000",stock:80,status:"active"},
+{name:"Sweet Potatoes",category:"Root Crops",farmer:"Ochieng Peter",price:"UGX 1,500",stock:150,status:"inactive"},
+{name:"Fresh Milk",category:"Dairy",farmer:"Nantume Grace",price:"UGX 2,000",stock:30,status:"active"}
+];
+
+const statusColors={completed:"badge-green",processing:"badge-blue",pending:"badge-amber",cancelled:"badge-red",active:"badge-green",inactive:"badge-red",approved:"badge-green"};
+
+function toggleSidebar(){document.getElementById('sidebar').classList.toggle('open');document.getElementById('overlay').classList.toggle('show');}
+
+function showPage(page,el){
+document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+if(el)el.classList.add('active');
+['dashboard','farmers','orders','products','payments','analytics','settings'].forEach(p=>document.getElementById(p).style.display='none');
+document.getElementById(page).style.display='block';
+document.getElementById('pageTitle').textContent=page.charAt(0).toUpperCase()+page.slice(1);
+document.getElementById('sidebar').classList.remove('open');
+document.getElementById('overlay').classList.remove('show');
+if(page==='farmers')renderFarmers('all');
+if(page==='orders')renderOrders('all');
+if(page==='products')renderProducts('all');
+if(page==='payments')showPayTab('txns',document.querySelector('#payments .tab-btn'));
+}
+
+function renderFarmers(filter){
+const list=document.getElementById('farmersList');
+const filtered=filter==='all'?farmers:farmers.filter(f=>f.status===filter);
+list.innerHTML='<div class="card"><div class="card-body">'+filtered.map(f=>`
+<div class="row">
+<div class="row-info">
+<div style="display:flex;gap:8px;align-items:center">
+<span class="row-title">${f.name}</span>
+<span class="badge ${statusColors[f.status]}">${f.status}</span>
+</div>
+<div class="row-sub">${f.farm} - ${f.district}</div>
+</div>
+${f.status==='pending'?`<div style="display:flex;gap:6px;flex-shrink:0">
+<button class="btn-sm btn-green" onclick="approveFarmer('${f.name}')">Approve</button>
+<button class="btn-sm btn-red">Reject</button>
+</div>`:''}
+</div>`).join('')+'</div></div>';
+}
+
+function approveFarmer(name){const f=farmers.find(x=>x.name===name);if(f)f.status='approved';renderFarmers('all');}
+
+function filterFarmers(filter,el){
+document.querySelectorAll('#farmers .tab-btn').forEach(t=>t.classList.remove('active'));
+if(el)el.classList.add('active');
+renderFarmers(filter);
+}
+
+function renderOrders(filter){
+const list=document.getElementById('ordersList');
+const filtered=filter==='all'?orders:orders.filter(o=>o.status===filter);
+list.innerHTML='<div class="card"><div class="card-body">'+filtered.map(o=>`
+<div class="row">
+<div class="row-info">
+<div style="display:flex;gap:8px;align-items:center">
+<span style="font-size:11px;color:#94a3b8">${o.id}</span>
+<span class="badge ${statusColors[o.status]}">${o.status}</span>
+</div>
+<div class="row-sub">${o.buyer} - ${o.farmer}</div>
+</div>
+<span class="amount">${o.amount}</span>
+</div>`).join('')+'</div></div>';
+}
+
+function filterOrders(filter,el){
+document.querySelectorAll('#orders .tab-btn').forEach(t=>t.classList.remove('active'));
+if(el)el.classList.add('active');
+renderOrders(filter);
+}
+
+function renderProducts(filter){
+const list=document.getElementById('productsList');
+const filtered=filter==='all'?products:products.filter(p=>p.status===filter);
+list.innerHTML='<div class="card"><div class="card-body">'+filtered.map(p=>`
+<div class="row">
+<div class="row-info">
+<div style="display:flex;gap:8px;align-items:center">
+<span class="row-title">${p.name}</span>
+<span class="badge ${statusColors[p.status]}">${p.status}</span>
+</div>
+<div class="row-sub">${p.category} - ${p.farmer} - Stock: ${p.stock}</div>
+</div>
+<span class="amount">${p.price}</span>
+</div>`).join('')+'</div></div>';
+}
+
+function filterProducts(filter,el){
+document.querySelectorAll('#products .tab-btn').forEach(t=>t.classList.remove('active'));
+if(el)el.classList.add('active');
+renderProducts(filter);
+}
+
+function showPayTab(tab,el){
+if(el){document.querySelectorAll('#payments .tab-btn').forEach(t=>t.classList.remove('active'));el.classList.add('active');}
+const content=document.getElementById('payTabContent');
+if(tab==='txns'){
+content.innerHTML='<div class="card"><div class="card-body">'+
+[{id:"#TXN-1847",amount:"UGX 575,000",method:"Airtel Money",status:"completed"},
+{id:"#TXN-1846",amount:"UGX 350,000",method:"MTN Mobile Money",status:"completed"},
+{id:"#TXN-1845",amount:"UGX 2.1M",method:"Bank Transfer",status:"pending"},
+{id:"#TXN-1844",amount:"UGX 450,000",method:"PayPal",status:"completed"},
+{id:"#TXN-1843",amount:"UGX 400,000",method:"Airtel Money",status:"completed"}]
+.map(t=>`<div class="row"><div class="row-info"><div style="display:flex;gap:8px;align-items:center"><span style="font-size:11px;color:#94a3b8">${t.id}</span><span class="badge ${statusColors[t.status]}">${t.status}</span></div><div class="row-sub">${t.method}</div></div><span class="amount">${t.amount}</span></div>`).join('')+'</div></div>';
+}else if(tab==='withdrawals'){
+content.innerHTML='<div class="card"><div class="card-body">'+
+[{farmer:"Reagan Lutwama",amount:"UGX 2.1M",method:"Bank Transfer",status:"pending"},
+{farmer:"Namukwaya Sarah",amount:"UGX 850,000",method:"MTN Mobile Money",status:"pending"},
+{farmer:"Kato John",amount:"UGX 1.2M",method:"Airtel Money",status:"pending"}]
+.map(w=>`<div class="row"><div class="row-info"><div class="row-title">${w.farmer}</div><div class="row-sub">${w.method}</div><span class="badge ${statusColors[w.status]}">${w.status}</span></div><div style="text-align:right"><span class="amount">${w.amount}</span><div style="display:flex;gap:6px;margin-top:6px;justify-content:flex-end"><button class="btn-sm btn-green" onclick="this.closest('.row').style.opacity='0.5'">Approve</button><button class="btn-sm btn-red">Reject</button></div></div></div>`).join('')+'</div></div>';
+}else{
+content.innerHTML='<div class="card"><div class="card-body">'+
+[{name:"Airtel Money",desc:"Fast mobile money across East Africa",on:true},
+{name:"MTN Mobile Money",desc:"Uganda's largest mobile network",on:true},
+{name:"PayPal",desc:"International payments - @LutwamaReagan",on:true},
+{name:"Bank Transfer",desc:"Direct transfers for large orders",on:true}]
+.map(m=>`<div class="settings-row"><div><p style="font-size:13px;color:#fff">${m.name}</p><p style="font-size:10px;color:#64748b">${m.desc}</p></div><div class="toggle-switch ${m.on?'on':''}" onclick="this.classList.toggle('on')"></div></div>`).join('')+'</div></div>';
+}
+}
+
+// Fee slider
+document.getElementById('feeSlider').addEventListener('input',function(){
+document.getElementById('feeDisplay').textContent=this.value+'%';
+document.getElementById('farmerKeep').textContent=(100-parseFloat(this.value)).toFixed(1)+'%';
+});
+</script>
+</body>
+</html>
