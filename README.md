@@ -30,7 +30,7 @@ A platform connecting smallholder farmers directly with buyers across Uganda, Ke
 1. **Create a GitHub repository** (e.g., `shambani-marketplace`)
 2. **Push this code** to your repository:
    ```bash
-   git remote add origin https://github.com/YOUR_USERNAME/shambani-marketplace.git
+   git remote add origin https://github.com/reaganlutwa/shambani-marketplace.git
    git branch -M main
    git push -u origin main
    ```
@@ -54,7 +54,7 @@ A platform connecting smallholder farmers directly with buyers across Uganda, Ke
 
 Your site will be live at:
 ```
-https://YOUR_USERNAME.github.io/shambani-marketplace/
+https://reaganlutwa.github.io/shambani-marketplace/
 ```
 
 ## Admin Dashboard Access
