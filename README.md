@@ -1,73 +1,102 @@
-# React + TypeScript + Vite
+# ShambaNi - East Africa's Farmers Marketplace
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A platform connecting smallholder farmers directly with buyers across Uganda, Kenya, Tanzania, and Rwanda. Built with React, TypeScript, Tailwind CSS, and Vite.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **Multi-Language Support**: English, Kiswahili, Runyarwanda (Kinyarwanda), Luganda
+- **Admin Dashboard**: Full management panel for payments, orders, farmers, products, analytics
+- **District Coverage**: Uganda (111 districts), Kenya (47 counties), Tanzania (31 regions), Rwanda (30 districts)
+- **USSD Access**: *144# feature for farmers without smartphones
+- **Payment Methods**: PayPal (@LutwamaReagan), Airtel Money, MTN Mobile Money, Bank Transfer
+- **Marketplace**: Browse, search, filter produce by category, district, and country
+- **Cart & Checkout**: Full shopping cart with 2.5% platform fee
+- **Farmer Registration**: 4-step wizard with cascading district selection
+- **Responsive Design**: Works on all devices
 
-## React Compiler
+## Tech Stack
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- React 19 + TypeScript + Vite
+- Tailwind CSS + shadcn/ui
+- HashRouter (GitHub Pages compatible)
+- i18next (4 languages)
+- Zustand (state management)
+- Framer Motion (animations)
 
-## Expanding the ESLint configuration
+## Deployment to GitHub Pages
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+### Option 1: Auto-Deploy via GitHub Actions (Recommended)
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+1. **Create a GitHub repository** (e.g., `shambani-marketplace`)
+2. **Push this code** to your repository:
+   ```bash
+   git remote add origin https://github.com/YOUR_USERNAME/shambani-marketplace.git
+   git branch -M main
+   git push -u origin main
+   ```
+3. **Enable GitHub Pages**:
+   - Go to your repo on GitHub
+   - Click **Settings** → **Pages**
+   - Under "Build and deployment", select **GitHub Actions**
+4. The workflow will automatically build and deploy on every push
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+### Option 2: Manual Deploy
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+1. Build the project:
+   ```bash
+   npm install
+   npm run build
+   ```
+2. The `dist/` folder contains the built files
+3. Copy the contents of `dist/` to your `gh-pages` branch or hosting provider
+
+### After Deployment
+
+Your site will be live at:
+```
+https://YOUR_USERNAME.github.io/shambani-marketplace/
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Admin Dashboard Access
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+Navigate to `/#/admin` to access the admin dashboard.
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+Default admin features:
+- Review and approve farmer registrations
+- Manage orders and payments
+- View analytics and reports
+- Configure platform settings (2.5% fee, payment methods)
+- PayPal handle: @LutwamaReagan
+
+## Pages
+
+| Route | Page |
+|-------|------|
+| `/` | Homepage |
+| `/#/browse` | Browse Produce |
+| `/#/product/:id` | Product Detail |
+| `/#/farmer-register` | Farmer Registration |
+| `/#/ussd` | USSD *144# Feature |
+| `/#/cart` | Cart & Checkout |
+| `/#/about` | About / Mission |
+| `/#/admin` | Admin Dashboard |
+
+## Development
+
+```bash
+# Install dependencies
+npm install
+
+# Start dev server
+npm run dev
+
+# Build for production
+npm run build
+
+# Preview production build
+npm run preview
 ```
+
+## License
+
+Copyright 2026 ShambaNi. All rights reserved.
