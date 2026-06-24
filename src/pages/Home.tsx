@@ -434,7 +434,7 @@ export default function Home() {
               <div className="relative max-w-[280px] md:max-w-[320px] rotate-[-3deg]">
                 <img
                   src="/ussd-phone-mockup.png"
-                  alt="USSD *288# feature phone"
+                  alt="USSD *252# feature phone"
                   className="w-full h-auto drop-shadow-2xl"
                 />
                 {/* Floating particles */}

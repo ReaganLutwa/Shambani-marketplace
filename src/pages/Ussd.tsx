@@ -182,7 +182,7 @@ function HeroSection({ t }: { t: (k: string) => string }) {
                 className="font-space-grotesk text-[48px] md:text-[72px] font-bold text-sun inline-block"
                 style={{ textShadow: '0 0 60px rgba(255,179,0,0.4)' }}
               >
-                *288#
+                *252#
               </span>
             </motion.div>
 
@@ -234,7 +234,7 @@ function HowItWorks({ t }: { t: (k: string) => string }) {
       title: t('ussdPage.step1Title'),
       desc: t('ussdPage.step1Desc'),
       align: 'left' as const,
-      miniScreen: '*288#',
+      miniScreen: '*252#',
     },
     {
       number: '2',
@@ -650,7 +650,7 @@ function CtaBanner({ t }: { t: (k: string) => string }) {
             className="font-space-grotesk text-[36px] md:text-[48px] font-bold text-sun inline-block mb-8"
             style={{ textShadow: '0 0 40px rgba(255,179,0,0.3)' }}
           >
-            *288#
+            *252#
           </span>
         </motion.div>
 
