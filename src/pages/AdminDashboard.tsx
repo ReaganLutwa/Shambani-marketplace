@@ -1,50 +1,82 @@
-import { useTranslation } from 'react-i18next';
-import { LayoutDashboard } from 'lucide-react';
-import { Routes, Route } from 'react-router-dom';
+import { useState, useEffect, useCallback } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import AdminLayout from '@/components/admin/AdminLayout';
+import DashboardOverview from '@/components/admin/DashboardOverview';
+import FarmersView from '@/components/admin/FarmersView';
+import OrdersView from '@/components/admin/OrdersView';
+import ProductsView from '@/components/admin/ProductsView';
+import PaymentsView from '@/components/admin/PaymentsView';
+import AnalyticsView from '@/components/admin/AnalyticsView';
+import SettingsView from '@/components/admin/SettingsView';
 
-function AdminOverview() {
-  const { t } = useTranslation();
+type ViewKey = 'dashboard' | 'farmers' | 'orders' | 'products' | 'payments' | 'analytics' | 'settings';
 
-  return (
-    <div className="min-h-[60dvh] flex flex-col items-center justify-center px-4">
-      <div className="w-20 h-20 bg-admin-accent/20 rounded-full flex items-center justify-center mb-6">
-        <LayoutDashboard className="w-10 h-10 text-admin-accent" />
-      </div>
-      <h1 className="text-3xl md:text-4xl font-poppins font-bold text-admin-text mb-3 text-center">
-        {t('admin.dashboard')}
-      </h1>
-      <p className="text-lg text-admin-muted text-center max-w-md mb-8">
-        {t('common.comingSoon')} — Admin panel with payments, farmer approvals, and analytics
-      </p>
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-4">
-        {[
-          { label: t('admin.farmers'), value: '1,200+' },
-          { label: t('admin.orders'), value: '8,540' },
-          { label: t('admin.payments'), value: 'UGX 450M' },
-          { label: t('admin.platformFee'), value: '2.5%' },
-        ].map((stat) => (
-          <div key={stat.label} className="bg-admin-card border border-admin-border rounded-xl p-4 text-center">
-            <div className="text-xl font-space font-bold text-admin-accent">{stat.value}</div>
-            <div className="text-xs text-admin-muted mt-1">{stat.label}</div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
+const viewMap: Record<string, ViewKey> = {
+  '/admin': 'dashboard',
+  '/admin/': 'dashboard',
+  '/admin/farmers': 'farmers',
+  '/admin/orders': 'orders',
+  '/admin/products': 'products',
+  '/admin/payments': 'payments',
+  '/admin/analytics': 'analytics',
+  '/admin/settings': 'settings',
+};
+
+const reverseViewMap: Record<ViewKey, string> = {
+  dashboard: '/admin',
+  farmers: '/admin/farmers',
+  orders: '/admin/orders',
+  products: '/admin/products',
+  payments: '/admin/payments',
+  analytics: '/admin/analytics',
+  settings: '/admin/settings',
+};
 
 export default function AdminDashboard() {
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  const getViewFromPath = useCallback((): ViewKey => {
+    const path = location.pathname;
+    return viewMap[path] || 'dashboard';
+  }, [location.pathname]);
+
+  const [activeView, setActiveView] = useState<ViewKey>(getViewFromPath);
+
+  useEffect(() => {
+    setActiveView(getViewFromPath());
+  }, [getViewFromPath]);
+
+  const handleNavigate = (view: string) => {
+    const key = view as ViewKey;
+    setActiveView(key);
+    navigate(reverseViewMap[key]);
+  };
+
+  const renderView = () => {
+    switch (activeView) {
+      case 'dashboard':
+        return <DashboardOverview />;
+      case 'farmers':
+        return <FarmersView />;
+      case 'orders':
+        return <OrdersView />;
+      case 'products':
+        return <ProductsView />;
+      case 'payments':
+        return <PaymentsView />;
+      case 'analytics':
+        return <AnalyticsView />;
+      case 'settings':
+        return <SettingsView />;
+      default:
+        return <DashboardOverview />;
+    }
+  };
+
   return (
-    <div className="bg-admin-bg min-h-[60dvh]">
-      <Routes>
-        <Route path="/" element={<AdminOverview />} />
-        <Route path="farmers" element={<AdminOverview />} />
-        <Route path="orders" element={<AdminOverview />} />
-        <Route path="products" element={<AdminOverview />} />
-        <Route path="payments" element={<AdminOverview />} />
-        <Route path="analytics" element={<AdminOverview />} />
-        <Route path="settings" element={<AdminOverview />} />
-      </Routes>
-    </div>
+    <AdminLayout activeView={activeView} onNavigate={handleNavigate}>
+      {renderView()}
+    </AdminLayout>
   );
 }
