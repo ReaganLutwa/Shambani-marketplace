@@ -1145,7 +1145,7 @@ function SuccessView({ t }: { t: (k: string) => string }) {
         transition={{ delay: 0.5, duration: 0.5 }}
         className="mb-8"
       >
-        <span className="font-space-grotesk text-[40px] font-bold text-sun">*252#</span>
+        <span className="font-space-grotesk text-[40px] font-bold text-sun">*220#</span>
       </motion.div>
 
       <motion.div
