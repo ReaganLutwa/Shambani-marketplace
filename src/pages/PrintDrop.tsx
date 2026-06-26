@@ -4,9 +4,10 @@ import { motion } from 'framer-motion';
 import {
   Printer, MessageCircle, Calculator, CheckCircle, Truck,
   ChevronRight, ExternalLink, Phone, Mail, MapPin,
-  FileText, Palette, Building2, PackageCheck,
+  FileText, Palette, Building2, PackageCheck, Upload,
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import FileUpload, { type UploadedFile, type PrintConfig } from '@/components/FileUpload';
 
 /* ───────── Animation variants ───────── */
 const fadeUp = {
@@ -115,6 +116,30 @@ const ecosystemLinks = [
 export default function PrintDrop() {
   const { t } = useTranslation();
   const [hoveredTier, setHoveredTier] = useState<number | null>(null);
+
+  // WhatsApp order handler
+  const handleWhatsAppOrder = (files: UploadedFile[], config: PrintConfig) => {
+    const fileNames = files.map(f => f.name).join(', ');
+    const totalPages = files.reduce((sum, f) => sum + f.pages * config.copies, 0);
+    const pricePerPage = config.printType === 'bw' ? 500 : 1500;
+    const bindingCosts = { none: 0, comb: 5000, staple: 1000 };
+    const subtotal = totalPages * pricePerPage;
+    const bindingCost = files.length > 0 ? bindingCosts[config.binding] * files.length : 0;
+    const total = subtotal + bindingCost;
+
+    const message = encodeURIComponent(
+      `*PrintDrop Order*\n\n` +
+      `Files: ${fileNames}\n` +
+      `Print Type: ${config.printType === 'bw' ? 'Black & White' : 'Color'}\n` +
+      `Copies: ${config.copies}\n` +
+      `Pages: ${totalPages}\n` +
+      `Binding: ${config.binding === 'none' ? 'None' : config.binding === 'comb' ? 'Comb (UGX 5,000)' : 'Staple (UGX 1,000)'}\n` +
+      `Total Estimate: *UGX ${total.toLocaleString()}*\n\n` +
+      `Please confirm and I will send the files for printing.`
+    );
+
+    window.open(`https://wa.me/256708813419?text=${message}`, '_blank');
+  };
 
   return (
     <>
@@ -263,6 +288,41 @@ export default function PrintDrop() {
                 </p>
               </motion.div>
             ))}
+          </motion.div>
+        </div>
+      </section>
+
+      {/* ═══════ UPLOAD FILES ═══════ */}
+      <section className="section-padding bg-[#0F172A]">
+        <div className="container-main">
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: '-100px' }}
+            variants={fadeUp}
+            custom={0}
+            className="text-center mb-10"
+          >
+            <div className="inline-flex items-center gap-2 bg-emerald-500/10 text-emerald-400 px-4 py-2 rounded-full text-sm font-semibold mb-4">
+              <Upload className="w-4 h-4" />
+              Upload & Print
+            </div>
+            <h2 className="font-poppins font-bold text-3xl md:text-[40px] text-[#E2E8F0] leading-tight tracking-[-0.01em]">
+              Upload Your Files
+            </h2>
+            <p className="text-[#94A3B8] mt-3 max-w-lg mx-auto">
+              Drag and drop files, take a photo, or browse. We will calculate the price instantly.
+            </p>
+          </motion.div>
+
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            variants={fadeUp}
+            custom={0.2}
+          >
+            <FileUpload onOrderReady={handleWhatsAppOrder} />
           </motion.div>
         </div>
       </section>
