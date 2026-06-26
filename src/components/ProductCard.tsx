@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
-import { ShoppingCart, MapPin } from 'lucide-react';
+import { ShoppingCart, MapPin, BadgeCheck } from 'lucide-react';
 import { motion } from 'framer-motion';
 import type { Product } from '@/data/products';
 import { useCartStore } from '@/store';
@@ -91,11 +91,33 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
             {product.name}
           </h3>
 
+          {/* Farmer row with photo and verified badge */}
+          <div className="flex items-center gap-2 mb-2">
+            {product.farmerPhoto ? (
+              <img
+                src={product.farmerPhoto}
+                alt={product.farmer}
+                className="w-6 h-6 rounded-full object-cover border border-fog"
+                loading="lazy"
+              />
+            ) : (
+              <div className="w-6 h-6 rounded-full bg-fog flex items-center justify-center">
+                <span className="text-[10px] font-bold text-stone">
+                  {product.farmer.charAt(0)}
+                </span>
+              </div>
+            )}
+            <div className="flex items-center gap-1 min-w-0">
+              <span className="text-sm text-stone truncate">{product.farmer}</span>
+              {product.farmerVerified && (
+                <BadgeCheck className="w-4 h-4 text-leaf shrink-0" title="Verified Farmer" />
+              )}
+            </div>
+          </div>
+
           <div className="flex items-center gap-1 text-stone text-sm mb-2">
             <MapPin className="w-3.5 h-3.5" />
-            <span>
-              {product.farmer} &middot; {product.district}
-            </span>
+            <span>{product.district}</span>
           </div>
 
           <StarRating rating={product.rating} reviews={product.reviews} size="sm" />
