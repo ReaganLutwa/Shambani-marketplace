@@ -1,808 +1,995 @@
-import { useState, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
-  LayoutDashboard, Users, ShoppingCart, Package,
-  Printer, CreditCard, BarChart3, Settings,
-  Menu, X, LogOut, Leaf, TrendingUp, Clock, CheckCircle, DollarSign,
-  AlertTriangle, Search, ChevronDown, Play, Truck, CheckCheck,
-  ArrowUpRight, ArrowDownRight, Filter,
+  LayoutDashboard, Users, ShoppingCart, Package, Printer, CreditCard,
+  BarChart3, Settings, LogOut, Eye, EyeOff, Lock, CheckCircle, XCircle,
+  Clock, ChevronRight, TrendingUp, TrendingDown, DollarSign, Download,
+  Store, AlertCircle, Search, Filter, ArrowUpDown, Plus, Trash2, Edit,
+  FileText, Image, Phone, Mail, MapPin, Shield, Bell
 } from 'lucide-react';
 
-/* ═══════════════════════════════════════════════
-   TYPES
-   ═══════════════════════════════════════════════ */
-type OrderStatus = 'pending' | 'confirmed' | 'in_transit' | 'delivered';
-type PrintStatus = 'pending' | 'printing' | 'ready' | 'delivered';
-type ProductStatus = 'active' | 'flagged' | 'out_of_stock';
-type FarmerStatus = 'approved' | 'pending' | 'rejected';
-type PaymentStatus = 'released' | 'held';
-type WithdrawalStatus = 'pending' | 'released';
-
-type ViewKey = 'dashboard' | 'farmers' | 'orders' | 'products' | 'printdrop' | 'payments' | 'analytics' | 'settings';
-
-/* ═══════════════════════════════════════════════
-   INITIAL DATA
-   ═══════════════════════════════════════════════ */
-const initialFarmers = [
-  { id: 1, name: 'Reagan Lutwama', farm: 'Lutwama Family Farm', location: 'Mpigi, Uganda', phone: '+256 708 813 419', products: 'Eggs, Chicken, Vegetables', status: 'approved' as FarmerStatus, joined: '2024-01-15' },
-  { id: 2, name: 'Nakamya Josephine', farm: 'Josie Gardens', location: 'Wakiso, Uganda', phone: '+256 701 234 567', products: 'Cabbage, Tomatoes', status: 'approved' as FarmerStatus, joined: '2024-02-20' },
-  { id: 3, name: 'Kato John', farm: 'Kato Farms', location: 'Mukono, Uganda', phone: '+256 702 345 678', products: 'Matooke, Bananas', status: 'pending' as FarmerStatus, joined: '2025-06-20' },
-  { id: 4, name: 'Acen Mary', farm: 'Mary\'s Groundnuts', location: 'Gulu, Uganda', phone: '+256 703 456 789', products: 'Groundnuts, Simsim', status: 'approved' as FarmerStatus, joined: '2024-03-10' },
-  { id: 5, name: 'Mutebi David', farm: 'Pineapple Paradise', location: 'Masaka, Uganda', phone: '+256 704 567 890', products: 'Pineapples, Mangoes', status: 'approved' as FarmerStatus, joined: '2024-04-05' },
-];
-
-const initialOrders = [
-  { id: '#4521', buyer: 'Mukasa David', farmer: 'Reagan Lutwama', items: '5 trays eggs', total: 57500, status: 'confirmed' as OrderStatus, date: '2025-06-26 14:30' },
-  { id: '#4520', buyer: 'Nantume Grace', farmer: 'Nakamya Josephine', items: '20 heads cabbage', total: 40000, status: 'delivered' as OrderStatus, date: '2025-06-26 11:15' },
-  { id: '#4519', buyer: 'Okello James', farmer: 'Acen Mary', items: '10 kg groundnuts', total: 80000, status: 'in_transit' as OrderStatus, date: '2025-06-26 09:00' },
-  { id: '#4518', buyer: 'Kwagala Jane', farmer: 'Kato John', items: '3 bunches matooke', total: 45000, status: 'pending' as OrderStatus, date: '2025-06-25 16:45' },
-  { id: '#4517', buyer: 'Ssempala Michael', farmer: 'Mutebi David', items: '8 pineapples', total: 40000, status: 'delivered' as OrderStatus, date: '2025-06-25 10:20' },
-  { id: '#4516', buyer: 'Namugenyi Sarah', farmer: 'Reagan Lutwama', items: '3 trays eggs, 2 chickens', total: 51600, status: 'confirmed' as OrderStatus, date: '2025-06-25 08:00' },
-  { id: '#4515', buyer: 'Otim Robert', farmer: 'Nakamya Josephine', items: '15 heads cabbage, 5 kg tomatoes', total: 52500, status: 'in_transit' as OrderStatus, date: '2025-06-24 15:30' },
-];
-
-const initialProducts = [
-  { id: 1, name: 'Fresh Eggs (Tray)', category: 'Dairy', farmer: 'Reagan Lutwama', price: 11500, stock: 45, status: 'active' as ProductStatus },
-  { id: 2, name: 'Whole Chicken', category: 'Livestock', farmer: 'Reagan Lutwama', price: 18000, stock: 20, status: 'active' as ProductStatus },
-  { id: 3, name: 'Green Cabbage', category: 'Vegetables', farmer: 'Nakamya Josephine', price: 2000, stock: 60, status: 'active' as ProductStatus },
-  { id: 4, name: 'Red Tomatoes', category: 'Vegetables', farmer: 'Nakamya Josephine', price: 3500, stock: 0, status: 'out_of_stock' as ProductStatus },
-  { id: 5, name: 'Matooke (Bunch)', category: 'Vegetables', farmer: 'Kato John', price: 15000, stock: 30, status: 'active' as ProductStatus },
-  { id: 6, name: 'Groundnuts (kg)', category: 'Grains', farmer: 'Acen Mary', price: 8000, stock: 100, status: 'flagged' as ProductStatus },
-];
-
-const initialPrintOrders = [
-  { id: 'PRT-0048', customer: 'Sarah Kimani', type: 'color' as const, pages: 25, cost: 37500, location: 'Kampala, Nakasero', status: 'pending' as PrintStatus },
-  { id: 'PRT-0047', customer: 'David Mwangi', type: 'bw' as const, pages: 120, cost: 60000, location: 'Wakiso, Entebbe Rd', status: 'pending' as PrintStatus },
-  { id: 'PRT-0046', customer: 'Grace Akello', type: 'bw' as const, pages: 45, cost: 22500, location: 'Mpigi, Town', status: 'printing' as PrintStatus },
-  { id: 'PRT-0045', customer: 'Michael Ouma', type: 'color' as const, pages: 12, cost: 18000, location: 'Kampala, Bugolobi', status: 'printing' as PrintStatus },
-  { id: 'PRT-0044', customer: 'Jane Akello', type: 'bw' as const, pages: 80, cost: 40000, location: 'Kampala, Ntinda', status: 'ready' as PrintStatus },
-  { id: 'PRT-0043', customer: 'John Mukasa', type: 'color' as const, pages: 8, cost: 12000, location: 'Mukono, Seeta', status: 'ready' as PrintStatus },
-  { id: 'PRT-0042', customer: 'Patricia N.', type: 'bw' as const, pages: 60, cost: 30000, location: 'Wakiso, Kira', status: 'delivered' as PrintStatus },
-  { id: 'PRT-0041', customer: 'Esther Nalubega', type: 'color' as const, pages: 15, cost: 22500, location: 'Wakiso, Namasuba', status: 'delivered' as PrintStatus },
-];
-
-const initialTransactions = [
-  { id: 'TXN-001', from: 'Mukasa David', method: 'Airtel Money', amount: 57500, fee: 1438, net: 56062, status: 'released' as PaymentStatus },
-  { id: 'TXN-002', from: 'Nantume Grace', method: 'MTN Mobile Money', amount: 40000, fee: 1000, net: 39000, status: 'released' as PaymentStatus },
-  { id: 'TXN-003', from: 'Okello James', method: 'PayPal', amount: 80000, fee: 2000, net: 78000, status: 'held' as PaymentStatus },
-  { id: 'TXN-004', from: 'Kwagala Jane', method: 'Airtel Money', amount: 45000, fee: 1125, net: 43875, status: 'held' as PaymentStatus },
-  { id: 'TXN-005', from: 'Ssempala Michael', method: 'Bank Transfer', amount: 40000, fee: 1000, net: 39000, status: 'released' as PaymentStatus },
-];
-
-const initialWithdrawals = [
-  { id: 'WD-001', farmer: 'Reagan Lutwama', amount: 95000, status: 'pending' as WithdrawalStatus },
-  { id: 'WD-002', farmer: 'Nakamya Josephine', amount: 79000, status: 'pending' as WithdrawalStatus },
-  { id: 'WD-003', farmer: 'Acen Mary', amount: 117000, status: 'released' as WithdrawalStatus },
-];
-
-const navItems: { key: ViewKey; icon: typeof LayoutDashboard; label: string }[] = [
-  { key: 'dashboard', icon: LayoutDashboard, label: 'Dashboard' },
-  { key: 'farmers', icon: Users, label: 'Farmers' },
-  { key: 'orders', icon: ShoppingCart, label: 'Orders' },
-  { key: 'products', icon: Package, label: 'Products' },
-  { key: 'printdrop', icon: Printer, label: 'PrintDrop' },
-  { key: 'payments', icon: CreditCard, label: 'Payments' },
-  { key: 'analytics', icon: BarChart3, label: 'Analytics' },
-  { key: 'settings', icon: Settings, label: 'Settings' },
-];
-
-/* ═══════════════════════════════════════════════
-   STATUS HELPERS
-   ═══════════════════════════════════════════════ */
-function OrderStatusBadge({ status }: { status: string }) {
-  const map: Record<string, string> = {
-    pending: 'bg-amber-500/10 text-amber-400 border-amber-500/20',
-    confirmed: 'bg-blue-500/10 text-blue-400 border-blue-500/20',
-    in_transit: 'bg-purple-500/10 text-purple-400 border-purple-500/20',
-    delivered: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
-    printing: 'bg-blue-500/10 text-blue-400 border-blue-500/20',
-    ready: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
-    active: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
-    flagged: 'bg-red-500/10 text-red-400 border-red-500/20',
-    out_of_stock: 'bg-gray-500/10 text-gray-400 border-gray-500/20',
-    approved: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
-    rejected: 'bg-red-500/10 text-red-400 border-red-500/20',
-    released: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
-    held: 'bg-amber-500/10 text-amber-400 border-amber-500/20',
-  };
-  return (
-    <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium border ${map[status] || map.pending}`}>
-      {status.replace(/_/g, ' ')}
-    </span>
-  );
+/* ─── Types ─── */
+interface Farmer {
+  id: number;
+  name: string;
+  phone: string;
+  location: string;
+  status: 'pending' | 'approved' | 'rejected';
+  products: number;
+  joined: string;
 }
 
-/* ═══════════════════════════════════════════════
-   MAIN COMPONENT
-   ═══════════════════════════════════════════════ */
-export default function AdminDashboard() {
-  const [activeView, setActiveView] = useState<ViewKey>('dashboard');
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+interface Order {
+  id: string;
+  customer: string;
+  product: string;
+  amount: number;
+  status: 'pending' | 'confirmed' | 'shipped' | 'delivered';
+  date: string;
+  commission: number;
+}
 
-  /* ── State ── */
-  const [farmers, setFarmers] = useState(initialFarmers);
-  const [orders, setOrders] = useState(initialOrders);
-  const [products, setProducts] = useState(initialProducts);
-  const [printOrders, setPrintOrders] = useState(initialPrintOrders);
-  const [transactions] = useState(initialTransactions);
-  const [withdrawals, setWithdrawals] = useState(initialWithdrawals);
-  const [platformFee, setPlatformFee] = useState(2.5);
+interface Product {
+  id: number;
+  name: string;
+  farmer: string;
+  price: number;
+  stock: number;
+  status: 'active' | 'inactive';
+  category: string;
+}
 
-  /* ── Search states ── */
-  const [searchFarmers, setSearchFarmers] = useState('');
-  const [searchOrders, setSearchOrders] = useState('');
-  const [searchPrint, setSearchPrint] = useState('');
-  const [searchProducts, setSearchProducts] = useState('');
+interface PrintOrder {
+  id: string;
+  customer: string;
+  files: number;
+  pages: number;
+  type: string;
+  amount: number;
+  status: 'received' | 'printing' | 'ready' | 'delivered';
+  date: string;
+}
 
-  /* ── Filter states ── */
-  const [filterFarmerStatus, setFilterFarmerStatus] = useState<FarmerStatus | 'all'>('all');
-  const [filterOrderStatus, setFilterOrderStatus] = useState<OrderStatus | 'all'>('all');
-  const [filterPrintStatus, setFilterPrintStatus] = useState<PrintStatus | 'all'>('all');
+interface Transaction {
+  id: string;
+  type: 'order' | 'commission' | 'withdrawal' | 'print';
+  description: string;
+  amount: number;
+  date: string;
+}
 
-  /* ── Stats ── */
-  const totalRevenue = transactions.filter(t => t.status === 'released').reduce((s, t) => s + t.amount, 0)
-    + transactions.filter(t => t.status === 'held').reduce((s, t) => s + t.amount, 0);
-  const commissionEarned = transactions.reduce((s, t) => s + t.fee, 0);
-  const pendingOrdersCount = orders.filter(o => o.status === 'pending').length;
-  const pendingFarmersCount = farmers.filter(f => f.status === 'pending').length;
+interface Withdrawal {
+  id: string;
+  farmer: string;
+  amount: number;
+  status: 'pending' | 'processed';
+  requested: string;
+}
 
-  /* ═══════════════════════════════════════════════
-     ACTIONS
-     ═══════════════════════════════════════════════ */
+/* ─── Mock Data ─── */
+const initialFarmers: Farmer[] = [
+  { id: 1, name: 'John Okello', phone: '+256 701 234 567', location: 'Gulu', status: 'approved', products: 12, joined: '2024-01-15' },
+  { id: 2, name: 'Mary Auma', phone: '+256 702 345 678', location: 'Lira', status: 'pending', products: 0, joined: '2024-03-20' },
+  { id: 3, name: 'Peter Ochien', phone: '+256 703 456 789', location: 'Mbale', status: 'approved', products: 8, joined: '2024-02-10' },
+  { id: 4, name: 'Grace Nakato', phone: '+256 704 567 890', location: 'Jinja', status: 'pending', products: 0, joined: '2024-04-05' },
+  { id: 5, name: 'David Ouma', phone: '+256 705 678 901', location: 'Arua', status: 'approved', products: 15, joined: '2024-01-28' },
+];
 
-  // Approve/Reject farmer
-  const updateFarmerStatus = useCallback((id: number, status: FarmerStatus) => {
-    setFarmers(prev => prev.map(f => f.id === id ? { ...f, status } : f));
-  }, []);
+const initialOrders: Order[] = [
+  { id: 'ORD-001', customer: 'Alice Mugisha', product: 'Organic Maize (5kg)', amount: 25000, status: 'delivered', date: '2024-05-20', commission: 625 },
+  { id: 'ORD-002', customer: 'Robert Kato', product: 'Fresh Beans (2kg)', amount: 18000, status: 'shipped', date: '2024-05-21', commission: 450 },
+  { id: 'ORD-003', customer: 'Sarah Nambi', product: 'Sweet Potatoes (3kg)', amount: 15000, status: 'pending', date: '2024-05-22', commission: 375 },
+  { id: 'ORD-004', customer: 'James Okot', product: 'Groundnuts (1kg)', amount: 12000, status: 'confirmed', date: '2024-05-22', commission: 300 },
+  { id: 'ORD-005', customer: 'Patricia Achan', product: 'Sunflower Oil (1L)', amount: 22000, status: 'pending', date: '2024-05-23', commission: 550 },
+];
 
-  // Update order status
-  const nextOrderStatus: Record<OrderStatus, OrderStatus | null> = {
-    pending: 'confirmed',
-    confirmed: 'in_transit',
-    in_transit: 'delivered',
-    delivered: null,
-  };
-  const advanceOrder = useCallback((id: string) => {
-    setOrders(prev => prev.map(o => {
-      const next = nextOrderStatus[o.status];
-      return o.id === id && next ? { ...o, status: next } : o;
-    }));
-  }, []);
+const initialProducts: Product[] = [
+  { id: 1, name: 'Organic Maize', farmer: 'John Okello', price: 5000, stock: 50, status: 'active', category: 'Grains' },
+  { id: 2, name: 'Fresh Beans', farmer: 'Peter Ochien', price: 9000, stock: 30, status: 'active', category: 'Legumes' },
+  { id: 3, name: 'Sweet Potatoes', farmer: 'David Ouma', price: 5000, stock: 40, status: 'active', category: 'Tubers' },
+  { id: 4, name: 'Groundnuts', farmer: 'John Okello', price: 12000, stock: 25, status: 'inactive', category: 'Nuts' },
+  { id: 5, name: 'Sunflower Oil', farmer: 'David Ouma', price: 22000, stock: 15, status: 'active', category: 'Oils' },
+  { id: 6, name: 'Sorghum Flour', farmer: 'Peter Ochien', price: 7000, stock: 20, status: 'active', category: 'Flour' },
+];
 
-  // Update print status
-  const nextPrintStatus: Record<PrintStatus, PrintStatus | null> = {
-    pending: 'printing',
-    printing: 'ready',
-    ready: 'delivered',
-    delivered: null,
-  };
-  const advancePrint = useCallback((id: string) => {
-    setPrintOrders(prev => prev.map(o => {
-      const next = nextPrintStatus[o.status];
-      return o.id === id && next ? { ...o, status: next } : o;
-    }));
-  }, []);
+const initialPrintOrders: PrintOrder[] = [
+  { id: 'PRT-001', customer: 'Dr. Ssentamu', files: 3, pages: 45, type: 'B&W', amount: 22500, status: 'ready', date: '2024-05-21' },
+  { id: 'PRT-002', customer: 'Kampala Clinic', files: 1, pages: 12, type: 'Color', amount: 18000, status: 'printing', date: '2024-05-22' },
+  { id: 'PRT-003', customer: 'Bright School', files: 5, pages: 120, type: 'B&W', amount: 60000, status: 'received', date: '2024-05-23' },
+  { id: 'PRT-004', customer: 'Sarah Nakityo', files: 2, pages: 28, type: 'Color', amount: 42000, status: 'delivered', date: '2024-05-20' },
+];
 
-  // Toggle product status
-  const toggleProduct = useCallback((id: number) => {
-    setProducts(prev => prev.map(p => {
-      if (p.id !== id) return p;
-      const next: ProductStatus = p.status === 'active' ? 'flagged' : p.status === 'flagged' ? 'out_of_stock' : 'active';
-      return { ...p, status: next };
-    }));
-  }, []);
+const initialTransactions: Transaction[] = [
+  { id: 'TXN-001', type: 'order', description: 'Order ORD-001 commission', amount: 625, date: '2024-05-20' },
+  { id: 'TXN-002', type: 'order', description: 'Order ORD-002 commission', amount: 450, date: '2024-05-21' },
+  { id: 'TXN-003', type: 'print', description: 'Print PRT-001 order', amount: 22500, date: '2024-05-21' },
+  { id: 'TXN-004', type: 'commission', description: 'Platform fee collection', amount: 1225, date: '2024-05-22' },
+  { id: 'TXN-005', type: 'print', description: 'Print PRT-002 order', amount: 18000, date: '2024-05-22' },
+];
 
-  // Approve withdrawal
-  const approveWithdrawal = useCallback((id: string) => {
-    setWithdrawals(prev => prev.map(w => w.id === id ? { ...w, status: 'released' as WithdrawalStatus } : w));
-  }, []);
+const initialWithdrawals: Withdrawal[] = [
+  { id: 'WTH-001', farmer: 'John Okello', amount: 150000, status: 'pending', requested: '2024-05-22' },
+  { id: 'WTH-002', farmer: 'David Ouma', amount: 230000, status: 'pending', requested: '2024-05-23' },
+];
 
-  /* ═══════════════════════════════════════════════
-     FILTERED DATA
-     ═══════════════════════════════════════════════ */
-  const filteredFarmers = farmers.filter(f => {
-    const matchesSearch = !searchFarmers || f.name.toLowerCase().includes(searchFarmers.toLowerCase()) || f.farm.toLowerCase().includes(searchFarmers.toLowerCase());
-    const matchesStatus = filterFarmerStatus === 'all' || f.status === filterFarmerStatus;
-    return matchesSearch && matchesStatus;
-  });
+const ADMIN_PASSWORD = 'admin123';
 
-  const filteredOrders = orders.filter(o => {
-    const matchesSearch = !searchOrders || o.buyer.toLowerCase().includes(searchOrders.toLowerCase()) || o.id.toLowerCase().includes(searchOrders.toLowerCase());
-    const matchesStatus = filterOrderStatus === 'all' || o.status === filterOrderStatus;
-    return matchesSearch && matchesStatus;
-  });
+/* ─── Login Screen ─── */
+function LoginScreen({ onLogin }: { onLogin: () => void }) {
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState('');
+  const [attempts, setAttempts] = useState(0);
+  const [locked, setLocked] = useState(false);
+  const [lockTimer, setLockTimer] = useState(0);
 
-  const filteredPrintOrders = printOrders.filter(o => {
-    const matchesSearch = !searchPrint || o.customer.toLowerCase().includes(searchPrint.toLowerCase()) || o.id.toLowerCase().includes(searchPrint.toLowerCase());
-    const matchesStatus = filterPrintStatus === 'all' || o.status === filterPrintStatus;
-    return matchesSearch && matchesStatus;
-  });
+  useEffect(() => {
+    if (locked && lockTimer > 0) {
+      const t = setTimeout(() => setLockTimer(lockTimer - 1), 1000);
+      return () => clearTimeout(t);
+    }
+    if (locked && lockTimer === 0) {
+      setLocked(false);
+      setAttempts(0);
+    }
+  }, [locked, lockTimer]);
 
-  const filteredProducts = products.filter(p => !searchProducts || p.name.toLowerCase().includes(searchProducts.toLowerCase()) || p.farmer.toLowerCase().includes(searchProducts.toLowerCase()));
-
-  /* ═══════════════════════════════════════════════
-     VIEWS
-     ═══════════════════════════════════════════════ */
-
-  const DashboardView = () => (
-    <div className="space-y-6">
-      {/* Stats */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        {[
-          { label: 'Total Orders', value: orders.length.toString(), icon: ShoppingCart, color: 'text-emerald-400', sub: `${pendingOrdersCount} pending` },
-          { label: 'Total Farmers', value: farmers.length.toString(), icon: Users, color: 'text-emerald-400', sub: `${pendingFarmersCount} pending approval` },
-          { label: 'Total Revenue', value: `UGX ${(totalRevenue / 1000).toFixed(0)}K`, icon: DollarSign, color: 'text-amber-400', sub: 'All time' },
-          { label: 'Your Commission', value: `UGX ${(commissionEarned / 1000).toFixed(0)}K`, icon: TrendingUp, color: 'text-emerald-400', sub: `${platformFee}% platform fee` },
-        ].map(s => (
-          <div key={s.label} className="bg-[#1E293B] border border-[#334155] rounded-xl p-5 hover:border-emerald-500/30 transition-colors">
-            <div className="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center mb-3">
-              <s.icon className={`w-5 h-5 ${s.color}`} />
-            </div>
-            <div className="font-bold text-2xl text-[#E2E8F0]">{s.value}</div>
-            <div className="text-[13px] text-[#94A3B8] mt-0.5">{s.label}</div>
-            <div className="text-[11px] text-[#64748B] mt-1">{s.sub}</div>
-          </div>
-        ))}
-      </div>
-
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        {[
-          { label: 'Pending Orders', value: pendingOrdersCount.toString(), icon: Clock, color: 'text-amber-400' },
-          { label: 'Pending Farmers', value: pendingFarmersCount.toString(), icon: AlertTriangle, color: 'text-red-400' },
-          { label: 'Print Orders', value: printOrders.length.toString(), icon: Printer, color: 'text-emerald-400' },
-          { label: 'Products Listed', value: products.length.toString(), icon: Package, color: 'text-emerald-400' },
-        ].map(s => (
-          <div key={s.label} className="bg-[#1E293B] border border-[#334155] rounded-xl p-5">
-            <div className="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center mb-3">
-              <s.icon className={`w-5 h-5 ${s.color}`} />
-            </div>
-            <div className="font-bold text-2xl text-[#E2E8F0]">{s.value}</div>
-            <div className="text-[13px] text-[#94A3B8] mt-0.5">{s.label}</div>
-          </div>
-        ))}
-      </div>
-
-      {/* Recent Orders */}
-      <div className="bg-[#1E293B] border border-[#334155] rounded-xl overflow-hidden">
-        <div className="px-5 py-4 border-b border-[#334155] flex items-center justify-between">
-          <h3 className="font-semibold text-[#E2E8F0]">Recent Orders</h3>
-          <button onClick={() => setActiveView('orders')} className="text-sm text-emerald-400 hover:text-emerald-300 flex items-center gap-1">
-            View All <ArrowUpRight className="w-3.5 h-3.5" />
-          </button>
-        </div>
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead><tr className="border-b border-[#334155]">
-              {['Order ID', 'Buyer', 'Farmer', 'Items', 'Total', 'Status'].map(h => (
-                <th key={h} className="text-left px-4 py-3 text-xs font-semibold text-[#94A3B8] uppercase">{h}</th>
-              ))}
-            </tr></thead>
-            <tbody className="divide-y divide-[#334155]">
-              {orders.slice(0, 5).map(o => (
-                <tr key={o.id} className="hover:bg-white/[0.02]">
-                  <td className="px-4 py-3 text-sm font-semibold text-[#E2E8F0]">{o.id}</td>
-                  <td className="px-4 py-3 text-sm text-[#E2E8F0]">{o.buyer}</td>
-                  <td className="px-4 py-3 text-sm text-[#E2E8F0]">{o.farmer}</td>
-                  <td className="px-4 py-3 text-sm text-[#94A3B8]">{o.items}</td>
-                  <td className="px-4 py-3 text-sm text-[#E2E8F0]">UGX {o.total.toLocaleString()}</td>
-                  <td className="px-4 py-3"><OrderStatusBadge status={o.status} /></td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      {/* Commission Summary */}
-      <div className="bg-[#1E293B] border border-[#334155] rounded-xl p-6">
-        <h3 className="font-semibold text-[#E2E8F0] mb-4 flex items-center gap-2">
-          <TrendingUp className="w-5 h-5 text-emerald-400" />
-          Commission Summary ({platformFee}% Platform Fee)
-        </h3>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div className="bg-white/5 rounded-lg p-4">
-            <p className="text-xs text-[#94A3B8] mb-1">Total Sales</p>
-            <p className="text-xl font-bold text-[#E2E8F0]">UGX {totalRevenue.toLocaleString()}</p>
-          </div>
-          <div className="bg-emerald-500/10 rounded-lg p-4 border border-emerald-500/20">
-            <p className="text-xs text-emerald-400 mb-1">Your Commission ({platformFee}%)</p>
-            <p className="text-xl font-bold text-emerald-400">UGX {commissionEarned.toLocaleString()}</p>
-          </div>
-          <div className="bg-white/5 rounded-lg p-4">
-            <p className="text-xs text-[#94A3B8] mb-1">Paid to Farmers</p>
-            <p className="text-xl font-bold text-[#E2E8F0]">UGX {(totalRevenue - commissionEarned).toLocaleString()}</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-
-  const FarmersView = () => (
-    <div className="space-y-4">
-      <div className="flex flex-col sm:flex-row gap-3">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#94A3B8]" />
-          <input value={searchFarmers} onChange={e => setSearchFarmers(e.target.value)} placeholder="Search farmers..."
-            className="w-full h-10 pl-9 pr-4 bg-[#1E293B] border border-[#334155] rounded-lg text-sm text-[#E2E8F0] placeholder:text-[#64748B] focus:outline-none focus:border-emerald-500" />
-        </div>
-        <div className="relative">
-          <select value={filterFarmerStatus} onChange={e => setFilterFarmerStatus(e.target.value as FarmerStatus | 'all')}
-            className="h-10 px-4 pr-8 bg-[#1E293B] border border-[#334155] rounded-lg text-sm text-[#E2E8F0] focus:outline-none focus:border-emerald-500 appearance-none">
-            <option value="all">All Status</option><option value="approved">Approved</option><option value="pending">Pending</option><option value="rejected">Rejected</option>
-          </select>
-          <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-[#94A3B8] pointer-events-none" />
-        </div>
-      </div>
-      <div className="bg-[#1E293B] border border-[#334155] rounded-xl overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead><tr className="border-b border-[#334155]">
-              {['Name', 'Farm', 'Location', 'Products', 'Status', 'Actions'].map(h => <th key={h} className="text-left px-4 py-3 text-xs font-semibold text-[#94A3B8] uppercase">{h}</th>)}
-            </tr></thead>
-            <tbody className="divide-y divide-[#334155]">
-              {filteredFarmers.map(f => (
-                <tr key={f.id} className="hover:bg-white/[0.02]">
-                  <td className="px-4 py-3"><div className="text-sm font-semibold text-[#E2E8F0]">{f.name}</div><div className="text-xs text-[#64748B]">{f.phone}</div></td>
-                  <td className="px-4 py-3 text-sm text-[#E2E8F0]">{f.farm}</td>
-                  <td className="px-4 py-3 text-sm text-[#94A3B8]">{f.location}</td>
-                  <td className="px-4 py-3 text-sm text-[#94A3B8]">{f.products}</td>
-                  <td className="px-4 py-3"><OrderStatusBadge status={f.status} /></td>
-                  <td className="px-4 py-3">
-                    <div className="flex gap-2">
-                      {f.status === 'pending' && (
-                        <>
-                          <button onClick={() => updateFarmerStatus(f.id, 'approved')} className="px-3 py-1.5 bg-emerald-500/10 text-emerald-400 rounded-lg text-xs hover:bg-emerald-500/20 transition-colors">Approve</button>
-                          <button onClick={() => updateFarmerStatus(f.id, 'rejected')} className="px-3 py-1.5 bg-red-500/10 text-red-400 rounded-lg text-xs hover:bg-red-500/20 transition-colors">Reject</button>
-                        </>
-                      )}
-                      {f.status === 'approved' && (
-                        <button onClick={() => updateFarmerStatus(f.id, 'pending')} className="px-3 py-1.5 bg-amber-500/10 text-amber-400 rounded-lg text-xs hover:bg-amber-500/20 transition-colors">Suspend</button>
-                      )}
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-        {filteredFarmers.length === 0 && <div className="text-center py-12 text-[#64748B]">No farmers found</div>}
-      </div>
-    </div>
-  );
-
-  const OrdersView = () => (
-    <div className="space-y-4">
-      <div className="flex flex-col sm:flex-row gap-3">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#94A3B8]" />
-          <input value={searchOrders} onChange={e => setSearchOrders(e.target.value)} placeholder="Search orders..."
-            className="w-full h-10 pl-9 pr-4 bg-[#1E293B] border border-[#334155] rounded-lg text-sm text-[#E2E8F0] placeholder:text-[#64748B] focus:outline-none focus:border-emerald-500" />
-        </div>
-        <div className="relative">
-          <select value={filterOrderStatus} onChange={e => setFilterOrderStatus(e.target.value as OrderStatus | 'all')}
-            className="h-10 px-4 pr-8 bg-[#1E293B] border border-[#334155] rounded-lg text-sm text-[#E2E8F0] focus:outline-none focus:border-emerald-500 appearance-none">
-            <option value="all">All Status</option><option value="pending">Pending</option><option value="confirmed">Confirmed</option><option value="in_transit">In Transit</option><option value="delivered">Delivered</option>
-          </select>
-          <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-[#94A3B8] pointer-events-none" />
-        </div>
-      </div>
-      <div className="bg-[#1E293B] border border-[#334155] rounded-xl overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead><tr className="border-b border-[#334155]">
-              {['Order ID', 'Buyer', 'Farmer', 'Items', 'Total', 'Status', 'Action'].map(h => <th key={h} className="text-left px-4 py-3 text-xs font-semibold text-[#94A3B8] uppercase">{h}</th>)}
-            </tr></thead>
-            <tbody className="divide-y divide-[#334155]">
-              {filteredOrders.map(o => (
-                <tr key={o.id} className="hover:bg-white/[0.02]">
-                  <td className="px-4 py-3 text-sm font-semibold text-[#E2E8F0]">{o.id}</td>
-                  <td className="px-4 py-3 text-sm text-[#E2E8F0]">{o.buyer}</td>
-                  <td className="px-4 py-3 text-sm text-[#E2E8F0]">{o.farmer}</td>
-                  <td className="px-4 py-3 text-sm text-[#94A3B8]">{o.items}</td>
-                  <td className="px-4 py-3 text-sm text-[#E2E8F0]">UGX {o.total.toLocaleString()}</td>
-                  <td className="px-4 py-3"><OrderStatusBadge status={o.status} /></td>
-                  <td className="px-4 py-3">
-                    {o.status !== 'delivered' ? (
-                      <button onClick={() => advanceOrder(o.id)}
-                        className="px-3 py-1.5 bg-emerald-500/10 text-emerald-400 rounded-lg text-xs hover:bg-emerald-500/20 transition-colors flex items-center gap-1">
-                        {o.status === 'pending' ? <><Play className="w-3 h-3" /> Confirm</> :
-                         o.status === 'confirmed' ? <><Truck className="w-3 h-3" /> Ship</> :
-                         <><CheckCheck className="w-3 h-3" /> Deliver</>}
-                      </button>
-                    ) : <span className="text-xs text-emerald-400 flex items-center gap-1"><CheckCircle className="w-3 h-3" /> Done</span>}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-  );
-
-  const ProductsView = () => (
-    <div className="space-y-4">
-      <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#94A3B8]" />
-        <input value={searchProducts} onChange={e => setSearchProducts(e.target.value)} placeholder="Search products..."
-          className="w-full max-w-md h-10 pl-9 pr-4 bg-[#1E293B] border border-[#334155] rounded-lg text-sm text-[#E2E8F0] placeholder:text-[#64748B] focus:outline-none focus:border-emerald-500" />
-      </div>
-      <div className="bg-[#1E293B] border border-[#334155] rounded-xl overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead><tr className="border-b border-[#334155]">
-              {['Product', 'Category', 'Farmer', 'Price', 'Stock', 'Status', 'Action'].map(h => <th key={h} className="text-left px-4 py-3 text-xs font-semibold text-[#94A3B8] uppercase">{h}</th>)}
-            </tr></thead>
-            <tbody className="divide-y divide-[#334155]">
-              {filteredProducts.map(p => (
-                <tr key={p.id} className="hover:bg-white/[0.02]">
-                  <td className="px-4 py-3 text-sm font-semibold text-[#E2E8F0]">{p.name}</td>
-                  <td className="px-4 py-3 text-sm text-[#94A3B8]">{p.category}</td>
-                  <td className="px-4 py-3 text-sm text-[#E2E8F0]">{p.farmer}</td>
-                  <td className="px-4 py-3 text-sm text-[#E2E8F0]">UGX {p.price.toLocaleString()}</td>
-                  <td className="px-4 py-3 text-sm text-[#94A3B8]">{p.stock}</td>
-                  <td className="px-4 py-3"><OrderStatusBadge status={p.status} /></td>
-                  <td className="px-4 py-3">
-                    <button onClick={() => toggleProduct(p.id)}
-                      className="px-3 py-1.5 bg-[#334155] text-[#E2E8F0] rounded-lg text-xs hover:bg-[#475569] transition-colors">
-                      Toggle Status
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-  );
-
-  const PrintDropView = () => (
-    <div className="space-y-4">
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        {[
-          { label: "Today's Orders", value: printOrders.filter(o => o.status !== 'delivered').length.toString(), icon: Printer, color: 'text-emerald-400' },
-          { label: 'Pending Print', value: printOrders.filter(o => o.status === 'pending').length.toString(), icon: Clock, color: 'text-amber-400' },
-          { label: 'Print Revenue', value: `UGX ${(printOrders.reduce((s, o) => s + o.cost, 0) / 1000).toFixed(0)}K`, icon: DollarSign, color: 'text-emerald-400' },
-          { label: 'Pages Printed', value: printOrders.reduce((s, o) => s + o.pages, 0).toLocaleString(), icon: CheckCircle, color: 'text-blue-400' },
-        ].map(s => (
-          <div key={s.label} className="bg-[#1E293B] border border-[#334155] rounded-xl p-5">
-            <div className="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center mb-3"><s.icon className={`w-5 h-5 ${s.color}`} /></div>
-            <div className="font-bold text-2xl text-[#E2E8F0]">{s.value}</div>
-            <div className="text-[13px] text-[#94A3B8] mt-0.5">{s.label}</div>
-          </div>
-        ))}
-      </div>
-      <div className="flex flex-col sm:flex-row gap-3">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#94A3B8]" />
-          <input value={searchPrint} onChange={e => setSearchPrint(e.target.value)} placeholder="Search print orders..."
-            className="w-full h-10 pl-9 pr-4 bg-[#1E293B] border border-[#334155] rounded-lg text-sm text-[#E2E8F0] placeholder:text-[#64748B] focus:outline-none focus:border-emerald-500" />
-        </div>
-        <div className="relative">
-          <select value={filterPrintStatus} onChange={e => setFilterPrintStatus(e.target.value as PrintStatus | 'all')}
-            className="h-10 px-4 pr-8 bg-[#1E293B] border border-[#334155] rounded-lg text-sm text-[#E2E8F0] focus:outline-none focus:border-emerald-500 appearance-none">
-            <option value="all">All Orders</option><option value="pending">Pending</option><option value="printing">Printing</option><option value="ready">Ready</option><option value="delivered">Delivered</option>
-          </select>
-          <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-[#94A3B8] pointer-events-none" />
-        </div>
-      </div>
-      <div className="bg-[#1E293B] border border-[#334155] rounded-xl overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead><tr className="border-b border-[#334155]">
-              {['Order ID', 'Customer', 'Type', 'Pages', 'Cost', 'Location', 'Status', 'Action'].map(h => <th key={h} className="text-left px-4 py-3 text-xs font-semibold text-[#94A3B8] uppercase">{h}</th>)}
-            </tr></thead>
-            <tbody className="divide-y divide-[#334155]">
-              {filteredPrintOrders.map(o => (
-                <tr key={o.id} className="hover:bg-white/[0.02]">
-                  <td className="px-4 py-3 text-sm font-semibold text-[#E2E8F0]">{o.id}</td>
-                  <td className="px-4 py-3 text-sm text-[#E2E8F0]">{o.customer}</td>
-                  <td className="px-4 py-3 text-sm text-[#94A3B8] capitalize">{o.type === 'bw' ? 'B&W' : 'Color'}</td>
-                  <td className="px-4 py-3 text-sm text-[#E2E8F0]">{o.pages}</td>
-                  <td className="px-4 py-3 text-sm text-[#E2E8F0]">UGX {o.cost.toLocaleString()}</td>
-                  <td className="px-4 py-3 text-sm text-[#94A3B8]">{o.location}</td>
-                  <td className="px-4 py-3"><OrderStatusBadge status={o.status} /></td>
-                  <td className="px-4 py-3">
-                    {o.status !== 'delivered' ? (
-                      <button onClick={() => advancePrint(o.id)}
-                        className="px-3 py-1.5 bg-emerald-500/10 text-emerald-400 rounded-lg text-xs hover:bg-emerald-500/20 transition-colors flex items-center gap-1">
-                        {o.status === 'pending' ? <><Play className="w-3 h-3" /> Start</> :
-                         o.status === 'printing' ? <><CheckCheck className="w-3 h-3" /> Done</> :
-                         <><Truck className="w-3 h-3" /> Deliver</>}
-                      </button>
-                    ) : <span className="text-xs text-emerald-400 flex items-center gap-1"><CheckCircle className="w-3 h-3" /> Complete</span>}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-  );
-
-  const PaymentsView = () => (
-    <div className="space-y-6">
-      <div className="grid grid-cols-3 gap-4">
-        {[
-          { label: 'Total Processed', value: `UGX ${totalRevenue.toLocaleString()}`, color: 'text-emerald-400' },
-          { label: 'Held for Delivery', value: `UGX ${transactions.filter(t => t.status === 'held').reduce((s, t) => s + t.amount, 0).toLocaleString()}`, color: 'text-amber-400' },
-          { label: 'Platform Fees', value: `UGX ${commissionEarned.toLocaleString()}`, color: 'text-emerald-400' },
-        ].map(s => (
-          <div key={s.label} className="bg-[#1E293B] border border-[#334155] rounded-xl p-5">
-            <div className="text-[13px] text-[#94A3B8] mb-1">{s.label}</div>
-            <div className={`text-xl font-bold ${s.color}`}>{s.value}</div>
-          </div>
-        ))}
-      </div>
-      {/* Transactions */}
-      <div className="bg-[#1E293B] border border-[#334155] rounded-xl overflow-hidden">
-        <div className="px-5 py-4 border-b border-[#334155]"><h3 className="font-semibold text-[#E2E8F0]">Transactions</h3></div>
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead><tr className="border-b border-[#334155]">
-              {['ID', 'From', 'Method', 'Amount', 'Fee', 'Net', 'Status'].map(h => <th key={h} className="text-left px-4 py-3 text-xs font-semibold text-[#94A3B8] uppercase">{h}</th>)}
-            </tr></thead>
-            <tbody className="divide-y divide-[#334155]">
-              {transactions.map(t => (
-                <tr key={t.id} className="hover:bg-white/[0.02]">
-                  <td className="px-4 py-3 text-sm font-semibold text-[#E2E8F0]">{t.id}</td>
-                  <td className="px-4 py-3 text-sm text-[#E2E8F0]">{t.from}</td>
-                  <td className="px-4 py-3 text-sm text-[#94A3B8]">{t.method}</td>
-                  <td className="px-4 py-3 text-sm text-[#E2E8F0]">UGX {t.amount.toLocaleString()}</td>
-                  <td className="px-4 py-3 text-sm text-amber-400">UGX {t.fee.toLocaleString()}</td>
-                  <td className="px-4 py-3 text-sm text-emerald-400">UGX {t.net.toLocaleString()}</td>
-                  <td className="px-4 py-3"><OrderStatusBadge status={t.status} /></td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-      {/* Withdrawals */}
-      <div className="bg-[#1E293B] border border-[#334155] rounded-xl overflow-hidden">
-        <div className="px-5 py-4 border-b border-[#334155]"><h3 className="font-semibold text-[#E2E8F0]">Withdrawal Requests</h3></div>
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead><tr className="border-b border-[#334155]">
-              {['ID', 'Farmer', 'Amount', 'Status', 'Action'].map(h => <th key={h} className="text-left px-4 py-3 text-xs font-semibold text-[#94A3B8] uppercase">{h}</th>)}
-            </tr></thead>
-            <tbody className="divide-y divide-[#334155]">
-              {withdrawals.map(w => (
-                <tr key={w.id} className="hover:bg-white/[0.02]">
-                  <td className="px-4 py-3 text-sm font-semibold text-[#E2E8F0]">{w.id}</td>
-                  <td className="px-4 py-3 text-sm text-[#E2E8F0]">{w.farmer}</td>
-                  <td className="px-4 py-3 text-sm text-[#E2E8F0]">UGX {w.amount.toLocaleString()}</td>
-                  <td className="px-4 py-3"><OrderStatusBadge status={w.status} /></td>
-                  <td className="px-4 py-3">
-                    {w.status === 'pending' ? (
-                      <button onClick={() => approveWithdrawal(w.id)}
-                        className="px-3 py-1.5 bg-emerald-500/10 text-emerald-400 rounded-lg text-xs hover:bg-emerald-500/20 transition-colors">
-                        Release
-                      </button>
-                    ) : <span className="text-xs text-emerald-400">Released</span>}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-  );
-
-  const AnalyticsView = () => (
-    <div className="space-y-6">
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        {[
-          { label: 'Orders This Month', value: '342', change: '+12%', up: true },
-          { label: 'Revenue This Month', value: 'UGX 1.2M', change: '+18%', up: true },
-          { label: 'New Farmers', value: '28', change: '+5%', up: true },
-          { label: 'Avg Order Value', value: 'UGX 8,400', change: '-2%', up: false },
-        ].map(s => (
-          <div key={s.label} className="bg-[#1E293B] border border-[#334155] rounded-xl p-5">
-            <div className="text-[13px] text-[#94A3B8] mb-2">{s.label}</div>
-            <div className="text-xl font-bold text-[#E2E8F0]">{s.value}</div>
-            <div className={`text-xs mt-1 flex items-center gap-1 ${s.up ? 'text-emerald-400' : 'text-red-400'}`}>
-              {s.up ? <ArrowUpRight className="w-3 h-3" /> : <ArrowDownRight className="w-3 h-3" />}
-              {s.change} from last month
-            </div>
-          </div>
-        ))}
-      </div>
-      {/* Simple bar chart visualization */}
-      <div className="bg-[#1E293B] border border-[#334155] rounded-xl p-6">
-        <h3 className="font-semibold text-[#E2E8F0] mb-6">Revenue Trend (Last 6 Months)</h3>
-        <div className="flex items-end gap-4 h-48">
-          {[
-            { month: 'Jan', value: 65 },
-            { month: 'Feb', value: 78 },
-            { month: 'Mar', value: 92 },
-            { month: 'Apr', value: 85 },
-            { month: 'May', value: 110 },
-            { month: 'Jun', value: 128 },
-          ].map(d => (
-            <div key={d.month} className="flex-1 flex flex-col items-center gap-2">
-              <div className="w-full bg-[#334155] rounded-t-lg relative overflow-hidden" style={{ height: `${d.value * 1.5}px` }}>
-                <div className="absolute bottom-0 left-0 right-0 bg-emerald-500/60 rounded-t-lg transition-all" style={{ height: '100%' }} />
-              </div>
-              <span className="text-xs text-[#94A3B8]">{d.month}</span>
-            </div>
-          ))}
-        </div>
-      </div>
-      {/* Top Farmers */}
-      <div className="bg-[#1E293B] border border-[#334155] rounded-xl overflow-hidden">
-        <div className="px-5 py-4 border-b border-[#334155]"><h3 className="font-semibold text-[#E2E8F0]">Top Performing Farmers</h3></div>
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead><tr className="border-b border-[#334155]">
-              {['Rank', 'Farmer', 'Orders', 'Revenue'].map(h => <th key={h} className="text-left px-4 py-3 text-xs font-semibold text-[#94A3B8] uppercase">{h}</th>)}
-            </tr></thead>
-            <tbody className="divide-y divide-[#334155]">
-              {[
-                { rank: 1, name: 'Reagan Lutwama', orders: 156, revenue: 1842000 },
-                { rank: 2, name: 'Nakamya Josephine', orders: 98, revenue: 925000 },
-                { rank: 3, name: 'Acen Mary', orders: 87, revenue: 1210000 },
-                { rank: 4, name: 'Mutebi David', orders: 72, revenue: 680000 },
-                { rank: 5, name: 'Kato John', orders: 45, revenue: 420000 },
-              ].map(f => (
-                <tr key={f.rank} className="hover:bg-white/[0.02]">
-                  <td className="px-4 py-3"><span className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold ${f.rank === 1 ? 'bg-amber-500/20 text-amber-400' : f.rank === 2 ? 'bg-gray-400/20 text-gray-300' : f.rank === 3 ? 'bg-orange-600/20 text-orange-400' : 'bg-[#334155] text-[#94A3B8]'}`}>{f.rank}</span></td>
-                  <td className="px-4 py-3 text-sm font-semibold text-[#E2E8F0]">{f.name}</td>
-                  <td className="px-4 py-3 text-sm text-[#E2E8F0]">{f.orders}</td>
-                  <td className="px-4 py-3 text-sm text-emerald-400">UGX {f.revenue.toLocaleString()}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-  );
-
-  const SettingsView = () => (
-    <div className="space-y-6 max-w-2xl">
-      <div className="bg-[#1E293B] border border-[#334155] rounded-xl p-6">
-        <h3 className="font-semibold text-[#E2E8F0] mb-4">Platform Fee</h3>
-        <div className="space-y-4">
-          <div>
-            <div className="flex justify-between mb-2">
-              <label className="text-sm text-[#94A3B8]">Current Fee</label>
-              <span className="text-sm font-bold text-emerald-400">{platformFee}%</span>
-            </div>
-            <input type="range" min="0.5" max="10" step="0.5" value={platformFee}
-              onChange={e => setPlatformFee(parseFloat(e.target.value))}
-              className="w-full h-2 bg-[#334155] rounded-lg appearance-none cursor-pointer accent-emerald-500" />
-            <div className="flex justify-between text-xs text-[#64748B] mt-1"><span>0.5%</span><span>5%</span><span>10%</span></div>
-          </div>
-          <p className="text-xs text-[#94A3B8]">
-            This fee is deducted from every transaction. Farmers receive the remaining amount.
-            At {platformFee}%, your commission on UGX 2.8M in sales = <span className="text-emerald-400 font-semibold">UGX {Math.round(2847500 * platformFee / 100).toLocaleString()}</span>
-          </p>
-        </div>
-      </div>
-      <div className="bg-[#1E293B] border border-[#334155] rounded-xl p-6">
-        <h3 className="font-semibold text-[#E2E8F0] mb-4">Payment Methods</h3>
-        <div className="space-y-3">
-          {['Airtel Money', 'MTN Mobile Money', 'PayPal (@LutwamaReagan)', 'Bank Transfer'].map(method => (
-            <div key={method} className="flex items-center justify-between py-2">
-              <span className="text-sm text-[#E2E8F0]">{method}</span>
-              <label className="relative inline-flex items-center cursor-pointer">
-                <input type="checkbox" defaultChecked className="sr-only peer" />
-                <div className="w-10 h-5 bg-[#334155] peer-focus:ring-2 peer-focus:ring-emerald-500 rounded-full peer peer-checked:after:translate-x-5 peer-checked:after:bg-emerald-400 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-[#64748B] after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-500/20" />
-              </label>
-            </div>
-          ))}
-        </div>
-      </div>
-      <div className="bg-[#1E293B] border border-[#334155] rounded-xl p-6">
-        <h3 className="font-semibold text-[#E2E8F0] mb-4">Notification Settings</h3>
-        <div className="space-y-3">
-          {['SMS alerts on new orders', 'Email notifications for farmer approvals', 'Weekly revenue summary'].map(setting => (
-            <div key={setting} className="flex items-center justify-between py-2">
-              <span className="text-sm text-[#E2E8F0]">{setting}</span>
-              <label className="relative inline-flex items-center cursor-pointer">
-                <input type="checkbox" defaultChecked className="sr-only peer" />
-                <div className="w-10 h-5 bg-[#334155] peer-focus:ring-2 peer-focus:ring-emerald-500 rounded-full peer peer-checked:after:translate-x-5 peer-checked:after:bg-emerald-400 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-[#64748B] after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-500/20" />
-              </label>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-
-  /* ═══════════════════════════════════════════════
-     RENDER
-     ═══════════════════════════════════════════════ */
-  const renderView = () => {
-    switch (activeView) {
-      case 'dashboard': return <DashboardView />;
-      case 'farmers': return <FarmersView />;
-      case 'orders': return <OrdersView />;
-      case 'products': return <ProductsView />;
-      case 'printdrop': return <PrintDropView />;
-      case 'payments': return <PaymentsView />;
-      case 'analytics': return <AnalyticsView />;
-      case 'settings': return <SettingsView />;
-      default: return <DashboardView />;
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (locked) return;
+    if (password === ADMIN_PASSWORD) {
+      sessionStorage.setItem('shambani_admin', 'true');
+      setError('');
+      onLogin();
+    } else {
+      const newAttempts = attempts + 1;
+      setAttempts(newAttempts);
+      if (newAttempts >= 3) {
+        setLocked(true);
+        setLockTimer(60);
+        setError('Too many failed attempts. Locked for 60 seconds.');
+      } else {
+        setError(`Invalid password. ${3 - newAttempts} attempts remaining.`);
+      }
     }
   };
 
   return (
-    <div className="min-h-[100dvh] bg-[#0F172A] flex text-[#E2E8F0]">
-      {/* Mobile overlay */}
-      {sidebarOpen && (
-        <div className="fixed inset-0 bg-black/50 z-40 lg:hidden" onClick={() => setSidebarOpen(false)} />
-      )}
-
-      {/* Sidebar */}
-      <aside className={`fixed lg:sticky top-0 left-0 z-50 h-[100dvh] w-[260px] bg-[#0F172A] border-r border-[#334155] flex flex-col transition-transform duration-300 ${
-        sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
-      }`}>
-        {/* Logo */}
-        <div className="flex items-center gap-2.5 px-5 h-16 border-b border-[#334155] shrink-0">
-          <div className="w-8 h-8 rounded-lg bg-emerald-500/20 flex items-center justify-center">
-            <Leaf className="w-5 h-5 text-emerald-400" />
+    <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-100 flex items-center justify-center p-4">
+      <div className="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md">
+        <div className="text-center mb-8">
+          <div className="w-16 h-16 bg-green-600 rounded-xl flex items-center justify-center mx-auto mb-4">
+            <Shield className="w-8 h-8 text-white" />
           </div>
-          <div>
-            <span className="font-semibold text-[15px] text-[#E2E8F0]">ShambaNi</span>
-            <span className="block text-[10px] text-emerald-400 font-medium tracking-wide uppercase">Admin</span>
-          </div>
-          <button onClick={() => setSidebarOpen(false)} className="ml-auto lg:hidden text-[#94A3B8]"><X className="w-5 h-5" /></button>
+          <h1 className="text-2xl font-bold text-gray-900">ShambaNi Admin</h1>
+          <p className="text-gray-500 mt-1">Sign in to manage your marketplace</p>
         </div>
 
-        {/* Navigation */}
-        <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
-          {navItems.map(item => {
-            const Icon = item.icon;
-            const isActive = activeView === item.key;
-            return (
-              <button key={item.key} onClick={() => { setActiveView(item.key); setSidebarOpen(false); }}
-                className={`w-full flex items-center gap-3 h-[44px] px-3 rounded-lg text-sm font-medium transition-all duration-200 relative ${
-                  isActive ? 'bg-emerald-500/10 text-emerald-400' : 'text-[#94A3B8] hover:text-[#E2E8F0] hover:bg-white/5'
-                }`}>
-                {isActive && <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-6 bg-emerald-400 rounded-r-full" />}
-                <Icon className="w-5 h-5 shrink-0" />
-                <span className="flex-1 text-left">{item.label}</span>
-                {item.key === 'printdrop' && <span className="text-[9px] font-bold bg-emerald-500/20 text-emerald-400 px-1.5 py-0.5 rounded-full">NEW</span>}
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Password</label>
+            <div className="relative">
+              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+              <input
+                type={showPassword ? 'text' : 'password'}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Enter admin password"
+                disabled={locked}
+                className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none transition-all disabled:bg-gray-100"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+              >
+                {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
               </button>
-            );
-          })}
-        </nav>
-
-        {/* Profile */}
-        <div className="px-4 py-4 border-t border-[#334155] shrink-0">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center">
-              <Users className="w-4 h-4 text-emerald-400" />
             </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-[#E2E8F0] truncate">Reagan Lutwama</p>
-              <p className="text-xs text-[#94A3B8] truncate">ryglutwa0@gmail.com</p>
-            </div>
-            <button className="text-[#94A3B8] hover:text-red-400 transition-colors" title="Logout"><LogOut className="w-4 h-4" /></button>
           </div>
+
+          {error && (
+            <div className="bg-red-50 border border-red-200 rounded-lg p-3 flex items-start gap-2">
+              <AlertCircle className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
+              <p className="text-sm text-red-600">{error}</p>
+            </div>
+          )}
+
+          <button
+            type="submit"
+            disabled={locked || !password}
+            className="w-full bg-green-600 hover:bg-green-700 disabled:bg-gray-300 text-white font-semibold py-3 rounded-lg transition-colors flex items-center justify-center gap-2"
+          >
+            <Lock className="w-5 h-5" />
+            {locked ? `Locked (${lockTimer}s)` : 'Sign In'}
+          </button>
+        </form>
+
+        <div className="mt-6 text-center">
+          <a href="/#/" className="text-sm text-green-600 hover:text-green-700">
+            Back to ShambaNi Home
+          </a>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ─── Main Admin Dashboard ─── */
+export default function AdminDashboard() {
+  const [isLoggedIn, setIsLoggedIn] = useState(() =>
+    sessionStorage.getItem('shambani_admin') === 'true'
+  );
+  const [activeTab, setActiveTab] = useState('dashboard');
+
+  /* Data State */
+  const [farmers, setFarmers] = useState<Farmer[]>(initialFarmers);
+  const [orders, setOrders] = useState<Order[]>(initialOrders);
+  const [products, setProducts] = useState<Product[]>(initialProducts);
+  const [printOrders, setPrintOrders] = useState<PrintOrder[]>(initialPrintOrders);
+  const [transactions] = useState<Transaction[]>(initialTransactions);
+  const [withdrawals, setWithdrawals] = useState<Withdrawal[]>(initialWithdrawals);
+  const [platformFee, setPlatformFee] = useState(2.5);
+
+  /* Search States */
+  const [searchFarmers, setSearchFarmers] = useState('');
+  const [searchOrders, setSearchOrders] = useState('');
+  const [searchProducts, setSearchProducts] = useState('');
+
+  const handleLogout = useCallback(() => {
+    sessionStorage.removeItem('shambani_admin');
+    setIsLoggedIn(false);
+  }, []);
+
+  /* Actions */
+  const approveFarmer = (id: number) => {
+    setFarmers(fs => fs.map(f => f.id === id ? { ...f, status: 'approved' as const } : f));
+  };
+  const rejectFarmer = (id: number) => {
+    setFarmers(fs => fs.map(f => f.id === id ? { ...f, status: 'rejected' as const } : f));
+  };
+  const advanceOrder = (id: string) => {
+    const flow: Record<string, string> = { pending: 'confirmed', confirmed: 'shipped', shipped: 'delivered' };
+    setOrders(os => os.map(o => o.id === id && flow[o.status] ? { ...o, status: flow[o.status] as Order['status'] } : o));
+  };
+  const toggleProduct = (id: number) => {
+    setProducts(ps => ps.map(p => p.id === id ? { ...p, status: p.status === 'active' ? 'inactive' as const : 'active' as const } : p));
+  };
+  const advancePrint = (id: string) => {
+    const flow: Record<string, string> = { received: 'printing', printing: 'ready', ready: 'delivered' };
+    setPrintOrders(ps => ps.map(p => p.id === id && flow[p.status] ? { ...p, status: flow[p.status] as PrintOrder['status'] } : p));
+  };
+  const processWithdrawal = (id: string) => {
+    setWithdrawals(ws => ws.map(w => w.id === id ? { ...w, status: 'processed' as const } : w));
+  };
+
+  /* Stats */
+  const stats = {
+    totalFarmers: farmers.length,
+    approvedFarmers: farmers.filter(f => f.status === 'approved').length,
+    pendingFarmers: farmers.filter(f => f.status === 'pending').length,
+    totalOrders: orders.length,
+    pendingOrders: orders.filter(o => o.status === 'pending').length,
+    totalRevenue: orders.reduce((s, o) => s + o.amount, 0),
+    totalCommission: orders.reduce((s, o) => s + o.commission, 0),
+    activeProducts: products.filter(p => p.status === 'active').length,
+    printOrders: printOrders.length,
+    printRevenue: printOrders.reduce((s, p) => s + p.amount, 0),
+    pendingWithdrawals: withdrawals.filter(w => w.status === 'pending').length,
+  };
+
+  const tabs = [
+    { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
+    { id: 'farmers', label: 'Farmers', icon: Users },
+    { id: 'orders', label: 'Orders', icon: ShoppingCart },
+    { id: 'products', label: 'Products', icon: Package },
+    { id: 'printdrop', label: 'PrintDrop', icon: Printer },
+    { id: 'payments', label: 'Payments', icon: CreditCard },
+    { id: 'analytics', label: 'Analytics', icon: BarChart3 },
+    { id: 'settings', label: 'Settings', icon: Settings },
+  ];
+
+  if (!isLoggedIn) {
+    return <LoginScreen onLogin={() => setIsLoggedIn(true)} />;
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50 flex">
+      {/* Sidebar */}
+      <aside className="w-64 bg-white border-r border-gray-200 fixed h-full z-10 hidden md:flex flex-col">
+        <div className="p-6 border-b border-gray-200">
+          <h1 className="text-xl font-bold text-green-700">ShambaNi Admin</h1>
+          <p className="text-xs text-gray-500 mt-1">Marketplace Manager</p>
+        </div>
+        <nav className="flex-1 overflow-y-auto p-4 space-y-1">
+          {tabs.map(tab => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
+                activeTab === tab.id
+                  ? 'bg-green-50 text-green-700'
+                  : 'text-gray-600 hover:bg-gray-50'
+              }`}
+            >
+              <tab.icon className="w-5 h-5" />
+              {tab.label}
+              {tab.id === 'farmers' && stats.pendingFarmers > 0 && (
+                <span className="ml-auto bg-amber-500 text-white text-xs rounded-full px-2 py-0.5">{stats.pendingFarmers}</span>
+              )}
+              {tab.id === 'orders' && stats.pendingOrders > 0 && (
+                <span className="ml-auto bg-amber-500 text-white text-xs rounded-full px-2 py-0.5">{stats.pendingOrders}</span>
+              )}
+              {tab.id === 'payments' && stats.pendingWithdrawals > 0 && (
+                <span className="ml-auto bg-red-500 text-white text-xs rounded-full px-2 py-0.5">{stats.pendingWithdrawals}</span>
+              )}
+            </button>
+          ))}
+        </nav>
+        <div className="p-4 border-t border-gray-200">
+          <button
+            onClick={handleLogout}
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-red-600 hover:bg-red-50 transition-colors"
+          >
+            <LogOut className="w-5 h-5" />
+            Sign Out
+          </button>
         </div>
       </aside>
 
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col min-w-0">
-        {/* Header */}
-        <header className="h-16 bg-[#0F172A] border-b border-[#334155] flex items-center px-4 md:px-8 shrink-0">
-          <button onClick={() => setSidebarOpen(true)} className="lg:hidden mr-3 text-[#94A3B8] hover:text-[#E2E8F0]">
-            <Menu className="w-6 h-6" />
-          </button>
-          <h1 className="text-lg font-semibold text-[#E2E8F0] capitalize">{activeView === 'printdrop' ? 'PrintDrop' : activeView}</h1>
-          <div className="ml-auto text-sm text-[#94A3B8]">
-            Fee: <span className="text-emerald-400 font-semibold">{platformFee}%</span>
-          </div>
-        </header>
-
-        {/* Content */}
-        <main className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8">{renderView()}</main>
+      {/* Mobile Header */}
+      <div className="md:hidden fixed top-0 left-0 right-0 bg-white border-b border-gray-200 z-20 px-4 py-3 flex items-center justify-between">
+        <h1 className="font-bold text-green-700">ShambaNi Admin</h1>
+        <button onClick={handleLogout} className="text-red-600 text-sm font-medium">Sign Out</button>
       </div>
+
+      {/* Main Content */}
+      <main className="flex-1 md:ml-64 pt-14 md:pt-0">
+        {/* Top Bar */}
+        <div className="bg-white border-b border-gray-200 px-8 py-4 flex items-center justify-between sticky top-0 z-10">
+          <h2 className="text-xl font-bold text-gray-900">
+            {tabs.find(t => t.id === activeTab)?.label}
+          </h2>
+          <div className="flex items-center gap-4">
+            <span className="text-sm text-gray-500">Platform Fee: {platformFee}%</span>
+            <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+              <Shield className="w-4 h-4 text-green-600" />
+            </div>
+          </div>
+        </div>
+
+        <div className="p-8">
+          {/* ── DASHBOARD ── */}
+          {activeTab === 'dashboard' && (
+            <div className="space-y-6">
+              {/* Stats Grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <StatCard title="Total Farmers" value={stats.totalFarmers} icon={Users} trend={`${stats.approvedFarmers} approved`} color="green" />
+                <StatCard title="Total Orders" value={stats.totalOrders} icon={ShoppingCart} trend={`${stats.pendingOrders} pending`} color="blue" />
+                <StatCard title="Revenue (UGX)" value={stats.totalRevenue.toLocaleString()} icon={DollarSign} trend={`${stats.totalCommission.toLocaleString()} commission`} color="amber" />
+                <StatCard title="PrintDrop Orders" value={stats.printOrders} icon={Printer} trend={`UGX ${stats.printRevenue.toLocaleString()}`} color="purple" />
+              </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Recent Orders */}
+                <div className="bg-white rounded-lg border border-gray-200 p-6">
+                  <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                    <Clock className="w-5 h-5 text-blue-500" /> Recent Orders
+                  </h3>
+                  <div className="space-y-3">
+                    {orders.slice(0, 4).map(o => (
+                      <div key={o.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                        <div>
+                          <p className="font-medium text-sm">{o.id}</p>
+                          <p className="text-xs text-gray-500">{o.customer}</p>
+                        </div>
+                        <div className="text-right">
+                          <p className="font-semibold text-sm">UGX {o.amount.toLocaleString()}</p>
+                          <span className={`text-xs px-2 py-0.5 rounded-full ${
+                            o.status === 'delivered' ? 'bg-green-100 text-green-700' :
+                            o.status === 'shipped' ? 'bg-blue-100 text-blue-700' :
+                            o.status === 'confirmed' ? 'bg-amber-100 text-amber-700' :
+                            'bg-gray-100 text-gray-700'
+                          }`}>{o.status}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Pending Actions */}
+                <div className="bg-white rounded-lg border border-gray-200 p-6">
+                  <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                    <Bell className="w-5 h-5 text-amber-500" /> Pending Actions
+                  </h3>
+                  <div className="space-y-3">
+                    {stats.pendingFarmers > 0 && (
+                      <ActionCard icon={Users} text={`${stats.pendingFarmers} farmer${stats.pendingFarmers > 1 ? 's' : ''} pending approval`} action="Review" onClick={() => setActiveTab('farmers')} color="amber" />
+                    )}
+                    {stats.pendingOrders > 0 && (
+                      <ActionCard icon={ShoppingCart} text={`${stats.pendingOrders} order${stats.pendingOrders > 1 ? 's' : ''} awaiting confirmation`} action="Process" onClick={() => setActiveTab('orders')} color="blue" />
+                    )}
+                    {stats.pendingWithdrawals > 0 && (
+                      <ActionCard icon={CreditCard} text={`${stats.pendingWithdrawals} withdrawal request${stats.pendingWithdrawals > 1 ? 's' : ''}`} action="Release" onClick={() => setActiveTab('payments')} color="red" />
+                    )}
+                    {printOrders.filter(p => p.status === 'received').length > 0 && (
+                      <ActionCard icon={Printer} text={`${printOrders.filter(p => p.status === 'received').length} print job${printOrders.filter(p => p.status === 'received').length > 1 ? 's' : ''} to start`} action="Start" onClick={() => setActiveTab('printdrop')} color="purple" />
+                    )}
+                    {stats.pendingFarmers === 0 && stats.pendingOrders === 0 && stats.pendingWithdrawals === 0 && printOrders.filter(p => p.status === 'received').length === 0 && (
+                      <p className="text-gray-500 text-sm">No pending actions. All caught up!</p>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Recent Transactions */}
+              <div className="bg-white rounded-lg border border-gray-200 p-6">
+                <h3 className="font-semibold text-gray-900 mb-4">Recent Transactions</h3>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b border-gray-200">
+                        <th className="text-left py-2 text-gray-500 font-medium">ID</th>
+                        <th className="text-left py-2 text-gray-500 font-medium">Type</th>
+                        <th className="text-left py-2 text-gray-500 font-medium">Description</th>
+                        <th className="text-right py-2 text-gray-500 font-medium">Amount</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {transactions.map(t => (
+                        <tr key={t.id} className="border-b border-gray-100 last:border-0">
+                          <td className="py-3 font-mono text-xs">{t.id}</td>
+                          <td className="py-3">
+                            <span className={`px-2 py-0.5 rounded-full text-xs ${
+                              t.type === 'order' ? 'bg-blue-100 text-blue-700' :
+                              t.type === 'commission' ? 'bg-green-100 text-green-700' :
+                              t.type === 'print' ? 'bg-purple-100 text-purple-700' :
+                              'bg-red-100 text-red-700'
+                            }`}>{t.type}</span>
+                          </td>
+                          <td className="py-3">{t.description}</td>
+                          <td className="py-3 text-right font-semibold">UGX {t.amount.toLocaleString()}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ── FARMERS ── */}
+          {activeTab === 'farmers' && (
+            <div className="space-y-4">
+              <div className="bg-white rounded-lg border border-gray-200 p-4 flex items-center gap-4">
+                <Search className="w-5 h-5 text-gray-400" />
+                <input
+                  type="text"
+                  placeholder="Search farmers by name, phone, or location..."
+                  value={searchFarmers}
+                  onChange={(e) => setSearchFarmers(e.target.value)}
+                  className="flex-1 outline-none text-sm"
+                />
+              </div>
+              <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="bg-gray-50 border-b border-gray-200">
+                        <th className="text-left py-3 px-4 font-medium text-gray-700">Name</th>
+                        <th className="text-left py-3 px-4 font-medium text-gray-700">Contact</th>
+                        <th className="text-left py-3 px-4 font-medium text-gray-700">Location</th>
+                        <th className="text-left py-3 px-4 font-medium text-gray-700">Status</th>
+                        <th className="text-right py-3 px-4 font-medium text-gray-700">Products</th>
+                        <th className="text-center py-3 px-4 font-medium text-gray-700">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {farmers
+                        .filter(f => !searchFarmers || f.name.toLowerCase().includes(searchFarmers.toLowerCase()) || f.phone.includes(searchFarmers) || f.location.toLowerCase().includes(searchFarmers.toLowerCase()))
+                        .map(f => (
+                        <tr key={f.id} className="border-b border-gray-100 last:border-0 hover:bg-gray-50">
+                          <td className="py-3 px-4 font-medium">{f.name}</td>
+                          <td className="py-3 px-4 text-gray-600">{f.phone}</td>
+                          <td className="py-3 px-4 text-gray-600">{f.location}</td>
+                          <td className="py-3 px-4">
+                            <span className={`px-2 py-0.5 rounded-full text-xs ${
+                              f.status === 'approved' ? 'bg-green-100 text-green-700' :
+                              f.status === 'pending' ? 'bg-amber-100 text-amber-700' :
+                              'bg-red-100 text-red-700'
+                            }`}>{f.status}</span>
+                          </td>
+                          <td className="py-3 px-4 text-right">{f.products}</td>
+                          <td className="py-3 px-4">
+                            <div className="flex items-center justify-center gap-2">
+                              {f.status === 'pending' && (
+                                <>
+                                  <button onClick={() => approveFarmer(f.id)} className="p-1.5 bg-green-100 text-green-600 rounded hover:bg-green-200" title="Approve">
+                                    <CheckCircle className="w-4 h-4" />
+                                  </button>
+                                  <button onClick={() => rejectFarmer(f.id)} className="p-1.5 bg-red-100 text-red-600 rounded hover:bg-red-200" title="Reject">
+                                    <XCircle className="w-4 h-4" />
+                                  </button>
+                                </>
+                              )}
+                              {f.status === 'approved' && (
+                                <button onClick={() => rejectFarmer(f.id)} className="p-1.5 bg-red-100 text-red-600 rounded hover:bg-red-200" title="Suspend">
+                                  <XCircle className="w-4 h-4" />
+                                </button>
+                              )}
+                              {f.status === 'rejected' && (
+                                <button onClick={() => approveFarmer(f.id)} className="p-1.5 bg-green-100 text-green-600 rounded hover:bg-green-200" title="Re-approve">
+                                  <CheckCircle className="w-4 h-4" />
+                                </button>
+                              )}
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ── ORDERS ── */}
+          {activeTab === 'orders' && (
+            <div className="space-y-4">
+              <div className="bg-white rounded-lg border border-gray-200 p-4 flex items-center gap-4">
+                <Search className="w-5 h-5 text-gray-400" />
+                <input
+                  type="text"
+                  placeholder="Search orders by ID, customer, or product..."
+                  value={searchOrders}
+                  onChange={(e) => setSearchOrders(e.target.value)}
+                  className="flex-1 outline-none text-sm"
+                />
+              </div>
+              <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="bg-gray-50 border-b border-gray-200">
+                        <th className="text-left py-3 px-4 font-medium text-gray-700">Order ID</th>
+                        <th className="text-left py-3 px-4 font-medium text-gray-700">Customer</th>
+                        <th className="text-left py-3 px-4 font-medium text-gray-700">Product</th>
+                        <th className="text-right py-3 px-4 font-medium text-gray-700">Amount</th>
+                        <th className="text-right py-3 px-4 font-medium text-gray-700">Commission</th>
+                        <th className="text-left py-3 px-4 font-medium text-gray-700">Status</th>
+                        <th className="text-center py-3 px-4 font-medium text-gray-700">Action</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {orders
+                        .filter(o => !searchOrders || o.id.toLowerCase().includes(searchOrders.toLowerCase()) || o.customer.toLowerCase().includes(searchOrders.toLowerCase()) || o.product.toLowerCase().includes(searchOrders.toLowerCase()))
+                        .map(o => (
+                        <tr key={o.id} className="border-b border-gray-100 last:border-0 hover:bg-gray-50">
+                          <td className="py-3 px-4 font-mono text-xs">{o.id}</td>
+                          <td className="py-3 px-4">{o.customer}</td>
+                          <td className="py-3 px-4 text-gray-600">{o.product}</td>
+                          <td className="py-3 px-4 text-right font-semibold">UGX {o.amount.toLocaleString()}</td>
+                          <td className="py-3 px-4 text-right text-green-600">UGX {o.commission.toLocaleString()}</td>
+                          <td className="py-3 px-4">
+                            <span className={`px-2 py-0.5 rounded-full text-xs ${
+                              o.status === 'delivered' ? 'bg-green-100 text-green-700' :
+                              o.status === 'shipped' ? 'bg-blue-100 text-blue-700' :
+                              o.status === 'confirmed' ? 'bg-amber-100 text-amber-700' :
+                              'bg-gray-100 text-gray-700'
+                            }`}>{o.status}</span>
+                          </td>
+                          <td className="py-3 px-4">
+                            {o.status !== 'delivered' && (
+                              <button
+                                onClick={() => advanceOrder(o.id)}
+                                className="flex items-center gap-1 mx-auto px-3 py-1 bg-green-600 text-white text-xs rounded hover:bg-green-700"
+                              >
+                                Advance <ChevronRight className="w-3 h-3" />
+                              </button>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ── PRODUCTS ── */}
+          {activeTab === 'products' && (
+            <div className="space-y-4">
+              <div className="bg-white rounded-lg border border-gray-200 p-4 flex items-center gap-4">
+                <Search className="w-5 h-5 text-gray-400" />
+                <input
+                  type="text"
+                  placeholder="Search products by name, farmer, or category..."
+                  value={searchProducts}
+                  onChange={(e) => setSearchProducts(e.target.value)}
+                  className="flex-1 outline-none text-sm"
+                />
+              </div>
+              <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="bg-gray-50 border-b border-gray-200">
+                        <th className="text-left py-3 px-4 font-medium text-gray-700">Product</th>
+                        <th className="text-left py-3 px-4 font-medium text-gray-700">Farmer</th>
+                        <th className="text-left py-3 px-4 font-medium text-gray-700">Category</th>
+                        <th className="text-right py-3 px-4 font-medium text-gray-700">Price</th>
+                        <th className="text-right py-3 px-4 font-medium text-gray-700">Stock</th>
+                        <th className="text-left py-3 px-4 font-medium text-gray-700">Status</th>
+                        <th className="text-center py-3 px-4 font-medium text-gray-700">Action</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {products
+                        .filter(p => !searchProducts || p.name.toLowerCase().includes(searchProducts.toLowerCase()) || p.farmer.toLowerCase().includes(searchProducts.toLowerCase()) || p.category.toLowerCase().includes(searchProducts.toLowerCase()))
+                        .map(p => (
+                        <tr key={p.id} className="border-b border-gray-100 last:border-0 hover:bg-gray-50">
+                          <td className="py-3 px-4 font-medium">{p.name}</td>
+                          <td className="py-3 px-4 text-gray-600">{p.farmer}</td>
+                          <td className="py-3 px-4 text-gray-600">{p.category}</td>
+                          <td className="py-3 px-4 text-right">UGX {p.price.toLocaleString()}</td>
+                          <td className="py-3 px-4 text-right">{p.stock}</td>
+                          <td className="py-3 px-4">
+                            <span className={`px-2 py-0.5 rounded-full text-xs ${
+                              p.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'
+                            }`}>{p.status}</span>
+                          </td>
+                          <td className="py-3 px-4">
+                            <button
+                              onClick={() => toggleProduct(p.id)}
+                              className={`flex items-center gap-1 mx-auto px-3 py-1 text-xs rounded ${
+                                p.status === 'active'
+                                  ? 'bg-red-100 text-red-600 hover:bg-red-200'
+                                  : 'bg-green-100 text-green-600 hover:bg-green-200'
+                              }`}
+                            >
+                              {p.status === 'active' ? <XCircle className="w-3 h-3" /> : <CheckCircle className="w-3 h-3" />}
+                              {p.status === 'active' ? 'Disable' : 'Enable'}
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ── PRINTDROP ── */}
+          {activeTab === 'printdrop' && (
+            <div className="space-y-6">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div className="bg-white rounded-lg border border-gray-200 p-6">
+                  <p className="text-sm text-gray-500">Total Print Orders</p>
+                  <p className="text-3xl font-bold text-gray-900 mt-1">{stats.printOrders}</p>
+                </div>
+                <div className="bg-white rounded-lg border border-gray-200 p-6">
+                  <p className="text-sm text-gray-500">Print Revenue</p>
+                  <p className="text-3xl font-bold text-gray-900 mt-1">UGX {stats.printRevenue.toLocaleString()}</p>
+                </div>
+                <div className="bg-white rounded-lg border border-gray-200 p-6">
+                  <p className="text-sm text-gray-500">Active Jobs</p>
+                  <p className="text-3xl font-bold text-gray-900 mt-1">{printOrders.filter(p => p.status !== 'delivered').length}</p>
+                </div>
+              </div>
+
+              <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="bg-gray-50 border-b border-gray-200">
+                        <th className="text-left py-3 px-4 font-medium text-gray-700">Print ID</th>
+                        <th className="text-left py-3 px-4 font-medium text-gray-700">Customer</th>
+                        <th className="text-right py-3 px-4 font-medium text-gray-700">Files</th>
+                        <th className="text-right py-3 px-4 font-medium text-gray-700">Pages</th>
+                        <th className="text-left py-3 px-4 font-medium text-gray-700">Type</th>
+                        <th className="text-right py-3 px-4 font-medium text-gray-700">Amount</th>
+                        <th className="text-left py-3 px-4 font-medium text-gray-700">Status</th>
+                        <th className="text-center py-3 px-4 font-medium text-gray-700">Action</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {printOrders.map(p => (
+                        <tr key={p.id} className="border-b border-gray-100 last:border-0 hover:bg-gray-50">
+                          <td className="py-3 px-4 font-mono text-xs">{p.id}</td>
+                          <td className="py-3 px-4">{p.customer}</td>
+                          <td className="py-3 px-4 text-right">{p.files}</td>
+                          <td className="py-3 px-4 text-right">{p.pages}</td>
+                          <td className="py-3 px-4">
+                            <span className={`px-2 py-0.5 rounded-full text-xs ${
+                              p.type === 'Color' ? 'bg-purple-100 text-purple-700' : 'bg-gray-100 text-gray-700'
+                            }`}>{p.type}</span>
+                          </td>
+                          <td className="py-3 px-4 text-right font-semibold">UGX {p.amount.toLocaleString()}</td>
+                          <td className="py-3 px-4">
+                            <span className={`px-2 py-0.5 rounded-full text-xs ${
+                              p.status === 'delivered' ? 'bg-green-100 text-green-700' :
+                              p.status === 'ready' ? 'bg-blue-100 text-blue-700' :
+                              p.status === 'printing' ? 'bg-amber-100 text-amber-700' :
+                              'bg-gray-100 text-gray-700'
+                            }`}>{p.status}</span>
+                          </td>
+                          <td className="py-3 px-4">
+                            {p.status !== 'delivered' && (
+                              <button
+                                onClick={() => advancePrint(p.id)}
+                                className="flex items-center gap-1 mx-auto px-3 py-1 bg-purple-600 text-white text-xs rounded hover:bg-purple-700"
+                              >
+                                Advance <ChevronRight className="w-3 h-3" />
+                              </button>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ── PAYMENTS ── */}
+          {activeTab === 'payments' && (
+            <div className="space-y-6">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div className="bg-white rounded-lg border border-gray-200 p-6">
+                  <p className="text-sm text-gray-500">Total Commission</p>
+                  <p className="text-3xl font-bold text-green-600 mt-1">UGX {stats.totalCommission.toLocaleString()}</p>
+                </div>
+                <div className="bg-white rounded-lg border border-gray-200 p-6">
+                  <p className="text-sm text-gray-500">Pending Withdrawals</p>
+                  <p className="text-3xl font-bold text-amber-600 mt-1">{stats.pendingWithdrawals}</p>
+                </div>
+                <div className="bg-white rounded-lg border border-gray-200 p-6">
+                  <p className="text-sm text-gray-500">Platform Fee Rate</p>
+                  <p className="text-3xl font-bold text-blue-600 mt-1">{platformFee}%</p>
+                </div>
+              </div>
+
+              <div className="bg-white rounded-lg border border-gray-200 p-6">
+                <h3 className="font-semibold text-gray-900 mb-4">Withdrawal Requests</h3>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b border-gray-200">
+                        <th className="text-left py-2 text-gray-500 font-medium">ID</th>
+                        <th className="text-left py-2 text-gray-500 font-medium">Farmer</th>
+                        <th className="text-right py-2 text-gray-500 font-medium">Amount</th>
+                        <th className="text-left py-2 text-gray-500 font-medium">Requested</th>
+                        <th className="text-left py-2 text-gray-500 font-medium">Status</th>
+                        <th className="text-center py-2 text-gray-500 font-medium">Action</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {withdrawals.map(w => (
+                        <tr key={w.id} className="border-b border-gray-100 last:border-0">
+                          <td className="py-3 font-mono text-xs">{w.id}</td>
+                          <td className="py-3">{w.farmer}</td>
+                          <td className="py-3 text-right font-semibold">UGX {w.amount.toLocaleString()}</td>
+                          <td className="py-3 text-gray-600">{w.requested}</td>
+                          <td className="py-3">
+                            <span className={`px-2 py-0.5 rounded-full text-xs ${
+                              w.status === 'processed' ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'
+                            }`}>{w.status}</span>
+                          </td>
+                          <td className="py-3">
+                            {w.status === 'pending' && (
+                              <button
+                                onClick={() => processWithdrawal(w.id)}
+                                className="flex items-center gap-1 mx-auto px-3 py-1 bg-green-600 text-white text-xs rounded hover:bg-green-700"
+                              >
+                                <CheckCircle className="w-3 h-3" /> Release
+                              </button>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                      {withdrawals.length === 0 && (
+                        <tr><td colSpan={6} className="py-8 text-center text-gray-500">No withdrawal requests</td></tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ── ANALYTICS ── */}
+          {activeTab === 'analytics' && (
+            <div className="space-y-6">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div className="bg-white rounded-lg border border-gray-200 p-6">
+                  <h3 className="font-semibold text-gray-900 mb-4">Revenue Breakdown</h3>
+                  <div className="space-y-4">
+                    <div>
+                      <div className="flex justify-between text-sm mb-1">
+                        <span className="text-gray-600">Marketplace Orders</span>
+                        <span className="font-semibold">UGX {stats.totalRevenue.toLocaleString()}</span>
+                      </div>
+                      <div className="w-full bg-gray-200 rounded-full h-2">
+                        <div className="bg-green-500 h-2 rounded-full" style={{ width: `${(stats.totalRevenue / (stats.totalRevenue + stats.printRevenue)) * 100}%` }} />
+                      </div>
+                    </div>
+                    <div>
+                      <div className="flex justify-between text-sm mb-1">
+                        <span className="text-gray-600">PrintDrop Orders</span>
+                        <span className="font-semibold">UGX {stats.printRevenue.toLocaleString()}</span>
+                      </div>
+                      <div className="w-full bg-gray-200 rounded-full h-2">
+                        <div className="bg-purple-500 h-2 rounded-full" style={{ width: `${(stats.printRevenue / (stats.totalRevenue + stats.printRevenue)) * 100}%` }} />
+                      </div>
+                    </div>
+                    <div className="pt-4 border-t border-gray-100">
+                      <div className="flex justify-between">
+                        <span className="font-semibold">Total Revenue</span>
+                        <span className="font-bold text-green-600">UGX {(stats.totalRevenue + stats.printRevenue).toLocaleString()}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-white rounded-lg border border-gray-200 p-6">
+                  <h3 className="font-semibold text-gray-900 mb-4">Commission Overview</h3>
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
+                      <span className="text-sm text-gray-700">Platform Commission Earned</span>
+                      <span className="font-bold text-green-700">UGX {stats.totalCommission.toLocaleString()}</span>
+                    </div>
+                    <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
+                      <span className="text-sm text-gray-700">Commission Rate</span>
+                      <span className="font-bold text-blue-700">{platformFee}%</span>
+                    </div>
+                    <div className="flex items-center justify-between p-3 bg-amber-50 rounded-lg">
+                      <span className="text-sm text-gray-700">Pending Release</span>
+                      <span className="font-bold text-amber-700">UGX {(stats.totalCommission * 0.3).toLocaleString()}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white rounded-lg border border-gray-200 p-6">
+                <h3 className="font-semibold text-gray-900 mb-4">Performance Metrics</h3>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <MetricCard label="Conversion Rate" value="68%" trend="up" />
+                  <MetricCard label="Avg Order Value" value="UGX 18,400" trend="up" />
+                  <MetricCard label="Farmer Retention" value="92%" trend="up" />
+                  <MetricCard label="Delivery Success" value="97%" trend="up" />
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ── SETTINGS ── */}
+          {activeTab === 'settings' && (
+            <div className="space-y-6 max-w-2xl">
+              <div className="bg-white rounded-lg border border-gray-200 p-6">
+                <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                  <DollarSign className="w-5 h-5 text-green-500" /> Platform Fee
+                </h3>
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Commission Percentage: <span className="text-green-600 font-bold">{platformFee}%</span>
+                    </label>
+                    <input
+                      type="range"
+                      min="1"
+                      max="10"
+                      step="0.5"
+                      value={platformFee}
+                      onChange={(e) => setPlatformFee(parseFloat(e.target.value))}
+                      className="w-full accent-green-600"
+                    />
+                    <div className="flex justify-between text-xs text-gray-500 mt-1">
+                      <span>1%</span>
+                      <span>10%</span>
+                    </div>
+                  </div>
+                  <p className="text-sm text-gray-500">
+                    You earn <strong className="text-green-600">{platformFee}%</strong> on every order placed through the platform.
+                    Current estimated monthly commission: <strong>UGX {Math.round(stats.totalCommission * 4).toLocaleString()}</strong>
+                  </p>
+                </div>
+              </div>
+
+              <div className="bg-white rounded-lg border border-gray-200 p-6">
+                <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                  <Store className="w-5 h-5 text-blue-500" /> Business Info
+                </h3>
+                <div className="space-y-3 text-sm">
+                  <div className="flex items-center gap-3">
+                    <Phone className="w-4 h-4 text-gray-400" />
+                    <span className="text-gray-600">+256 708 813 419</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <Mail className="w-4 h-4 text-gray-400" />
+                    <span className="text-gray-600">ryglutwa0@gmail.com</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <MapPin className="w-4 h-4 text-gray-400" />
+                    <span className="text-gray-600">Kampala, Uganda</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white rounded-lg border border-gray-200 p-6">
+                <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                  <Shield className="w-5 h-5 text-red-500" /> Security
+                </h3>
+                <button
+                  onClick={handleLogout}
+                  className="flex items-center gap-2 px-4 py-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 text-sm font-medium"
+                >
+                  <LogOut className="w-4 h-4" /> Sign Out of Admin
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      </main>
+    </div>
+  );
+}
+
+/* ─── Sub-components ─── */
+function StatCard({ title, value, icon: Icon, trend, color }: { title: string; value: string | number; icon: any; trend: string; color: string }) {
+  const colorClasses: Record<string, string> = {
+    green: 'bg-green-50 text-green-600',
+    blue: 'bg-blue-50 text-blue-600',
+    amber: 'bg-amber-50 text-amber-600',
+    purple: 'bg-purple-50 text-purple-600',
+  };
+  return (
+    <div className="bg-white rounded-lg border border-gray-200 p-6">
+      <div className="flex items-start justify-between">
+        <div>
+          <p className="text-sm text-gray-500">{title}</p>
+          <p className="text-2xl font-bold text-gray-900 mt-1">{value}</p>
+        </div>
+        <div className={`p-2 rounded-lg ${colorClasses[color] || colorClasses.green}`}>
+          <Icon className="w-5 h-5" />
+        </div>
+      </div>
+      <p className="text-xs text-gray-500 mt-2">{trend}</p>
+    </div>
+  );
+}
+
+function ActionCard({ icon: Icon, text, action, onClick, color }: { icon: any; text: string; action: string; onClick: () => void; color: string }) {
+  const btnColors: Record<string, string> = {
+    amber: 'bg-amber-100 text-amber-700 hover:bg-amber-200',
+    blue: 'bg-blue-100 text-blue-700 hover:bg-blue-200',
+    red: 'bg-red-100 text-red-700 hover:bg-red-200',
+    purple: 'bg-purple-100 text-purple-700 hover:bg-purple-200',
+  };
+  return (
+    <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+      <div className="flex items-center gap-3">
+        <Icon className="w-5 h-5 text-gray-600" />
+        <span className="text-sm text-gray-700">{text}</span>
+      </div>
+      <button onClick={onClick} className={`px-3 py-1 rounded text-xs font-medium ${btnColors[color] || btnColors.blue}`}>
+        {action}
+      </button>
+    </div>
+  );
+}
+
+function MetricCard({ label, value, trend }: { label: string; value: string; trend: 'up' | 'down' }) {
+  return (
+    <div className="bg-gray-50 rounded-lg p-4 text-center">
+      <p className="text-2xl font-bold text-gray-900">{value}</p>
+      <p className="text-xs text-gray-500 mt-1">{label}</p>
+      {trend === 'up' ? (
+        <TrendingUp className="w-4 h-4 text-green-500 mx-auto mt-2" />
+      ) : (
+        <TrendingDown className="w-4 h-4 text-red-500 mx-auto mt-2" />
+      )}
     </div>
   );
 }
