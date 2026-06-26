@@ -1,11 +1,12 @@
 import { useState, useMemo, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Search, X, ChevronDown, SlidersHorizontal, RotateCcw } from 'lucide-react';
+import { Search, X, ChevronDown, SlidersHorizontal, RotateCcw, Printer, MessageCircle, ExternalLink } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { products } from '@/data/products';
 import { categories } from '@/data/categories';
 import { supportedCountries, getDistrictsForCountry } from '@/data/districts';
 import ProductCard from '@/components/ProductCard';
+import { Link } from 'react-router-dom';
 
 type SortOption = 'featured' | 'price-low' | 'price-high' | 'rating' | 'stock';
 
@@ -109,6 +110,9 @@ export default function Browse() {
     setSelectedDistrict('');
   };
 
+  // Show PrintDrop card when no filters are active or when searching for print-related terms
+  const showPrintDrop = !hasActiveFilters || searchQuery.toLowerCase().includes('print');
+
   return (
     <div className="min-h-[100dvh] bg-cream">
       {/* Page Header */}
@@ -153,6 +157,48 @@ export default function Browse() {
           </motion.div>
         </div>
       </section>
+
+      {/* ═══════ PRINTDROP SERVICE CARD (shown when no filters) ═══════ */}
+      <AnimatePresence>
+        {showPrintDrop && (
+          <motion.section
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.3 }}
+            className="pb-4"
+          >
+            <div className="container-main">
+              <Link
+                to="/print"
+                className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-forest rounded-2xl p-5 sm:p-6 text-white hover:shadow-lg transition-all duration-200 group"
+              >
+                <div className="flex items-center gap-4">
+                  <div className="w-14 h-14 bg-white/15 rounded-xl flex items-center justify-center shrink-0">
+                    <Printer className="w-7 h-7 text-white" />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2 mb-1">
+                      <h3 className="font-poppins font-bold text-lg">{t('printDrop.bannerTitle')}</h3>
+                      <span className="bg-mint text-forest text-[10px] font-bold px-2 py-0.5 rounded-full">NEW</span>
+                    </div>
+                    <p className="text-white/70 text-sm">
+                      {t('printDrop.bannerSubtitle')}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3 shrink-0 self-stretch sm:self-auto">
+                  <span className="font-space font-bold text-xl">UGX 500+</span>
+                  <span className="text-white/50 text-sm">/page</span>
+                  <div className="w-10 h-10 bg-white/15 rounded-lg flex items-center justify-center group-hover:bg-white/25 transition-colors ml-2">
+                    <ExternalLink className="w-5 h-5" />
+                  </div>
+                </div>
+              </Link>
+            </div>
+          </motion.section>
+        )}
+      </AnimatePresence>
 
       {/* Filter Bar */}
       <section className="sticky top-[72px] z-40 bg-white border-b border-fog shadow-[0_2px_12px_rgba(0,0,0,0.06)]">
