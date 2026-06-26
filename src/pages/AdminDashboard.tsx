@@ -4,7 +4,7 @@ import {
   BarChart3, Settings, LogOut, Eye, EyeOff, Lock, CheckCircle, XCircle,
   Clock, ChevronRight, TrendingUp, TrendingDown, DollarSign, Download,
   Store, AlertCircle, Search, Filter, ArrowUpDown, Plus, Trash2, Edit,
-  FileText, Image, Phone, Mail, MapPin, Shield, Bell
+  FileText, Image, Phone, Mail, MapPin, Shield, Bell, BadgeCheck, UserCircle
 } from 'lucide-react';
 
 /* ─── Types ─── */
@@ -16,6 +16,17 @@ interface Farmer {
   status: 'pending' | 'approved' | 'rejected';
   products: number;
   joined: string;
+}
+
+interface VerificationFarmer {
+  id: number;
+  name: string;
+  phone: string;
+  location: string;
+  profilePhoto: string;
+  idDocument?: string;
+  status: 'pending' | 'verified' | 'rejected';
+  submitted: string;
 }
 
 interface Order {
@@ -109,6 +120,12 @@ const initialTransactions: Transaction[] = [
 const initialWithdrawals: Withdrawal[] = [
   { id: 'WTH-001', farmer: 'John Okello', amount: 150000, status: 'pending', requested: '2024-05-22' },
   { id: 'WTH-002', farmer: 'David Ouma', amount: 230000, status: 'pending', requested: '2024-05-23' },
+];
+
+const initialVerifications: VerificationFarmer[] = [
+  { id: 101, name: 'Auma Grace', phone: '+256 706 123 456', location: 'Gulu', profilePhoto: 'https://images.unsplash.com/photo-1531123897727-8f129e1688ce?w=200&h=200&fit=crop&crop=face', status: 'pending', submitted: '2024-06-25' },
+  { id: 102, name: 'Ojok Samuel', phone: '+256 702 987 654', location: 'Lira', profilePhoto: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=200&h=200&fit=crop&crop=face', idDocument: 'ID_UPLOADED', status: 'pending', submitted: '2024-06-26' },
+  { id: 103, name: 'Akello Christine', phone: '+256 704 456 789', location: 'Kitgum', profilePhoto: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=200&h=200&fit=crop&crop=face', status: 'pending', submitted: '2024-06-26' },
 ];
 
 const ADMIN_PASSWORD = 'admin123';
@@ -228,6 +245,7 @@ export default function AdminDashboard() {
   const [printOrders, setPrintOrders] = useState<PrintOrder[]>(initialPrintOrders);
   const [transactions] = useState<Transaction[]>(initialTransactions);
   const [withdrawals, setWithdrawals] = useState<Withdrawal[]>(initialWithdrawals);
+  const [verifications, setVerifications] = useState<VerificationFarmer[]>(initialVerifications);
   const [platformFee, setPlatformFee] = useState(2.5);
 
   /* Search States */
@@ -261,6 +279,12 @@ export default function AdminDashboard() {
   const processWithdrawal = (id: string) => {
     setWithdrawals(ws => ws.map(w => w.id === id ? { ...w, status: 'processed' as const } : w));
   };
+  const approveVerification = (id: number) => {
+    setVerifications(vs => vs.map(v => v.id === id ? { ...v, status: 'verified' as const } : v));
+  };
+  const rejectVerification = (id: number) => {
+    setVerifications(vs => vs.map(v => v.id === id ? { ...v, status: 'rejected' as const } : v));
+  };
 
   /* Stats */
   const stats = {
@@ -275,11 +299,13 @@ export default function AdminDashboard() {
     printOrders: printOrders.length,
     printRevenue: printOrders.reduce((s, p) => s + p.amount, 0),
     pendingWithdrawals: withdrawals.filter(w => w.status === 'pending').length,
+    pendingVerifications: verifications.filter(v => v.status === 'pending').length,
   };
 
   const tabs = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { id: 'farmers', label: 'Farmers', icon: Users },
+    { id: 'verification', label: 'Verification', icon: BadgeCheck },
     { id: 'orders', label: 'Orders', icon: ShoppingCart },
     { id: 'products', label: 'Products', icon: Package },
     { id: 'printdrop', label: 'PrintDrop', icon: Printer },
@@ -315,6 +341,9 @@ export default function AdminDashboard() {
               {tab.label}
               {tab.id === 'farmers' && stats.pendingFarmers > 0 && (
                 <span className="ml-auto bg-amber-500 text-white text-xs rounded-full px-2 py-0.5">{stats.pendingFarmers}</span>
+              )}
+              {tab.id === 'verification' && stats.pendingVerifications > 0 && (
+                <span className="ml-auto bg-blue-500 text-white text-xs rounded-full px-2 py-0.5">{stats.pendingVerifications}</span>
               )}
               {tab.id === 'orders' && stats.pendingOrders > 0 && (
                 <span className="ml-auto bg-amber-500 text-white text-xs rounded-full px-2 py-0.5">{stats.pendingOrders}</span>
@@ -402,11 +431,14 @@ export default function AdminDashboard() {
                     <Bell className="w-5 h-5 text-amber-500" /> Pending Actions
                   </h3>
                   <div className="space-y-3">
+                    {stats.pendingVerifications > 0 && (
+                      <ActionCard icon={BadgeCheck} text={`${stats.pendingVerifications} farmer${stats.pendingVerifications > 1 ? 's' : ''} awaiting identity verification`} action="Review" onClick={() => setActiveTab('verification')} color="blue" />
+                    )}
                     {stats.pendingFarmers > 0 && (
                       <ActionCard icon={Users} text={`${stats.pendingFarmers} farmer${stats.pendingFarmers > 1 ? 's' : ''} pending approval`} action="Review" onClick={() => setActiveTab('farmers')} color="amber" />
                     )}
                     {stats.pendingOrders > 0 && (
-                      <ActionCard icon={ShoppingCart} text={`${stats.pendingOrders} order${stats.pendingOrders > 1 ? 's' : ''} awaiting confirmation`} action="Process" onClick={() => setActiveTab('orders')} color="blue" />
+                      <ActionCard icon={ShoppingCart} text={`${stats.pendingOrders} order${stats.pendingOrders > 1 ? 's' : ''} awaiting confirmation`} action="Process" onClick={() => setActiveTab('orders')} color="amber" />
                     )}
                     {stats.pendingWithdrawals > 0 && (
                       <ActionCard icon={CreditCard} text={`${stats.pendingWithdrawals} withdrawal request${stats.pendingWithdrawals > 1 ? 's' : ''}`} action="Release" onClick={() => setActiveTab('payments')} color="red" />
@@ -414,7 +446,7 @@ export default function AdminDashboard() {
                     {printOrders.filter(p => p.status === 'received').length > 0 && (
                       <ActionCard icon={Printer} text={`${printOrders.filter(p => p.status === 'received').length} print job${printOrders.filter(p => p.status === 'received').length > 1 ? 's' : ''} to start`} action="Start" onClick={() => setActiveTab('printdrop')} color="purple" />
                     )}
-                    {stats.pendingFarmers === 0 && stats.pendingOrders === 0 && stats.pendingWithdrawals === 0 && printOrders.filter(p => p.status === 'received').length === 0 && (
+                    {stats.pendingVerifications === 0 && stats.pendingFarmers === 0 && stats.pendingOrders === 0 && stats.pendingWithdrawals === 0 && printOrders.filter(p => p.status === 'received').length === 0 && (
                       <p className="text-gray-500 text-sm">No pending actions. All caught up!</p>
                     )}
                   </div>
@@ -454,6 +486,111 @@ export default function AdminDashboard() {
                   </table>
                 </div>
               </div>
+            </div>
+          )}
+
+          {/* ── VERIFICATION QUEUE ── */}
+          {activeTab === 'verification' && (
+            <div className="space-y-6">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div className="bg-white rounded-lg border border-gray-200 p-6">
+                  <p className="text-sm text-gray-500">Pending Verification</p>
+                  <p className="text-3xl font-bold text-blue-600 mt-1">{stats.pendingVerifications}</p>
+                </div>
+                <div className="bg-white rounded-lg border border-gray-200 p-6">
+                  <p className="text-sm text-gray-500">Verified Today</p>
+                  <p className="text-3xl font-bold text-green-600 mt-1">{verifications.filter(v => v.status === 'verified').length}</p>
+                </div>
+                <div className="bg-white rounded-lg border border-gray-200 p-6">
+                  <p className="text-sm text-gray-500">Total Submissions</p>
+                  <p className="text-3xl font-bold text-gray-900 mt-1">{verifications.length}</p>
+                </div>
+              </div>
+
+              <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+                <div className="p-4 border-b border-gray-200">
+                  <h3 className="font-semibold text-gray-900 flex items-center gap-2">
+                    <BadgeCheck className="w-5 h-5 text-blue-500" />
+                    Farmers Awaiting Verification
+                  </h3>
+                </div>
+                {verifications.filter(v => v.status === 'pending').length === 0 ? (
+                  <div className="p-8 text-center text-gray-500">
+                    <BadgeCheck className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+                    <p className="font-medium">All caught up!</p>
+                    <p className="text-sm mt-1">No farmers pending verification.</p>
+                  </div>
+                ) : (
+                  <div className="divide-y divide-gray-100">
+                    {verifications.filter(v => v.status === 'pending').map(v => (
+                      <div key={v.id} className="p-4 flex items-start gap-4 hover:bg-gray-50 transition-colors">
+                        <img
+                          src={v.profilePhoto}
+                          alt={v.name}
+                          className="w-14 h-14 rounded-full object-cover border-2 border-gray-200 shrink-0"
+                        />
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2">
+                            <p className="font-semibold text-gray-900">{v.name}</p>
+                            {v.idDocument && (
+                              <span className="px-2 py-0.5 bg-blue-100 text-blue-700 text-[10px] font-bold rounded-full">ID UPLOADED</span>
+                            )}
+                          </div>
+                          <p className="text-sm text-gray-500">{v.phone} · {v.location}</p>
+                          <p className="text-xs text-gray-400 mt-0.5">Submitted {v.submitted}</p>
+                        </div>
+                        <div className="flex items-center gap-2 shrink-0">
+                          <button
+                            onClick={() => approveVerification(v.id)}
+                            className="flex items-center gap-1 px-3 py-1.5 bg-green-600 text-white text-xs font-medium rounded-lg hover:bg-green-700 transition-colors"
+                          >
+                            <CheckCircle className="w-3.5 h-3.5" />
+                            Verify
+                          </button>
+                          <button
+                            onClick={() => rejectVerification(v.id)}
+                            className="flex items-center gap-1 px-3 py-1.5 bg-red-100 text-red-600 text-xs font-medium rounded-lg hover:bg-red-200 transition-colors"
+                          >
+                            <XCircle className="w-3.5 h-3.5" />
+                            Reject
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Verified Farmers */}
+              {verifications.filter(v => v.status === 'verified').length > 0 && (
+                <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
+                  <div className="p-4 border-b border-gray-200">
+                    <h3 className="font-semibold text-gray-900 flex items-center gap-2">
+                      <CheckCircle className="w-5 h-5 text-green-500" />
+                      Verified Farmers
+                    </h3>
+                  </div>
+                  <div className="divide-y divide-gray-100">
+                    {verifications.filter(v => v.status === 'verified').map(v => (
+                      <div key={v.id} className="p-4 flex items-center gap-4">
+                        <img
+                          src={v.profilePhoto}
+                          alt={v.name}
+                          className="w-10 h-10 rounded-full object-cover border border-gray-200"
+                        />
+                        <div className="flex-1">
+                          <p className="font-medium text-gray-900 flex items-center gap-1.5">
+                            {v.name}
+                            <BadgeCheck className="w-4 h-4 text-green-500" />
+                          </p>
+                          <p className="text-xs text-gray-500">{v.phone} · {v.location}</p>
+                        </div>
+                        <span className="px-2 py-1 bg-green-100 text-green-700 text-xs rounded-full font-medium">Verified</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
