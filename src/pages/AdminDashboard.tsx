@@ -8,8 +8,9 @@ import ProductsView from '@/components/admin/ProductsView';
 import PaymentsView from '@/components/admin/PaymentsView';
 import AnalyticsView from '@/components/admin/AnalyticsView';
 import SettingsView from '@/components/admin/SettingsView';
+import PrintDropView from '@/components/admin/PrintDropView';
 
-type ViewKey = 'dashboard' | 'farmers' | 'orders' | 'products' | 'payments' | 'analytics' | 'settings';
+type ViewKey = 'dashboard' | 'farmers' | 'orders' | 'products' | 'printdrop' | 'payments' | 'analytics' | 'settings';
 
 const viewMap: Record<string, ViewKey> = {
   '/admin': 'dashboard',
@@ -17,6 +18,7 @@ const viewMap: Record<string, ViewKey> = {
   '/admin/farmers': 'farmers',
   '/admin/orders': 'orders',
   '/admin/products': 'products',
+  '/admin/printdrop': 'printdrop',
   '/admin/payments': 'payments',
   '/admin/analytics': 'analytics',
   '/admin/settings': 'settings',
@@ -27,6 +29,7 @@ const reverseViewMap: Record<ViewKey, string> = {
   farmers: '/admin/farmers',
   orders: '/admin/orders',
   products: '/admin/products',
+  printdrop: '/admin/printdrop',
   payments: '/admin/payments',
   analytics: '/admin/analytics',
   settings: '/admin/settings',
@@ -63,6 +66,8 @@ export default function AdminDashboard() {
         return <OrdersView />;
       case 'products':
         return <ProductsView />;
+      case 'printdrop':
+        return <PrintDropView />;
       case 'payments':
         return <PaymentsView />;
       case 'analytics':
