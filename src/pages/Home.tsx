@@ -527,7 +527,7 @@ export default function Home() {
               </p>
               <div className="grid grid-cols-2 gap-4 mb-8">
                 {[
-                  { flag: '\uD83C\uDDEC\uD83C\uDDEA', name: 'Uganda', descKey: 'crossBorder.uganda' as const },
+                  { flag: '\uD83C\uDDFA\uD83C\uDDEC', name: 'Uganda', descKey: 'crossBorder.uganda' as const },
                   { flag: '\uD83C\uDDF0\uD83C\uDDEA', name: 'Kenya', descKey: 'crossBorder.kenya' as const },
                   { flag: '\uD83C\uDDF9\uD83C\uDDFF', name: 'Tanzania', descKey: 'crossBorder.tanzania' as const },
                   { flag: '\uD83C\uDDF7\uD83C\uDDFC', name: 'Rwanda', descKey: 'crossBorder.rwanda' as const },
