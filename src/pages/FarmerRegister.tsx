@@ -17,6 +17,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
 import { cn } from '@/lib/utils';
+import ProfilePhotoUpload from '@/components/ProfilePhotoUpload';
 
 /* ------------------------------------------------------------------ */
 /*  Types & Schema                                                      */
@@ -33,6 +34,7 @@ interface FormData {
   language: string;
   password: string;
   confirmPassword: string;
+  profilePhoto: string;
   // Step 2
   farmName: string;
   farmAbout: string;
@@ -175,7 +177,7 @@ export default function FarmerRegister() {
     formState: { errors },
   } = useForm<FormData>({
     defaultValues: {
-      country: '', language: 'en', paymentMethods: [], produceTypes: [],
+      country: '', language: 'en', paymentMethods: [], produceTypes: [], profilePhoto: '',
       farmSizeUnit: 'acres', email: '', termsAccepted: false,
     },
     resolver: (step === 1 ? zodResolver(step1Schema)
@@ -203,7 +205,7 @@ export default function FarmerRegister() {
   /* --- step navigation --- */
   const goNext = async () => {
     const fields: Record<number, (keyof FormData)[]> = {
-      1: ['fullName', 'phone', 'email', 'country', 'language', 'password', 'confirmPassword'],
+      1: ['fullName', 'phone', 'email', 'country', 'language', 'password', 'confirmPassword', 'profilePhoto'],
       2: ['farmName', 'farmAbout', 'region', 'district', 'village', 'produceTypes'],
       3: ['paymentMethods', 'termsAccepted'],
     };
@@ -356,6 +358,8 @@ export default function FarmerRegister() {
                   showConfirmPw={showConfirmPw}
                   setShowConfirmPw={setShowConfirmPw}
                   onNext={goNext}
+                  watch={watch}
+                  setValue={setValue}
                 />
               )}
               {step === 2 && (
@@ -408,7 +412,7 @@ export default function FarmerRegister() {
 /* ================================================================== */
 
 function Step1Personal({
-  t, register, control, errors, passwordValue, showPw, setShowPw, showConfirmPw, setShowConfirmPw, onNext,
+  t, register, control, errors, passwordValue, showPw, setShowPw, showConfirmPw, setShowConfirmPw, onNext, watch, setValue,
 }: {
   t: (k: string) => string;
   register: any;
@@ -420,6 +424,8 @@ function Step1Personal({
   showConfirmPw: boolean;
   setShowConfirmPw: (v: boolean) => void;
   onNext: () => void;
+  watch: any;
+  setValue: any;
 }) {
   const pwStrength = getPasswordStrength(passwordValue);
   const pwLabel = strengthLabel(pwStrength);
@@ -1038,6 +1044,18 @@ function Step4Review({
         {t('farmerRegister.step4Title')}
       </h3>
       <p className="text-sm text-stone mb-6">{t('farmerRegister.step4Desc')}</p>
+
+      {/* Profile Photo Preview */}
+      {watch('profilePhoto') && (
+        <motion.div custom={0} variants={fadeUp} initial="hidden" animate="visible" className="flex flex-col items-center mb-4">
+          <img
+            src={watch('profilePhoto')}
+            alt="Profile"
+            className="w-20 h-20 rounded-full object-cover border-2 border-leaf shadow-md"
+          />
+          <span className="text-xs text-stone mt-2">Your profile photo</span>
+        </motion.div>
+      )}
 
       <div className="space-y-4">
         {sections.map((section, sIdx) => (
