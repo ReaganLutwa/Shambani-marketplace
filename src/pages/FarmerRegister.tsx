@@ -535,8 +535,18 @@ function Step1Personal({
           <p className="text-[11px] text-info mt-1">{t('farmerRegister.languageNote')}</p>
         </motion.div>
 
-        {/* Password */}
+        {/* Profile Photo */}
         <motion.div custom={5} variants={fadeUp} initial="hidden" animate="visible">
+          <ProfilePhotoUpload
+            value={watch('profilePhoto')}
+            onChange={(url) => setValue('profilePhoto', url || '', { shouldValidate: true })}
+            label="Profile Photo"
+            description="Buyers will see this photo on your listings. A clear face photo builds trust and helps you sell more."
+          />
+        </motion.div>
+
+        {/* Password */}
+        <motion.div custom={6} variants={fadeUp} initial="hidden" animate="visible">
           <Label htmlFor="password" className="text-sm font-semibold text-charcoal flex items-center gap-1.5">
             <Lock className="w-3.5 h-3.5 text-leaf" />
             {t('farmerRegister.password')} *
