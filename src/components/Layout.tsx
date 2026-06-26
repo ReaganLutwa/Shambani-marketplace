@@ -10,11 +10,17 @@ interface LayoutProps {
 
 export default function Layout({ children }: LayoutProps) {
   const location = useLocation();
+  const isAdmin = location.pathname.startsWith('/admin');
 
   // Scroll to top on route change
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [location.pathname]);
+
+  // Admin pages have their own layout - don't wrap with Navbar/Footer
+  if (isAdmin) {
+    return <>{children}</>;
+  }
 
   return (
     <div className="min-h-[100dvh] flex flex-col bg-cream">
