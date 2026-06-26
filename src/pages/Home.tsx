@@ -6,6 +6,7 @@ import {
   Package, ShoppingCart, Truck, CheckCircle,
   Smartphone, Globe, Landmark, Phone,
   Star, MapPin, ChevronLeft, ChevronRight,
+  Printer, MessageCircle, ExternalLink,
 } from 'lucide-react';
 import { products, categories, testimonials } from '@/data';
 import { useCartStore } from '@/store';
@@ -246,6 +247,48 @@ export default function Home() {
             </div>
           </div>
         </motion.div>
+      </section>
+
+      {/* ═══════ PRINTDROP WELCOME BANNER ═══════ */}
+      <section
+        className="relative overflow-hidden"
+        style={{ background: 'linear-gradient(135deg, #0f2818, #1a4d2e)' }}
+      >
+        <div className="container-main py-5">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center shrink-0">
+                <Printer className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <h3 className="text-white font-poppins font-bold text-base">
+                  {t('printDrop.bannerTitle')}
+                </h3>
+                <p className="text-white/70 text-sm">
+                  {t('printDrop.bannerSubtitle')}
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3 shrink-0">
+              <Link
+                to="/print"
+                className="inline-flex items-center gap-2 px-5 py-2.5 bg-white text-forest font-poppins font-semibold text-sm rounded-xl hover:bg-mint transition-all duration-200"
+              >
+                {t('printDrop.bannerCta')}
+                <ExternalLink className="w-4 h-4" />
+              </Link>
+              <a
+                href="https://wa.me/256708813419"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 px-5 py-2.5 border border-white/30 text-white font-poppins font-semibold text-sm rounded-xl hover:bg-white/10 transition-all duration-200"
+              >
+                <MessageCircle className="w-4 h-4" />
+                <span className="hidden sm:inline">WhatsApp</span>
+              </a>
+            </div>
+          </div>
+        </div>
       </section>
 
       {/* ═══════ SECTION 2: PRODUCE CATEGORIES ═══════ */}
