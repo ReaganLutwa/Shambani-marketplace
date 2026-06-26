@@ -38,22 +38,18 @@ function generateId(): string {
   return Math.random().toString(36).substring(2, 10);
 }
 
-// Estimate pages from file (simplified)
 function estimatePages(file: File): Promise<number> {
   return new Promise((resolve) => {
     if (file.type === 'application/pdf') {
-      // Rough estimate: PDF size / 30KB per page
       const estimated = Math.max(1, Math.round(file.size / 30720));
       resolve(Math.min(estimated, 500));
     } else if (file.type.startsWith('image/')) {
-      resolve(1); // 1 image = 1 page
+      resolve(1);
     } else {
-      // Word docs: rough estimate
       const estimated = Math.max(1, Math.round(file.size / 15360));
       resolve(Math.min(estimated, 200));
     }
   });
-
 }
 
 export default function FileUpload({ onOrderReady }: FileUploadProps) {
@@ -70,12 +66,12 @@ export default function FileUpload({ onOrderReady }: FileUploadProps) {
   const cameraInputRef = useRef<HTMLInputElement>(null);
 
   const processFiles = useCallback(async (fileList: FileList | null) => {
-    if (!fileList) return;
+    if (!fileList || fileList.length === 0) return;
     setUploading(true);
 
     const newFiles: UploadedFile[] = [];
     for (const file of Array.from(fileList)) {
-      const isValid = 
+      const isValid =
         file.type === 'application/pdf' ||
         file.type === 'application/msword' ||
         file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' ||
@@ -85,7 +81,6 @@ export default function FileUpload({ onOrderReady }: FileUploadProps) {
 
       const pages = await estimatePages(file);
       let preview: string | undefined;
-
       if (file.type.startsWith('image/')) {
         preview = URL.createObjectURL(file);
       }
@@ -103,6 +98,10 @@ export default function FileUpload({ onOrderReady }: FileUploadProps) {
 
     setFiles(prev => [...prev, ...newFiles]);
     setUploading(false);
+
+    // Reset file inputs so same file can be selected again
+    if (fileInputRef.current) fileInputRef.current.value = '';
+    if (cameraInputRef.current) cameraInputRef.current.value = '';
   }, []);
 
   const handleDrop = useCallback((e: React.DragEvent) => {
@@ -130,9 +129,8 @@ export default function FileUpload({ onOrderReady }: FileUploadProps) {
 
   const totalPages = files.reduce((sum, f) => sum + f.pages * config.copies, 0);
   const pricePerPage = config.printType === 'bw' ? BW_PRICE : COLOR_PRICE;
-  const subtotal = totalPages * pricePerPage;
   const bindingCost = files.length > 0 ? BINDING_PRICES[config.binding] * files.length : 0;
-  const total = subtotal + bindingCost;
+  const total = totalPages * pricePerPage + bindingCost;
 
   const handleSendToWhatsApp = () => {
     if (files.length === 0) return;
@@ -147,54 +145,57 @@ export default function FileUpload({ onOrderReady }: FileUploadProps) {
 
   return (
     <div className="space-y-6">
-      {/* Upload Area */}
-      <div
+      {/* Hidden inputs */}
+      <input
+        ref={fileInputRef}
+        id="file-upload-input"
+        type="file"
+        multiple
+        accept=".pdf,.doc,.docx,image/*"
+        onChange={e => processFiles(e.target.files)}
+        className="hidden"
+      />
+      <input
+        ref={cameraInputRef}
+        id="camera-upload-input"
+        type="file"
+        accept="image/*"
+        capture="environment"
+        onChange={e => processFiles(e.target.files)}
+        className="hidden"
+      />
+
+      {/* Upload Area - uses label for reliable mobile file opening */}
+      <label
+        htmlFor="file-upload-input"
         onDrop={handleDrop}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
-        onClick={() => fileInputRef.current?.click()}
-        className={`relative border-2 border-dashed rounded-2xl p-8 text-center cursor-pointer transition-all duration-200 ${
+        className={`relative block border-2 border-dashed rounded-2xl p-8 text-center cursor-pointer transition-all duration-200 select-none ${
           isDragging
             ? 'border-emerald-400 bg-emerald-500/5'
-            : 'border-[#334155] bg-[#1E293B] hover:border-emerald-500/50 hover:bg-emerald-500/5'
+            : 'border-[#334155] bg-[#1E293B] hover:border-emerald-500/50 hover:bg-emerald-500/5 active:border-emerald-400'
         }`}
       >
-        <input
-          ref={fileInputRef}
-          type="file"
-          multiple
-          accept=".pdf,.doc,.docx,image/*"
-          onChange={e => processFiles(e.target.files)}
-          className="hidden"
-        />
-        <input
-          ref={cameraInputRef}
-          type="file"
-          accept="image/*"
-          capture="environment"
-          onChange={e => processFiles(e.target.files)}
-          className="hidden"
-        />
-
-        <div className="w-16 h-16 rounded-full bg-emerald-500/10 flex items-center justify-center mx-auto mb-4">
+        <div className="w-16 h-16 rounded-full bg-emerald-500/10 flex items-center justify-center mx-auto mb-4 pointer-events-none">
           <Upload className="w-8 h-8 text-emerald-400" />
         </div>
-        <p className="text-[#E2E8F0] font-medium mb-1">
+        <p className="text-[#E2E8F0] font-medium mb-1 pointer-events-none">
           {uploading ? 'Processing files...' : 'Drag & drop files here'}
         </p>
-        <p className="text-sm text-[#94A3B8] mb-4">or click to browse</p>
-        <p className="text-xs text-[#64748B]">Supports: PDF, Word, JPG, PNG</p>
-      </div>
+        <p className="text-sm text-[#94A3B8] mb-4 pointer-events-none">or click to browse</p>
+        <p className="text-xs text-[#64748B] pointer-events-none">Supports: PDF, Word, JPG, PNG</p>
+      </label>
 
-      {/* Camera Button */}
+      {/* Camera Button - uses label for reliable mobile camera opening */}
       <div className="flex justify-center">
-        <button
-          onClick={() => cameraInputRef.current?.click()}
-          className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#334155] text-[#E2E8F0] rounded-xl text-sm hover:bg-[#475569] transition-colors"
+        <label
+          htmlFor="camera-upload-input"
+          className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#334155] text-[#E2E8F0] rounded-xl text-sm hover:bg-[#475569] active:bg-[#475569] transition-colors cursor-pointer select-none"
         >
           <Camera className="w-4 h-4" />
           Take a Photo
-        </button>
+        </label>
       </div>
 
       {/* File List */}
@@ -219,6 +220,7 @@ export default function FileUpload({ onOrderReady }: FileUploadProps) {
                 <button
                   onClick={() => removeFile(f.id)}
                   className="p-1.5 rounded-lg text-[#94A3B8] hover:text-red-400 hover:bg-red-500/10 transition-colors"
+                  type="button"
                 >
                   <X className="w-4 h-4" />
                 </button>
@@ -237,13 +239,14 @@ export default function FileUpload({ onOrderReady }: FileUploadProps) {
           <div>
             <label className="text-xs text-[#94A3B8] mb-2 block">Print Type</label>
             <div className="flex gap-2">
-              {[
+              {([
                 { key: 'bw' as const, label: 'Black & White', price: `UGX ${BW_PRICE}/page` },
                 { key: 'color' as const, label: 'Color', price: `UGX ${COLOR_PRICE}/page` },
-              ].map(opt => (
+              ]).map(opt => (
                 <button
                   key={opt.key}
                   onClick={() => setConfig(c => ({ ...c, printType: opt.key }))}
+                  type="button"
                   className={`flex-1 py-3 px-4 rounded-xl text-sm font-medium border transition-all ${
                     config.printType === opt.key
                       ? 'bg-emerald-500/10 border-emerald-500 text-emerald-400'
@@ -275,14 +278,15 @@ export default function FileUpload({ onOrderReady }: FileUploadProps) {
           <div>
             <label className="text-xs text-[#94A3B8] mb-2 block">Binding</label>
             <div className="flex gap-2">
-              {[
+              {([
                 { key: 'none' as const, label: 'None', price: 'Free' },
                 { key: 'staple' as const, label: 'Staple', price: 'UGX 1,000' },
                 { key: 'comb' as const, label: 'Comb', price: 'UGX 5,000' },
-              ].map(opt => (
+              ]).map(opt => (
                 <button
                   key={opt.key}
                   onClick={() => setConfig(c => ({ ...c, binding: opt.key }))}
+                  type="button"
                   className={`flex-1 py-2.5 px-3 rounded-xl text-sm border transition-all ${
                     config.binding === opt.key
                       ? 'bg-emerald-500/10 border-emerald-500 text-emerald-400'
@@ -325,7 +329,8 @@ export default function FileUpload({ onOrderReady }: FileUploadProps) {
       {files.length > 0 && (
         <button
           onClick={handleSendToWhatsApp}
-          className="w-full py-4 bg-emerald-500 hover:bg-emerald-600 text-white font-semibold rounded-xl flex items-center justify-center gap-2 transition-all hover:scale-[1.01]"
+          type="button"
+          className="w-full py-4 bg-emerald-500 hover:bg-emerald-600 active:bg-emerald-700 text-white font-semibold rounded-xl flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
         >
           <MessageCircle className="w-5 h-5" />
           Send Order to WhatsApp
