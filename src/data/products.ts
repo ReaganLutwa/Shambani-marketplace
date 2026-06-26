@@ -5,6 +5,8 @@ export interface Product {
   categoryKey: string;
   image: string;
   farmer: string;
+  farmerPhoto?: string;
+  farmerVerified?: boolean;
   district: string;
   country: string;
   rating: number;
@@ -24,6 +26,8 @@ export const products: Product[] = [
     categoryKey: 'categories.livestock',
     image: 'prod-eggs.jpg',
     farmer: 'REAGAN LUTWAMA',
+    farmerPhoto: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face',
+    farmerVerified: true,
     district: 'Kampala',
     country: 'Uganda',
     rating: 4.7,
@@ -41,6 +45,8 @@ export const products: Product[] = [
     categoryKey: 'categories.livestock',
     image: 'prod-chicken.jpg',
     farmer: 'REAGAN LUTWAMA',
+    farmerPhoto: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face',
+    farmerVerified: true,
     district: 'Kampala',
     country: 'Uganda',
     rating: 4.7,
@@ -58,6 +64,8 @@ export const products: Product[] = [
     categoryKey: 'categories.vegetables',
     image: 'prod-tomatoes.jpg',
     farmer: 'Namukwaya Sarah',
+    farmerPhoto: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&h=100&fit=crop&crop=face',
+    farmerVerified: true,
     district: 'Wakiso',
     country: 'Uganda',
     rating: 4.5,
@@ -75,6 +83,7 @@ export const products: Product[] = [
     categoryKey: 'categories.vegetables',
     image: 'prod-matooke.jpg',
     farmer: 'Kato John',
+    farmerVerified: false,
     district: 'Mukono',
     country: 'Uganda',
     rating: 4.8,
@@ -92,6 +101,8 @@ export const products: Product[] = [
     categoryKey: 'categories.vegetables',
     image: 'prod-cabbage.jpg',
     farmer: 'Nakamya Josephine',
+    farmerPhoto: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop&crop=face',
+    farmerVerified: true,
     district: 'Kampala',
     country: 'Uganda',
     rating: 4.6,
@@ -109,6 +120,8 @@ export const products: Product[] = [
     categoryKey: 'categories.nuts',
     image: 'prod-groundnuts.jpg',
     farmer: 'Acen Mary',
+    farmerPhoto: 'https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=100&h=100&fit=crop&crop=face',
+    farmerVerified: true,
     district: 'Gulu',
     country: 'Uganda',
     rating: 4.9,
@@ -126,6 +139,7 @@ export const products: Product[] = [
     categoryKey: 'categories.roots',
     image: 'produce-roots.jpg',
     farmer: 'Ochieng Peter',
+    farmerVerified: false,
     district: 'Lira',
     country: 'Uganda',
     rating: 4.4,
@@ -143,6 +157,8 @@ export const products: Product[] = [
     categoryKey: 'categories.dairy',
     image: 'produce-dairy.jpg',
     farmer: 'Nantume Grace',
+    farmerPhoto: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop&crop=face',
+    farmerVerified: true,
     district: 'Jinja',
     country: 'Uganda',
     rating: 4.7,
