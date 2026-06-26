@@ -138,7 +138,7 @@ export default function PrintDrop() {
       `Please confirm and I will send the files for printing.`
     );
 
-    window.open(`https://wa.me/256708813419?text=${message}`, '_blank');
+    window.location.href = `https://wa.me/256708813419?text=${message}`;
   };
 
   return (
