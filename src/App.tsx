@@ -10,6 +10,7 @@ const FarmerRegister = lazy(() => import('@/pages/FarmerRegister'));
 const Ussd = lazy(() => import('@/pages/Ussd'));
 const Cart = lazy(() => import('@/pages/Cart'));
 const About = lazy(() => import('@/pages/About'));
+const PrintDrop = lazy(() => import('@/pages/PrintDrop'));
 const AdminDashboard = lazy(() => import('@/pages/AdminDashboard'));
 
 function PageLoader() {
@@ -33,6 +34,7 @@ export default function App() {
             <Route path="/ussd" element={<Ussd />} />
             <Route path="/cart" element={<Cart />} />
             <Route path="/about" element={<About />} />
+            <Route path="/print" element={<PrintDrop />} />
             <Route path="/admin/*" element={<AdminDashboard />} />
           </Routes>
         </Suspense>
