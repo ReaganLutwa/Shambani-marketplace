@@ -5,6 +5,7 @@ import {
   Users,
   ShoppingCart,
   Package,
+  Printer,
   CreditCard,
   BarChart3,
   Settings,
@@ -30,6 +31,7 @@ const navItems = [
   { key: 'farmers', icon: Users, labelKey: 'admin.farmers' },
   { key: 'orders', icon: ShoppingCart, labelKey: 'admin.orders' },
   { key: 'products', icon: Package, labelKey: 'admin.products' },
+  { key: 'printdrop', icon: Printer, labelKey: 'admin.printdrop' },
   { key: 'payments', icon: CreditCard, labelKey: 'admin.payments' },
   { key: 'analytics', icon: BarChart3, labelKey: 'admin.analytics' },
   { key: 'settings', icon: Settings, labelKey: 'admin.settings' },
@@ -118,6 +120,9 @@ export default function AdminLayout({ children, activeView, onNavigate }: AdminL
                   <span className="min-w-[20px] h-5 px-1 bg-red-500 text-white text-[11px] font-bold rounded-full flex items-center justify-center">
                     {badge}
                   </span>
+                )}
+                {item.key === 'printdrop' && (
+                  <span className="text-[9px] font-bold bg-admin-accent/20 text-admin-accent px-1.5 py-0.5 rounded-full">NEW</span>
                 )}
               </button>
             );
