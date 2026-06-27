@@ -66,6 +66,7 @@ export default function Navbar() {
             className="relative px-3 py-2 text-sm font-medium text-leaf hover:text-forest transition-colors group flex items-center gap-1.5"
           >
             <Printer className="w-3.5 h-3.5" />
+            PrintDrop
             <span className="bg-leaf text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full leading-none">NEW</span>
             <span className="absolute bottom-0 left-3 right-3 h-0.5 bg-leaf scale-x-0 group-hover:scale-x-100 transition-transform duration-250 origin-left" />
           </Link>
