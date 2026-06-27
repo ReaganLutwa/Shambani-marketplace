@@ -54,7 +54,7 @@ A platform connecting smallholder farmers directly with buyers across Uganda, Ke
 
 Your site will be live at:
 ```
-https://reaganlutwa.github.io/Shambani-marketplace/
+https://shambani-market.africa
 ```
 
 ## Admin Dashboard Access
