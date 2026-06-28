@@ -33,6 +33,14 @@ export default function ProfilePhotoUpload({
     if (fileInputRef.current) fileInputRef.current.value = '';
   }, [preview, onChange]);
 
+  const triggerCamera = () => {
+    cameraInputRef.current?.click();
+  };
+
+  const triggerFileSelect = () => {
+    fileInputRef.current?.click();
+  };
+
   return (
     <div className="space-y-3">
       <div className="flex items-center gap-1.5">
@@ -59,41 +67,43 @@ export default function ProfilePhotoUpload({
         </div>
       ) : (
         <div className="flex flex-col items-center gap-3">
-          {/* Hidden inputs */}
+          {/* Hidden inputs - moved outside flex, styled as visually hidden but accessible */}
           <input
             ref={fileInputRef}
-            id="profile-photo-file"
             type="file"
             accept="image/*"
             onChange={(e) => handleFile(e.target.files?.[0] || null)}
-            className="hidden"
+            className="sr-only"
+            aria-label="Upload profile photo from device"
           />
           <input
             ref={cameraInputRef}
-            id="profile-photo-camera"
             type="file"
             accept="image/*"
             capture="user"
             onChange={(e) => handleFile(e.target.files?.[0] || null)}
-            className="hidden"
+            className="sr-only"
+            aria-label="Take profile photo with camera"
           />
 
-          {/* Upload options */}
+          {/* Upload options - using button elements with onClick for reliability */}
           <div className="flex gap-3">
-            <label
-              htmlFor="profile-photo-camera"
-              className="flex items-center gap-2 px-4 py-2.5 bg-leaf text-white text-sm font-medium rounded-xl cursor-pointer hover:bg-forest active:bg-forest transition-colors select-none"
+            <button
+              type="button"
+              onClick={triggerCamera}
+              className="flex items-center gap-2 px-4 py-2.5 bg-leaf text-white text-sm font-medium rounded-xl hover:bg-forest active:bg-forest active:scale-95 transition-all select-none touch-manipulation"
             >
               <Camera className="w-4 h-4" />
               Take Photo
-            </label>
-            <label
-              htmlFor="profile-photo-file"
-              className="flex items-center gap-2 px-4 py-2.5 border-2 border-leaf text-leaf text-sm font-medium rounded-xl cursor-pointer hover:bg-leaf/5 active:bg-leaf/10 transition-colors select-none"
+            </button>
+            <button
+              type="button"
+              onClick={triggerFileSelect}
+              className="flex items-center gap-2 px-4 py-2.5 border-2 border-leaf text-leaf text-sm font-medium rounded-xl hover:bg-leaf/5 active:bg-leaf/10 active:scale-95 transition-all select-none touch-manipulation"
             >
               <Upload className="w-4 h-4" />
               Upload
-            </label>
+            </button>
           </div>
 
           {/* Placeholder circle */}
