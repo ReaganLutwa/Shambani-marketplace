@@ -3,6 +3,9 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <title>ShambaNi Market (Beta) - East Africa's Farmers Marketplace</title>
     <script type="module" crossorigin src="/assets/index-DZXly_xy.js"></script>
@@ -60,5 +63,50 @@
       })();
     </script>
     <!-- END BETA FORM INTERCEPT -->
+
+    <!-- FIX FAKE STATS & FLAG -->
+    <script>
+      (function() {
+        var replacements = [
+          { find: '\uD83C\uDDEC\uD83C\uDDEA Uganda', replace: '\uD83C\uDDFA\uD83C\uDDEC Uganda' },
+          { find: '1,200+', replace: '0+' },
+          { find: '111+', replace: '0+' },
+          { find: '3,000+', replace: '0+' }
+        ];
+        function fixText(node) {
+          var text = node.textContent;
+          var changed = false;
+          for (var i = 0; i < replacements.length; i++) {
+            if (text.indexOf(replacements[i].find) !== -1) {
+              text = text.split(replacements[i].find).join(replacements[i].replace);
+              changed = true;
+            }
+          }
+          if (text.indexOf('4') !== -1 && text.indexOf('EAST AFRICAN') !== -1 && text.indexOf('COUNTRIES') !== -1) {
+            text = text.split('4').join('1');
+            changed = true;
+          }
+          if (changed) node.textContent = text;
+        }
+        function fixAll() {
+          if (!document.body) return;
+          var walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null, false);
+          var node;
+          while (node = walker.nextNode()) { fixText(node); }
+        }
+        var pending = false;
+        function scheduleFix() {
+          if (pending) return;
+          pending = true;
+          setTimeout(function() { pending = false; fixAll(); }, 100);
+        }
+        setTimeout(fixAll, 500);
+        setTimeout(fixAll, 1500);
+        setTimeout(fixAll, 3000);
+        var observer = new MutationObserver(scheduleFix);
+        observer.observe(document.body, { childList: true, subtree: true });
+      })();
+    </script>
+    <!-- END FIX FAKE STATS & FLAG -->
   </body>
 </html>
