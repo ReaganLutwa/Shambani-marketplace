@@ -6,10 +6,10 @@ import { useLangStore } from '@/store';
 import { useCartStore } from '@/store';
 
 const languages = [
-  { code: 'en' as const, label: 'EN', flag: '\uD83C\uDDFA\uD83C\uDDEC' },
-  { code: 'sw' as const, label: 'SW', flag: '\uD83C\uDDFA\uD83C\uDDEC' },
-  { code: 'rw' as const, label: 'RW', flag: '\uD83C\uDDFA\uD83C\uDDEC' },
-  { code: 'lg' as const, label: 'LG', flag: '\uD83C\uDDFA\uD83C\uDDEC' },
+  { code: 'en' as const, label: 'EN', flag: '\uD83C\uDDEC\uD83C\uDDE7' }, // GB - English
+  { code: 'sw' as const, label: 'SW', flag: '\uD83C\uDDF9\uD83C\uDDFF' }, // TZ - Swahili
+  { code: 'rw' as const, label: 'RW', flag: '\uD83C\uDDF7\uD83C\uDDFC' }, // RW - Kinyarwanda
+  { code: 'lg' as const, label: 'LG', flag: '\uD83C\uDDFA\uD83C\uDDEC' }, // UG - Luganda
 ];
 
 const navLinks = [
