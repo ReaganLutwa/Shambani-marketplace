@@ -78,8 +78,8 @@ interface Withdrawal {
 
 /* ─── Mock Data ─── */
 /* Load real farmers from localStorage + mock data */
-const storedFarmers = JSON.parse(localStorage.getItem('shambani_farmers') || '[]');
-const storedVerifications: VerificationFarmer[] = storedFarmers.map((f: any) => ({
+const storedFarmers = typeof window !== 'undefined' ? JSON.parse(localStorage.getItem('shambani_farmers') || '[]') : [];
+const storedVerifications: VerificationFarmer[] = typeof window !== 'undefined' ? storedFarmers.map((f: any) => ({
   id: f.id,
   name: f.name,
   phone: f.phone,
@@ -87,7 +87,7 @@ const storedVerifications: VerificationFarmer[] = storedFarmers.map((f: any) => 
   profilePhoto: f.profilePhoto || '',
   status: f.status === 'approved' ? 'verified' : 'pending',
   submitted: f.joined,
-}));
+})) : [];
 
 const initialFarmers: Farmer[] = [
   { id: 1, name: 'John Okello', phone: '+256 701 234 567', location: 'Gulu', status: 'approved', products: 12, joined: '2024-01-15' },
