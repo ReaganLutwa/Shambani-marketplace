@@ -175,7 +175,7 @@ function LoginScreen({ onLogin }: { onLogin: () => void }) {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (locked) return;
-    if (password === ADMIN_PASSWORD) {
+    if (password.toLowerCase() === ADMIN_PASSWORD.toLowerCase()) {
       sessionStorage.setItem('shambani_admin', 'true');
       setError('');
       onLogin();
@@ -229,7 +229,18 @@ function LoginScreen({ onLogin }: { onLogin: () => void }) {
           {error && (
             <div className="bg-red-50 border border-red-200 rounded-lg p-3 flex items-start gap-2">
               <AlertCircle className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
-              <p className="text-sm text-red-600">{error}</p>
+              <div className="text-sm text-red-600 flex-1">
+                <p>{error}</p>
+                {locked && (
+                  <button
+                    type="button"
+                    onClick={() => { setLocked(false); setAttempts(0); setLockTimer(0); setError(''); }}
+                    className="text-green-600 hover:text-green-700 underline mt-1 text-xs font-medium"
+                  >
+                    Reset Lock
+                  </button>
+                )}
+              </div>
             </div>
           )}
 
