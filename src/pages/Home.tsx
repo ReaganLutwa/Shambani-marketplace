@@ -237,7 +237,7 @@ export default function Home() {
               ].map((stat, i) => (
                 <div key={stat.label} className="text-center">
                   <div className="font-space font-bold text-2xl md:text-4xl tracking-[-0.02em]">
-                    {statsInView ? <AnimatedCounter target={stat.value} suffix={stat.suffix} delay={i * 0.15} /> : `0${stat.suffix}`}
+                    {stat.value.toLocaleString()}{stat.suffix}
                   </div>
                   <div className="text-xs md:text-[13px] font-medium text-white/70 uppercase tracking-wide mt-1">
                     {stat.label}

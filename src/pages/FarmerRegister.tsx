@@ -239,13 +239,29 @@ export default function FarmerRegister() {
   };
 
   const onSubmit = () => {
-    // Simulate submission
-    login({
+    const farmerData = {
       id: crypto.randomUUID(),
       name: watch('fullName'),
       email: watch('email') || watch('phone'),
+      phone: watch('phone'),
       role: 'farmer',
-    });
+      farmName: watch('farmName'),
+      farmAbout: watch('farmAbout'),
+      region: watch('region'),
+      district: watch('district'),
+      village: watch('village'),
+      farmSize: watch('farmSize'),
+      farmSizeUnit: watch('farmSizeUnit'),
+      produceTypes: watch('produceTypes'),
+      paymentMethods: watch('paymentMethods'),
+      profilePhoto: watch('profilePhoto'),
+      status: 'pending',
+      joined: new Date().toISOString().split('T')[0],
+    };
+    // Store in localStorage for admin dashboard
+    const existing = JSON.parse(localStorage.getItem('shambani_farmers') || '[]');
+    localStorage.setItem('shambani_farmers', JSON.stringify([...existing, farmerData]));
+    login(farmerData);
     setSubmitted(true);
   };
 

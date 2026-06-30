@@ -77,12 +77,33 @@ interface Withdrawal {
 }
 
 /* ─── Mock Data ─── */
+/* Load real farmers from localStorage + mock data */
+const storedFarmers = JSON.parse(localStorage.getItem('shambani_farmers') || '[]');
+const storedVerifications: VerificationFarmer[] = storedFarmers.map((f: any) => ({
+  id: f.id,
+  name: f.name,
+  phone: f.phone,
+  location: f.district || f.village || 'Uganda',
+  profilePhoto: f.profilePhoto || '',
+  status: f.status === 'approved' ? 'verified' : 'pending',
+  submitted: f.joined,
+}));
+
 const initialFarmers: Farmer[] = [
   { id: 1, name: 'John Okello', phone: '+256 701 234 567', location: 'Gulu', status: 'approved', products: 12, joined: '2024-01-15' },
   { id: 2, name: 'Mary Auma', phone: '+256 702 345 678', location: 'Lira', status: 'pending', products: 0, joined: '2024-03-20' },
   { id: 3, name: 'Peter Ochien', phone: '+256 703 456 789', location: 'Mbale', status: 'approved', products: 8, joined: '2024-02-10' },
   { id: 4, name: 'Grace Nakato', phone: '+256 704 567 890', location: 'Jinja', status: 'pending', products: 0, joined: '2024-04-05' },
   { id: 5, name: 'David Ouma', phone: '+256 705 678 901', location: 'Arua', status: 'approved', products: 15, joined: '2024-01-28' },
+  ...storedFarmers.map((f: any, i: number) => ({
+    id: f.id || 100 + i,
+    name: f.name,
+    phone: f.phone,
+    location: f.district || f.village || 'Uganda',
+    status: f.status as 'pending' | 'approved' | 'rejected',
+    products: 0,
+    joined: f.joined,
+  })),
 ];
 
 const initialOrders: Order[] = [
@@ -126,6 +147,7 @@ const initialVerifications: VerificationFarmer[] = [
   { id: 101, name: 'Auma Grace', phone: '+256 706 123 456', location: 'Gulu', profilePhoto: 'https://images.unsplash.com/photo-1531123897727-8f129e1688ce?w=200&h=200&fit=crop&crop=face', status: 'pending', submitted: '2024-06-25' },
   { id: 102, name: 'Ojok Samuel', phone: '+256 702 987 654', location: 'Lira', profilePhoto: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=200&h=200&fit=crop&crop=face', idDocument: 'ID_UPLOADED', status: 'pending', submitted: '2024-06-26' },
   { id: 103, name: 'Akello Christine', phone: '+256 704 456 789', location: 'Kitgum', profilePhoto: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=200&h=200&fit=crop&crop=face', status: 'pending', submitted: '2024-06-26' },
+  ...storedVerifications,
 ];
 
 const ADMIN_PASSWORD = 'admin123';
