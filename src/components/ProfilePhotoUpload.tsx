@@ -20,18 +20,22 @@ export default function ProfilePhotoUpload({
 
   const handleFile = useCallback((file: File | null) => {
     if (!file || !file.type.startsWith('image/')) return;
-    const url = URL.createObjectURL(file);
-    setPreview(url);
-    onChange(url);
+    // Convert to base64 so the image persists in localStorage
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const base64 = reader.result as string;
+      setPreview(base64);
+      onChange(base64);
+    };
+    reader.readAsDataURL(file);
   }, [onChange]);
 
   const handleClear = useCallback(() => {
-    if (preview) URL.revokeObjectURL(preview);
     setPreview(undefined);
     onChange(undefined);
     if (cameraInputRef.current) cameraInputRef.current.value = '';
     if (fileInputRef.current) fileInputRef.current.value = '';
-  }, [preview, onChange]);
+  }, [onChange]);
 
   const triggerCamera = () => {
     cameraInputRef.current?.click();
