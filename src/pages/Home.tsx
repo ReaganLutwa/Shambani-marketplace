@@ -230,9 +230,9 @@ export default function Home() {
           <div className="container-main py-6 md:py-0 md:h-[100px]">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-0 md:h-full items-center">
               {[
-                { value: 1200, suffix: '+', label: t('stats.farmers') },
-                { value: 111, suffix: '+', label: t('stats.districts') },
-                { value: 3000, suffix: '+', label: t('stats.buyers') },
+                { value: 0, suffix: '+', label: t('stats.farmers') },
+                { value: 1, suffix: '+', label: t('stats.districts') },
+                { value: 0, suffix: '+', label: t('stats.buyers') },
                 { value: 4, suffix: '', label: t('stats.countries') },
               ].map((stat, i) => (
                 <div key={stat.label} className="text-center">
