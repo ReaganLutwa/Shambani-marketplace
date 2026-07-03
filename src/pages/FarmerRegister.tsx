@@ -1,61 +1,16 @@
-import { useState, useMemo } from 'react';
-import { useTranslation } from 'react-i18next';
-import { Link } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
-import { useForm, Controller } from 'react-hook-form';
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import {
-  User, Phone, Mail, Lock, MapPin, Tractor, FileText,
-  ChevronRight, ChevronLeft, Check, CreditCard, Landmark,
-  Globe, Smartphone, AlertCircle, Eye, EyeOff,
-} from 'lucide-react';
-import { useAuthStore } from '@/store';
-import { countriesData, getDistrictsForCountry, supportedCountries } from '@/data/districts';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Checkbox } from '@/components/ui/checkbox';
-import { cn } from '@/lib/utils';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ChevronLeft, ChevronRight, Check, User, MapPin, CreditCard, ClipboardCheck, Loader2 } from 'lucide-react';
+import { useAuth } from '@/hooks/useAuth';
 import ProfilePhotoUpload from '@/components/ProfilePhotoUpload';
+import { countries } from '@/data/countries';
+import { useTranslation } from 'react-i18next';
 
-/* ------------------------------------------------------------------ */
-/*  Types & Schema                                                      */
-/* ------------------------------------------------------------------ */
-
-type PaymentMethod = 'airtel' | 'mtn' | 'paypal' | 'bank';
-
-interface FormData {
-  // Step 1
-  fullName: string;
-  phone: string;
-  email: string;
-  country: string;
-  language: string;
-  password: string;
-  confirmPassword: string;
-  profilePhoto: string;
-  // Step 2
-  farmName: string;
-  farmAbout: string;
-  region: string;
-  district: string;
-  village: string;
-  farmSize: string;
-  farmSizeUnit: 'acres' | 'hectares';
-  produceTypes: string[];
-  // Step 3
-  paymentMethods: PaymentMethod[];
-  airtelNumber: string;
-  mtnNumber: string;
-  paypalEmail: string;
-  bankName: string;
-  bankAccountNumber: string;
-  bankAccountName: string;
-  bankBranch: string;
-  termsAccepted: boolean;
-}
-
+/* ─── validation schemas ─── */
 const step1Schema = z.object({
   fullName: z.string().min(3, 'Name must be at least 3 characters'),
   phone: z.string().min(5, 'Phone number is required'),
@@ -70,13 +25,11 @@ const step1Schema = z.object({
 });
 
 const step2Schema = z.object({
-  farmName: z.string().min(1, 'Farm name is required'),
-  farmAbout: z.string().min(10, 'Please write at least 10 characters'),
+  farmName: z.string().min(2, 'Farm name is required'),
+  farmAbout: z.string().min(10, 'Please tell us more about your farm'),
   region: z.string().min(1, 'Region is required'),
   district: z.string().min(1, 'District is required'),
-  village: z.string().min(1, 'Village/Area is required'),
-  farmSize: z.string().optional(),
-  farmSizeUnit: z.enum(['acres', 'hectares']).optional(),
+  village: z.string().min(1, 'Village or area is required'),
   produceTypes: z.array(z.string()).min(1, 'Select at least one produce type'),
 });
 
@@ -90,82 +43,63 @@ const step3Schema = z.object({
   bankAccountName: z.string().optional(),
   bankBranch: z.string().optional(),
   termsAccepted: z.boolean().refine((v) => v === true, { message: 'You must accept the terms' }),
+}).superRefine((data, ctx) => {
+  if (data.paymentMethods.includes('airtel') && !data.airtelNumber) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Airtel Money number is required', path: ['airtelNumber'] });
+  }
+  if (data.paymentMethods.includes('mtn') && !data.mtnNumber) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'MTN Mobile Money number is required', path: ['mtnNumber'] });
+  }
+  if (data.paymentMethods.includes('paypal') && !data.paypalEmail) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'PayPal email is required', path: ['paypalEmail'] });
+  }
+  if (data.paymentMethods.includes('bank')) {
+    if (!data.bankName) ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Bank name is required', path: ['bankName'] });
+    if (!data.bankAccountNumber) ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Account number is required', path: ['bankAccountNumber'] });
+    if (!data.bankAccountName) ctx.addIssue({ code: z.ZodIssueCode.custom, message: 'Account holder name is required', path: ['bankAccountName'] });
+  }
 });
 
-/* ------------------------------------------------------------------ */
-/*  Animation helpers                                                   */
-/* ------------------------------------------------------------------ */
+/* ─── step fields for partial validation ─── */
+const step1Fields = ['fullName', 'phone', 'email', 'country', 'language', 'password', 'confirmPassword'] as const;
+const step2Fields = ['farmName', 'farmAbout', 'region', 'district', 'village', 'produceTypes'] as const;
+const step3Fields = ['paymentMethods', 'termsAccepted'] as const;
 
-const slideVariants = {
-  enter: (dir: number) => ({ x: dir > 0 ? 300 : -300, opacity: 0 }),
-  center: { x: 0, opacity: 1 },
-  exit: (dir: number) => ({ x: dir > 0 ? -300 : 300, opacity: 0 }),
+const allSteps = [step1Fields, step2Fields, step3Fields];
+
+type FormData = z.infer<typeof step1Schema> & z.infer<typeof step2Schema> & z.infer<typeof step3Schema> & {
+  profilePhoto?: string;
 };
 
-const fadeUp = {
-  hidden: { opacity: 0, y: 20 },
-  visible: (i: number) => ({
-    opacity: 1, y: 0,
-    transition: { delay: i * 0.08, duration: 0.5, ease: [0.4, 0, 0.2, 1] as [number,number,number,number] },
-  }),
-};
-
-/* ------------------------------------------------------------------ */
-/*  Password strength                                                   */
-/* ------------------------------------------------------------------ */
-
-function getPasswordStrength(pw: string): number {
-  let s = 0;
-  if (pw.length >= 8) s++;
-  if (/[A-Z]/.test(pw)) s++;
-  if (/[0-9]/.test(pw)) s++;
-  if (/[^A-Za-z0-9]/.test(pw)) s++;
-  return s;
-}
-
-function strengthLabel(s: number): { text: string; color: string } {
-  if (s === 0) return { text: 'Very Weak', color: 'bg-error' };
-  if (s === 1) return { text: 'Weak', color: 'bg-error' };
-  if (s === 2) return { text: 'Fair', color: 'bg-warning' };
-  if (s === 3) return { text: 'Good', color: 'bg-sun' };
-  return { text: 'Strong', color: 'bg-leaf' };
-}
-
-/* ------------------------------------------------------------------ */
-/*  Produce options                                                     */
-/* ------------------------------------------------------------------ */
-
-const produceOptions = [
-  { id: 'vegetables', label: 'Vegetables' },
-  { id: 'fruits', label: 'Fruits' },
-  { id: 'grains', label: 'Grains' },
-  { id: 'livestock', label: 'Livestock' },
-  { id: 'dairy', label: 'Dairy' },
-  { id: 'spices', label: 'Spices' },
-  { id: 'nuts', label: 'Nuts & Seeds' },
-  { id: 'roots', label: 'Root Crops' },
-  { id: 'other', label: 'Other' },
+/* ─── produce options ─── */
+const PRODUCE_OPTIONS = [
+  'Vegetables', 'Fruits', 'Grains', 'Livestock', 'Dairy', 'Spices', 'Nuts & Seeds', 'Root Crops', 'Poultry', 'Fish'
 ];
 
-const languages = [
-  { code: 'en', name: 'English' },
-  { code: 'sw', name: 'Kiswahili' },
-  { code: 'rw', name: 'Runyarwanda' },
-  { code: 'lg', name: 'Luganda' },
+/* ─── languages ─── */
+const LANGUAGES = [
+  { code: 'en', label: 'English' },
+  { code: 'sw', label: 'Kiswahili' },
+  { code: 'lg', label: 'Luganda' },
+  { code: 'rw', label: 'Runyarwanda' },
 ];
 
-/* ================================================================== */
-/*  MAIN COMPONENT                                                      */
-/* ================================================================== */
+/* ─── step config ─── */
+const STEPS = [
+  { label: 'Personal Info', icon: User },
+  { label: 'Farm Details', icon: MapPin },
+  { label: 'Payment', icon: CreditCard },
+  { label: 'Review', icon: ClipboardCheck },
+];
 
 export default function FarmerRegister() {
+  const navigate = useNavigate();
+  const { login } = useAuth();
   const { t } = useTranslation();
-  const { login } = useAuthStore();
   const [step, setStep] = useState(1);
-  const [direction, setDirection] = useState(1);
+  const [direction, setDirection] = useState(0);
   const [submitted, setSubmitted] = useState(false);
-  const [showPw, setShowPw] = useState(false);
-  const [showConfirmPw, setShowConfirmPw] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const {
     register,
@@ -174,59 +108,107 @@ export default function FarmerRegister() {
     watch,
     setValue,
     trigger,
+    setError,
+    clearErrors,
     formState: { errors },
   } = useForm<FormData>({
     defaultValues: {
-      country: '', language: 'en', paymentMethods: [], produceTypes: [], profilePhoto: '',
-      farmSizeUnit: 'acres', email: '', termsAccepted: false,
+      fullName: '',
+      phone: '',
+      email: '',
+      country: 'Uganda',
+      language: 'en',
+      password: '',
+      confirmPassword: '',
+      profilePhoto: '',
+      farmName: '',
+      farmAbout: '',
+      region: '',
+      district: '',
+      village: '',
+      produceTypes: [],
+      paymentMethods: [],
+      airtelNumber: '',
+      mtnNumber: '',
+      paypalEmail: '',
+      bankName: '',
+      bankAccountNumber: '',
+      bankAccountName: '',
+      bankBranch: '',
+      termsAccepted: false,
     },
     resolver: (step === 1 ? zodResolver(step1Schema)
       : step === 2 ? zodResolver(step2Schema)
       : step === 3 ? zodResolver(step3Schema)
-      : undefined) as unknown as import('react-hook-form').Resolver<FormData> | undefined,
+      : undefined) as any,
     mode: 'onChange',
   });
 
-  const selectedCountry = watch('country');
-  const selectedPaymentMethods = watch('paymentMethods') || [];
-  const passwordValue = watch('password') || '';
-  const produceTypes = watch('produceTypes') || [];
+  const country = watch('country');
+  const paymentMethods = watch('paymentMethods') || [];
 
-  const districts = useMemo(
-    () => (selectedCountry ? getDistrictsForCountry(selectedCountry) : []),
-    [selectedCountry]
-  );
+  /* Update resolver when step changes */
+  useEffect(() => {
+    // Resolver updates automatically via the step variable in useForm config
+    // But we need to trigger re-validation when step changes
+    if (step <= 3) {
+      trigger(allSteps[step - 1] as any);
+    }
+  }, [step, trigger]);
 
-  const regions = useMemo(() => {
-    if (!selectedCountry) return [];
-    return countriesData[selectedCountry]?.regions.map((r) => r.name) || [];
-  }, [selectedCountry]);
-
-  /* --- step navigation --- */
   const goNext = async () => {
-    const fields: Record<number, (keyof FormData)[]> = {
-      1: ['fullName', 'phone', 'email', 'country', 'language', 'password', 'confirmPassword', 'profilePhoto'],
-      2: ['farmName', 'farmAbout', 'region', 'district', 'village', 'produceTypes'],
-      3: ['paymentMethods', 'termsAccepted'],
-    };
-    const ok = await trigger(fields[step] || []);
+    const fields = allSteps[step - 1];
+    const ok = await trigger(fields as any);
     if (!ok) return;
 
-    /* extra validation for step 3 payment details */
+    /* extra validation for step 3 payment details — now with VISIBLE errors */
     if (step === 3) {
       const pm = watch('paymentMethods');
+      let hasError = false;
+
       if (pm.includes('airtel') && !watch('airtelNumber')) {
-        return;
+        setError('airtelNumber', { type: 'required', message: 'Airtel Money number is required when Airtel is selected' });
+        hasError = true;
+      } else {
+        clearErrors('airtelNumber');
       }
+
       if (pm.includes('mtn') && !watch('mtnNumber')) {
-        return;
+        setError('mtnNumber', { type: 'required', message: 'MTN Mobile Money number is required when MTN is selected' });
+        hasError = true;
+      } else {
+        clearErrors('mtnNumber');
       }
+
       if (pm.includes('paypal') && !watch('paypalEmail')) {
-        return;
+        setError('paypalEmail', { type: 'required', message: 'PayPal email is required when PayPal is selected' });
+        hasError = true;
+      } else {
+        clearErrors('paypalEmail');
       }
-      if (pm.includes('bank') && (!watch('bankName') || !watch('bankAccountNumber') || !watch('bankAccountName'))) {
-        return;
+
+      if (pm.includes('bank')) {
+        if (!watch('bankName')) {
+          setError('bankName', { type: 'required', message: 'Bank name is required when Bank Transfer is selected' });
+          hasError = true;
+        } else {
+          clearErrors('bankName');
+        }
+        if (!watch('bankAccountNumber')) {
+          setError('bankAccountNumber', { type: 'required', message: 'Account number is required when Bank Transfer is selected' });
+          hasError = true;
+        } else {
+          clearErrors('bankAccountNumber');
+        }
+        if (!watch('bankAccountName')) {
+          setError('bankAccountName', { type: 'required', message: 'Account holder name is required when Bank Transfer is selected' });
+          hasError = true;
+        } else {
+          clearErrors('bankAccountName');
+        }
       }
+
+      if (hasError) return;
     }
 
     setDirection(1);
@@ -239,978 +221,788 @@ export default function FarmerRegister() {
   };
 
   const onSubmit = () => {
+    setSubmitError(null);
+    
     const farmerData = {
       id: crypto.randomUUID(),
-      name: watch('fullName'),
-      email: watch('email') || watch('phone'),
+      fullName: watch('fullName'),
       phone: watch('phone'),
-      role: 'farmer',
+      email: watch('email') || undefined,
+      country: watch('country'),
+      language: watch('language'),
+      password: watch('password'),
+      profilePhoto: watch('profilePhoto') || undefined,
       farmName: watch('farmName'),
       farmAbout: watch('farmAbout'),
       region: watch('region'),
       district: watch('district'),
       village: watch('village'),
-      farmSize: watch('farmSize'),
-      farmSizeUnit: watch('farmSizeUnit'),
       produceTypes: watch('produceTypes'),
       paymentMethods: watch('paymentMethods'),
-      profilePhoto: watch('profilePhoto'),
+      airtelNumber: watch('airtelNumber') || undefined,
+      mtnNumber: watch('mtnNumber') || undefined,
+      paypalEmail: watch('paypalEmail') || undefined,
+      bankName: watch('bankName') || undefined,
+      bankAccountNumber: watch('bankAccountNumber') || undefined,
+      bankAccountName: watch('bankAccountName') || undefined,
+      bankBranch: watch('bankBranch') || undefined,
       status: 'pending',
       joined: new Date().toISOString().split('T')[0],
     };
-    // Store in localStorage for admin dashboard
-    const existing = JSON.parse(localStorage.getItem('shambani_farmers') || '[]');
-    localStorage.setItem('shambani_farmers', JSON.stringify([...existing, farmerData]));
-    login(farmerData);
-    setSubmitted(true);
+
+    try {
+      const existing = JSON.parse(localStorage.getItem('shambani_farmers') || '[]');
+      const updated = [...existing, farmerData];
+      localStorage.setItem('shambani_farmers', JSON.stringify(updated));
+      login(farmerData as any);
+      setSubmitted(true);
+    } catch (err: any) {
+      console.error('Failed to save registration:', err);
+      if (err.name === 'QuotaExceededError' || err.code === 22) {
+        setSubmitError('Your profile photo is too large to save. Please go back to Step 1 and upload a smaller photo (under 2MB), then try again.');
+      } else {
+        setSubmitError('Failed to save your registration. Please try again or contact support.');
+      }
+    }
   };
 
-  /* --- stepper --- */
-  const steps = [
-    { label: t('farmerRegister.step1Label'), icon: User },
-    { label: t('farmerRegister.step2Label'), icon: Tractor },
-    { label: t('farmerRegister.step3Label'), icon: CreditCard },
-    { label: t('farmerRegister.step4Label'), icon: Check },
-  ];
-
-  /* ================================================================== */
-  /*  RENDER                                                              */
-  /* ================================================================== */
+  if (submitted) {
+    return (
+      <div className="min-h-screen bg-[#0F172A] flex items-center justify-center p-4">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="bg-[#1E293B] border border-[#334155] rounded-2xl p-8 max-w-md w-full text-center"
+        >
+          <div className="w-16 h-16 rounded-full bg-emerald-500/10 flex items-center justify-center mx-auto mb-4">
+            <Check className="w-8 h-8 text-emerald-400" />
+          </div>
+          <h2 className="text-xl font-bold text-white mb-2">{t('farmerRegister.successTitle')}</h2>
+          <p className="text-sm text-[#94A3B8] mb-6">{t('farmerRegister.successMessage')}</p>
+          <div className="flex gap-3 justify-center">
+            <button
+              onClick={() => navigate('/ussd')}
+              className="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg text-sm font-medium transition-colors"
+            >
+              {t('farmerRegister.successCtaUssd')}
+            </button>
+            <button
+              onClick={() => navigate('/')}
+              className="px-4 py-2 border border-[#334155] hover:border-[#475569] text-[#E2E8F0] rounded-lg text-sm transition-colors"
+            >
+              {t('farmerRegister.successCtaHome')}
+            </button>
+          </div>
+        </motion.div>
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-[100dvh] bg-cream">
-      {/* ---- Header ---- */}
-      <div className="pt-8 pb-6 md:pt-12 md:pb-10 text-center px-4">
-        <motion.h1
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, ease: [0.4, 0, 0.2, 1] as [number,number,number,number] }}
-          className="text-3xl md:text-[40px] font-poppins font-bold text-charcoal leading-tight"
-        >
-          {t('farmerRegister.pageTitle')}
-        </motion.h1>
-        <motion.p
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.1, ease: [0.4, 0, 0.2, 1] as [number,number,number,number] }}
-          className="mt-3 text-base md:text-lg text-stone max-w-xl mx-auto"
-        >
-          {t('farmerRegister.pageSubtitle')}
-        </motion.p>
+    <div className="min-h-screen bg-[#0F172A] py-8 px-4">
+      <div className="max-w-2xl mx-auto">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <h1 className="text-2xl font-bold text-white mb-2">{t('farmerRegister.pageTitle')}</h1>
+          <p className="text-sm text-[#94A3B8]">{t('farmerRegister.pageSubtitle')}</p>
+        </div>
+
+        {/* Step Indicator */}
+        <div className="flex items-center justify-center mb-8">
+          {STEPS.map((s, i) => {
+            const Icon = s.icon;
+            const isActive = step === i + 1;
+            const isCompleted = step > i + 1;
+            return (
+              <div key={i} className="flex items-center">
+                <div
+                  className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors ${
+                    isActive
+                      ? 'bg-emerald-500 text-white'
+                      : isCompleted
+                      ? 'bg-emerald-500/20 text-emerald-400'
+                      : 'bg-[#334155] text-[#64748B]'
+                  }`}
+                >
+                  {isCompleted ? <Check className="w-5 h-5" /> : <Icon className="w-5 h-5" />}
+                </div>
+                {i < STEPS.length - 1 && (
+                  <div
+                    className={`w-12 h-0.5 mx-1 ${
+                      isCompleted ? 'bg-emerald-500' : 'bg-[#334155]'
+                    }`}
+                  />
+                )}
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Step Labels */}
+        <div className="flex justify-center gap-8 mb-8 text-xs text-[#64748B]">
+          {STEPS.map((s, i) => (
+            <span key={i} className={step === i + 1 ? 'text-emerald-400 font-medium' : ''}>
+              {s.label}
+            </span>
+          ))}
+        </div>
+
+        {/* Submit Error */}
+        {submitError && (
+          <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-xl text-sm text-red-400">
+            {submitError}
+          </div>
+        )}
+
+        {/* Form Steps */}
+        <AnimatePresence mode="wait" custom={direction}>
+          {step === 1 && (
+            <Step1Personal
+              key="step1"
+              register={register}
+              control={control}
+              errors={errors}
+              watch={watch}
+              setValue={setValue}
+              onNext={goNext}
+              t={t}
+            />
+          )}
+          {step === 2 && (
+            <Step2Farm
+              key="step2"
+              register={register}
+              control={control}
+              errors={errors}
+              watch={watch}
+              setValue={setValue}
+              onBack={goBack}
+              onNext={goNext}
+              t={t}
+            />
+          )}
+          {step === 3 && (
+            <Step3Payment
+              key="step3"
+              register={register}
+              control={control}
+              watch={watch}
+              setValue={setValue}
+              errors={errors}
+              onBack={goBack}
+              onNext={goNext}
+              t={t}
+            />
+          )}
+          {step === 4 && (
+            <Step4Review
+              key="step4"
+              t={t}
+              watch={watch}
+              onSubmit={handleSubmit(onSubmit)}
+              onBack={goBack}
+              onEditStep={(s) => { setDirection(-1); setStep(s); }}
+            />
+          )}
+        </AnimatePresence>
+      </div>
+    </div>
+  );
+}
+
+/* ─── Step 1: Personal Information ─── */
+function Step1Personal({ register, errors, watch, setValue, onNext, t }: any) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, x: 50 }}
+      animate={{ opacity: 1, x: 0 }}
+      exit={{ opacity: 0, x: -50 }}
+      className="bg-[#1E293B] border border-[#334155] rounded-2xl p-6 space-y-6"
+    >
+      <div className="text-center mb-6">
+        <h2 className="text-lg font-bold text-white">{t('farmerRegister.step1Title')}</h2>
+        <p className="text-sm text-[#94A3B8]">{t('farmerRegister.step1Desc')}</p>
       </div>
 
-      {/* ---- Stepper ---- */}
-      <div className="bg-white border-b border-fog sticky top-[72px] z-30 shadow-sm">
-        <div className="max-w-[800px] mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            {steps.map((s, i) => {
-              const StepIcon = s.icon;
-              const isActive = step === i + 1;
-              const isCompleted = step > i + 1 || submitted;
-              return (
-                <div key={i} className="flex items-center flex-1 last:flex-none">
-                  <div className="flex flex-col items-center">
-                    <motion.div
-                      className={cn(
-                        'w-10 h-10 rounded-full flex items-center justify-center text-sm font-semibold border-2 transition-colors duration-300',
-                        isActive && 'bg-leaf border-leaf text-white',
-                        isCompleted && 'bg-leaf border-leaf text-white',
-                        !isActive && !isCompleted && 'border-fog text-stone bg-white'
-                      )}
-                    >
-                      {isCompleted && !isActive ? (
-                        <Check className="w-5 h-5" />
-                      ) : (
-                        <StepIcon className="w-4 h-4" />
-                      )}
-                    </motion.div>
-                    <span
-                      className={cn(
-                        'mt-1.5 text-[11px] font-medium hidden sm:block',
-                        isActive ? 'text-leaf' : 'text-stone'
-                      )}
-                    >
-                      {s.label}
-                    </span>
-                  </div>
-                  {i < steps.length - 1 && (
-                    <div className={cn(
-                      'h-0.5 flex-1 mx-2 md:mx-4 transition-colors duration-300',
-                      step > i + 1 ? 'bg-leaf' : 'bg-fog'
-                    )} />
-                  )}
-                </div>
-              );
-            })}
-          </div>
+      {/* Profile Photo */}
+      <ProfilePhotoUpload
+        value={watch('profilePhoto')}
+        onChange={(photo) => setValue('profilePhoto', photo, { shouldValidate: false })}
+      />
+
+      {/* Full Name */}
+      <div>
+        <label className="block text-sm font-medium text-[#E2E8F0] mb-2">
+          {t('farmerRegister.fullName')} <span className="text-red-400">*</span>
+        </label>
+        <input
+          {...register('fullName')}
+          className="w-full px-4 py-3 bg-[#0F172A] border border-[#334155] rounded-xl text-white placeholder-[#64748B] focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none transition-colors"
+          placeholder={t('farmerRegister.fullNamePlaceholder')}
+        />
+        {errors.fullName && (
+          <span className="text-xs text-red-400 mt-1 block">{errors.fullName.message as string}</span>
+        )}
+      </div>
+
+      {/* Phone */}
+      <div>
+        <label className="block text-sm font-medium text-[#E2E8F0] mb-2">
+          {t('farmerRegister.phone')} <span className="text-red-400">*</span>
+        </label>
+        <input
+          {...register('phone')}
+          className="w-full px-4 py-3 bg-[#0F172A] border border-[#334155] rounded-xl text-white placeholder-[#64748B] focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none transition-colors"
+          placeholder={t('farmerRegister.phonePlaceholder')}
+        />
+        {errors.phone && (
+          <span className="text-xs text-red-400 mt-1 block">{errors.phone.message as string}</span>
+        )}
+        <p className="text-xs text-[#64748B] mt-1">{t('farmerRegister.phoneNote')}</p>
+      </div>
+
+      {/* Email */}
+      <div>
+        <label className="block text-sm font-medium text-[#E2E8F0] mb-2">{t('farmerRegister.email')}</label>
+        <input
+          {...register('email')}
+          type="email"
+          className="w-full px-4 py-3 bg-[#0F172A] border border-[#334155] rounded-xl text-white placeholder-[#64748B] focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none transition-colors"
+          placeholder={t('farmerRegister.emailPlaceholder')}
+        />
+        {errors.email && (
+          <span className="text-xs text-red-400 mt-1 block">{errors.email.message as string}</span>
+        )}
+      </div>
+
+      {/* Country & Language */}
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <label className="block text-sm font-medium text-[#E2E8F0] mb-2">
+            {t('farmerRegister.country')} <span className="text-red-400">*</span>
+          </label>
+          <select
+            {...register('country')}
+            className="w-full px-4 py-3 bg-[#0F172A] border border-[#334155] rounded-xl text-white focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none transition-colors"
+          >
+            <option value="">{t('farmerRegister.selectCountry')}</option>
+            {countries.map((c) => (
+              <option key={c.code} value={c.name}>{c.name}</option>
+            ))}
+          </select>
+          {errors.country && (
+            <span className="text-xs text-red-400 mt-1 block">{errors.country.message as string}</span>
+          )}
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-[#E2E8F0] mb-2">
+            {t('farmerRegister.language')} <span className="text-red-400">*</span>
+          </label>
+          <select
+            {...register('language')}
+            className="w-full px-4 py-3 bg-[#0F172A] border border-[#334155] rounded-xl text-white focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none transition-colors"
+          >
+            {LANGUAGES.map((l) => (
+              <option key={l.code} value={l.code}>{l.label}</option>
+            ))}
+          </select>
+          {errors.language && (
+            <span className="text-xs text-red-400 mt-1 block">{errors.language.message as string}</span>
+          )}
         </div>
       </div>
 
-      {/* ---- Content ---- */}
-      <div className="max-w-[600px] mx-auto px-4 py-8 md:py-12">
-        {submitted ? (
-          <SuccessView t={t} />
-        ) : (
-          <AnimatePresence mode="wait" custom={direction}>
-            <motion.div
-              key={step}
-              custom={direction}
-              variants={slideVariants}
-              initial="enter"
-              animate="center"
-              exit="exit"
-              transition={{ duration: 0.35, ease: [0.4, 0, 0.2, 1] as [number,number,number,number] }}
-              className="bg-white rounded-2xl border border-fog p-6 md:p-8 shadow-sm"
-            >
-              {step === 1 && (
-                <Step1Personal
-                  t={t}
-                  register={register}
-                  control={control}
-                  errors={errors}
-                  passwordValue={passwordValue}
-                  showPw={showPw}
-                  setShowPw={setShowPw}
-                  showConfirmPw={showConfirmPw}
-                  setShowConfirmPw={setShowConfirmPw}
-                  onNext={goNext}
-                  watch={watch}
-                  setValue={setValue}
-                />
-              )}
-              {step === 2 && (
-                <Step2Farm
-                  t={t}
-                  register={register}
-                  control={control}
-                  errors={errors}
-                  watch={watch}
-                  setValue={setValue}
-                  districts={districts}
-                  regions={regions}
-                  selectedCountry={selectedCountry}
-                  produceTypes={produceTypes}
-                  onNext={goNext}
-                  onBack={goBack}
-                />
-              )}
-              {step === 3 && (
-                <Step3Payment
-                  t={t}
-                  register={register}
-                  control={control}
-                  errors={errors}
-                  setValue={setValue}
-                  selectedPaymentMethods={selectedPaymentMethods}
-                  onNext={goNext}
-                  onBack={goBack}
-                />
-              )}
-              {step === 4 && (
-                <Step4Review
-                  t={t}
-                  watch={watch}
-                  onSubmit={handleSubmit(onSubmit)}
-                  onBack={goBack}
-                  onEditStep={(s) => { setDirection(-1); setStep(s); }}
-                />
-              )}
-            </motion.div>
-          </AnimatePresence>
+      {/* Password */}
+      <div>
+        <label className="block text-sm font-medium text-[#E2E8F0] mb-2">
+          {t('farmerRegister.password')} <span className="text-red-400">*</span>
+        </label>
+        <input
+          {...register('password')}
+          type="password"
+          className="w-full px-4 py-3 bg-[#0F172A] border border-[#334155] rounded-xl text-white placeholder-[#64748B] focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none transition-colors"
+          placeholder={t('farmerRegister.passwordPlaceholder')}
+        />
+        {errors.password && (
+          <span className="text-xs text-red-400 mt-1 block">{errors.password.message as string}</span>
         )}
       </div>
-    </div>
+
+      {/* Confirm Password */}
+      <div>
+        <label className="block text-sm font-medium text-[#E2E8F0] mb-2">
+          {t('farmerRegister.confirmPassword')} <span className="text-red-400">*</span>
+        </label>
+        <input
+          {...register('confirmPassword')}
+          type="password"
+          className="w-full px-4 py-3 bg-[#0F172A] border border-[#334155] rounded-xl text-white placeholder-[#64748B] focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none transition-colors"
+          placeholder={t('farmerRegister.confirmPasswordPlaceholder')}
+        />
+        {errors.confirmPassword && (
+          <span className="text-xs text-red-400 mt-1 block">{errors.confirmPassword.message as string}</span>
+        )}
+      </div>
+
+      {/* Next Button */}
+      <button
+        onClick={onNext}
+        className="w-full py-3 bg-emerald-500 hover:bg-emerald-600 active:bg-emerald-700 text-white font-semibold rounded-xl flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
+      >
+        {t('farmerRegister.nextFarm')}
+        <ChevronRight className="w-5 h-5" />
+      </button>
+    </motion.div>
   );
 }
 
-/* ================================================================== */
-/*  STEP 1: PERSONAL INFO                                               */
-/* ================================================================== */
-
-function Step1Personal({
-  t, register, control, errors, passwordValue, showPw, setShowPw, showConfirmPw, setShowConfirmPw, onNext, watch, setValue,
-}: {
-  t: (k: string) => string;
-  register: any;
-  control: any;
-  errors: any;
-  passwordValue: string;
-  showPw: boolean;
-  setShowPw: (v: boolean) => void;
-  showConfirmPw: boolean;
-  setShowConfirmPw: (v: boolean) => void;
-  onNext: () => void;
-  watch: any;
-  setValue: any;
-}) {
-  const pwStrength = getPasswordStrength(passwordValue);
-  const pwLabel = strengthLabel(pwStrength);
+/* ─── Step 2: Farm Details ─── */
+function Step2Farm({ register, errors, watch, setValue, onBack, onNext, t }: any) {
+  const country = watch('country');
+  const districts = countries.find((c) => c.name === country)?.districts || [];
 
   return (
-    <div>
-      <h3 className="text-xl md:text-[22px] font-poppins font-semibold text-charcoal mb-1">
-        {t('farmerRegister.step1Title')}
-      </h3>
-      <p className="text-sm text-stone mb-6">{t('farmerRegister.step1Desc')}</p>
+    <motion.div
+      initial={{ opacity: 0, x: 50 }}
+      animate={{ opacity: 1, x: 0 }}
+      exit={{ opacity: 0, x: -50 }}
+      className="bg-[#1E293B] border border-[#334155] rounded-2xl p-6 space-y-6"
+    >
+      <div className="text-center mb-6">
+        <h2 className="text-lg font-bold text-white">{t('farmerRegister.step2Title')}</h2>
+        <p className="text-sm text-[#94A3B8]">{t('farmerRegister.step2Desc')}</p>
+      </div>
 
-      <div className="space-y-4">
-        {/* Full Name */}
-        <motion.div custom={0} variants={fadeUp} initial="hidden" animate="visible">
-          <Label htmlFor="fullName" className="text-sm font-semibold text-charcoal flex items-center gap-1.5">
-            <User className="w-3.5 h-3.5 text-leaf" />
-            {t('farmerRegister.fullName')} *
-          </Label>
-          <Input
-            id="fullName"
-            placeholder={t('farmerRegister.fullNamePlaceholder')}
-            className="mt-1.5 rounded-xl border-fog focus:border-leaf focus:ring-leaf/20"
-            {...register('fullName')}
+      {/* Farm Name */}
+      <div>
+        <label className="block text-sm font-medium text-[#E2E8F0] mb-2">
+          {t('farmerRegister.farmName')} <span className="text-red-400">*</span>
+        </label>
+        <input
+          {...register('farmName')}
+          className="w-full px-4 py-3 bg-[#0F172A] border border-[#334155] rounded-xl text-white placeholder-[#64748B] focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none transition-colors"
+          placeholder={t('farmerRegister.farmNamePlaceholder')}
+        />
+        {errors.farmName && (
+          <span className="text-xs text-red-400 mt-1 block">{errors.farmName.message as string}</span>
+        )}
+      </div>
+
+      {/* Farm About */}
+      <div>
+        <label className="block text-sm font-medium text-[#E2E8F0] mb-2">
+          {t('farmerRegister.farmAbout')} <span className="text-red-400">*</span>
+        </label>
+        <textarea
+          {...register('farmAbout')}
+          rows={4}
+          className="w-full px-4 py-3 bg-[#0F172A] border border-[#334155] rounded-xl text-white placeholder-[#64748B] focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none transition-colors resize-none"
+          placeholder={t('farmerRegister.farmAboutPlaceholder')}
+        />
+        {errors.farmAbout && (
+          <span className="text-xs text-red-400 mt-1 block">{errors.farmAbout.message as string}</span>
+        )}
+      </div>
+
+      {/* Region & District */}
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <label className="block text-sm font-medium text-[#E2E8F0] mb-2">
+            {t('farmerRegister.region')} <span className="text-red-400">*</span>
+          </label>
+          <input
+            {...register('region')}
+            className="w-full px-4 py-3 bg-[#0F172A] border border-[#334155] rounded-xl text-white placeholder-[#64748B] focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none transition-colors"
+            placeholder={t('farmerRegister.selectRegion')}
           />
-          {errors.fullName && <p className="text-error text-xs mt-1 flex items-center gap-1"><AlertCircle className="w-3 h-3" />{errors.fullName.message}</p>}
-        </motion.div>
-
-        {/* Phone */}
-        <motion.div custom={1} variants={fadeUp} initial="hidden" animate="visible">
-          <Label htmlFor="phone" className="text-sm font-semibold text-charcoal flex items-center gap-1.5">
-            <Phone className="w-3.5 h-3.5 text-leaf" />
-            {t('farmerRegister.phone')} *
-          </Label>
-          <Input
-            id="phone"
-            type="tel"
-            placeholder={t('farmerRegister.phonePlaceholder')}
-            className="mt-1.5 rounded-xl border-fog focus:border-leaf focus:ring-leaf/20"
-            {...register('phone')}
-          />
-          {errors.phone && <p className="text-error text-xs mt-1 flex items-center gap-1"><AlertCircle className="w-3 h-3" />{errors.phone.message}</p>}
-          <p className="text-[11px] text-info mt-1">{t('farmerRegister.phoneNote')}</p>
-        </motion.div>
-
-        {/* Email */}
-        <motion.div custom={2} variants={fadeUp} initial="hidden" animate="visible">
-          <Label htmlFor="email" className="text-sm font-semibold text-charcoal flex items-center gap-1.5">
-            <Mail className="w-3.5 h-3.5 text-leaf" />
-            {t('farmerRegister.email')}
-          </Label>
-          <Input
-            id="email"
-            type="email"
-            placeholder={t('farmerRegister.emailPlaceholder')}
-            className="mt-1.5 rounded-xl border-fog focus:border-leaf focus:ring-leaf/20"
-            {...register('email')}
-          />
-          {errors.email && <p className="text-error text-xs mt-1 flex items-center gap-1"><AlertCircle className="w-3 h-3" />{errors.email.message}</p>}
-        </motion.div>
-
-        {/* Country */}
-        <motion.div custom={3} variants={fadeUp} initial="hidden" animate="visible">
-          <Label htmlFor="country" className="text-sm font-semibold text-charcoal flex items-center gap-1.5">
-            <MapPin className="w-3.5 h-3.5 text-leaf" />
-            {t('farmerRegister.country')} *
-          </Label>
-          <Controller
-            name="country"
-            control={control}
-            render={({ field }) => (
-              <select
-                id="country"
-                className="mt-1.5 w-full rounded-xl border border-fog bg-white px-4 py-3 text-sm focus:border-leaf focus:ring-2 focus:ring-leaf/20 focus:outline-none transition-colors"
-                {...field}
-              >
-                <option value="">{t('farmerRegister.selectCountry')}</option>
-                {supportedCountries.map((c) => (
-                  <option key={c.code} value={c.code}>{c.name}</option>
-                ))}
-              </select>
-            )}
-          />
-          {errors.country && <p className="text-error text-xs mt-1 flex items-center gap-1"><AlertCircle className="w-3 h-3" />{errors.country.message}</p>}
-        </motion.div>
-
-        {/* Language */}
-        <motion.div custom={4} variants={fadeUp} initial="hidden" animate="visible">
-          <Label htmlFor="language" className="text-sm font-semibold text-charcoal flex items-center gap-1.5">
-            <Globe className="w-3.5 h-3.5 text-leaf" />
-            {t('farmerRegister.language')} *
-          </Label>
-          <Controller
-            name="language"
-            control={control}
-            render={({ field }) => (
-              <select
-                id="language"
-                className="mt-1.5 w-full rounded-xl border border-fog bg-white px-4 py-3 text-sm focus:border-leaf focus:ring-2 focus:ring-leaf/20 focus:outline-none transition-colors"
-                {...field}
-              >
-                {languages.map((l) => (
-                  <option key={l.code} value={l.code}>{l.name}</option>
-                ))}
-              </select>
-            )}
-          />
-          <p className="text-[11px] text-info mt-1">{t('farmerRegister.languageNote')}</p>
-        </motion.div>
-
-        {/* Profile Photo */}
-        <motion.div custom={5} variants={fadeUp} initial="hidden" animate="visible">
-          <ProfilePhotoUpload
-            value={watch('profilePhoto')}
-            onChange={(url) => setValue('profilePhoto', url || '', { shouldValidate: true })}
-            label="Profile Photo"
-            description="Buyers will see this photo on your listings. A clear face photo builds trust and helps you sell more."
-          />
-        </motion.div>
-
-        {/* Password */}
-        <motion.div custom={6} variants={fadeUp} initial="hidden" animate="visible">
-          <Label htmlFor="password" className="text-sm font-semibold text-charcoal flex items-center gap-1.5">
-            <Lock className="w-3.5 h-3.5 text-leaf" />
-            {t('farmerRegister.password')} *
-          </Label>
-          <div className="relative mt-1.5">
-            <Input
-              id="password"
-              type={showPw ? 'text' : 'password'}
-              placeholder={t('farmerRegister.passwordPlaceholder')}
-              className="rounded-xl border-fog focus:border-leaf focus:ring-leaf/20 pr-10"
-              {...register('password')}
-            />
-            <button type="button" onClick={() => setShowPw(!showPw)} className="absolute right-3 top-1/2 -translate-y-1/2 text-stone hover:text-charcoal">
-              {showPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-            </button>
-          </div>
-          {/* Strength */}
-          {passwordValue && (
-            <div className="mt-2 flex items-center gap-2">
-              <div className="flex gap-1 flex-1">
-                {[1,2,3,4].map((i) => (
-                  <div key={i} className={cn('h-1.5 flex-1 rounded-full transition-colors', i <= pwStrength ? pwLabel.color : 'bg-fog')} />
-                ))}
-              </div>
-              <span className="text-[11px] text-stone">{pwLabel.text}</span>
-            </div>
+          {errors.region && (
+            <span className="text-xs text-red-400 mt-1 block">{errors.region.message as string}</span>
           )}
-        </motion.div>
-
-        {/* Confirm Password */}
-        <motion.div custom={6} variants={fadeUp} initial="hidden" animate="visible">
-          <Label htmlFor="confirmPassword" className="text-sm font-semibold text-charcoal flex items-center gap-1.5">
-            <Lock className="w-3.5 h-3.5 text-leaf" />
-            {t('farmerRegister.confirmPassword')} *
-          </Label>
-          <div className="relative mt-1.5">
-            <Input
-              id="confirmPassword"
-              type={showConfirmPw ? 'text' : 'password'}
-              placeholder={t('farmerRegister.confirmPasswordPlaceholder')}
-              className="rounded-xl border-fog focus:border-leaf focus:ring-leaf/20 pr-10"
-              {...register('confirmPassword')}
-            />
-            <button type="button" onClick={() => setShowConfirmPw(!showConfirmPw)} className="absolute right-3 top-1/2 -translate-y-1/2 text-stone hover:text-charcoal">
-              {showConfirmPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-            </button>
-          </div>
-          {errors.confirmPassword && <p className="text-error text-xs mt-1 flex items-center gap-1"><AlertCircle className="w-3 h-3" />{errors.confirmPassword.message}</p>}
-        </motion.div>
-      </div>
-
-      {/* Navigation */}
-      <div className="mt-8 flex justify-end">
-        <Button onClick={onNext} className="bg-leaf hover:bg-forest text-white font-poppins font-semibold rounded-xl px-6 py-5 text-sm">
-          {t('farmerRegister.nextFarm')} <ChevronRight className="w-4 h-4 ml-1" />
-        </Button>
-      </div>
-    </div>
-  );
-}
-
-/* ================================================================== */
-/*  STEP 2: FARM DETAILS                                                */
-/* ================================================================== */
-
-function Step2Farm({
-  t, register, control, errors, watch, setValue, districts, regions, selectedCountry, produceTypes, onNext, onBack,
-}: {
-  t: (k: string) => string;
-  register: any;
-  control: any;
-  errors: any;
-  watch: any;
-  setValue: any;
-  districts: string[];
-  regions: string[];
-  selectedCountry: string;
-  produceTypes: string[];
-  onNext: () => void;
-  onBack: () => void;
-}) {
-  const farmAbout = watch('farmAbout') || '';
-  const selectedRegion = watch('region') || '';
-
-  const regionDistricts = useMemo(() => {
-    if (!selectedCountry || !selectedRegion) return districts;
-    const country = countriesData[selectedCountry];
-    const region = country?.regions.find((r) => r.name === selectedRegion);
-    return region?.districts || districts;
-  }, [selectedCountry, selectedRegion, districts]);
-
-  const toggleProduce = (id: string) => {
-    const current = produceTypes;
-    const updated = current.includes(id) ? current.filter((p: string) => p !== id) : [...current, id];
-    setValue('produceTypes', updated, { shouldValidate: true });
-  };
-
-  return (
-    <div>
-      <h3 className="text-xl md:text-[22px] font-poppins font-semibold text-charcoal mb-1">
-        {t('farmerRegister.step2Title')}
-      </h3>
-      <p className="text-sm text-stone mb-6">{t('farmerRegister.step2Desc')}</p>
-
-      <div className="space-y-4">
-        {/* Farm Name */}
-        <motion.div custom={0} variants={fadeUp} initial="hidden" animate="visible">
-          <Label htmlFor="farmName" className="text-sm font-semibold text-charcoal flex items-center gap-1.5">
-            <Tractor className="w-3.5 h-3.5 text-leaf" />
-            {t('farmerRegister.farmName')} *
-          </Label>
-          <Input
-            id="farmName"
-            placeholder={t('farmerRegister.farmNamePlaceholder')}
-            className="mt-1.5 rounded-xl border-fog focus:border-leaf focus:ring-leaf/20"
-            {...register('farmName')}
-          />
-          {errors.farmName && <p className="text-error text-xs mt-1 flex items-center gap-1"><AlertCircle className="w-3 h-3" />{errors.farmName.message}</p>}
-        </motion.div>
-
-        {/* Farm About */}
-        <motion.div custom={1} variants={fadeUp} initial="hidden" animate="visible">
-          <Label htmlFor="farmAbout" className="text-sm font-semibold text-charcoal flex items-center gap-1.5">
-            <FileText className="w-3.5 h-3.5 text-leaf" />
-            {t('farmerRegister.farmAbout')} *
-          </Label>
-          <textarea
-            id="farmAbout"
-            rows={4}
-            placeholder={t('farmerRegister.farmAboutPlaceholder')}
-            className="mt-1.5 w-full rounded-xl border border-fog bg-white px-4 py-3 text-sm focus:border-leaf focus:ring-2 focus:ring-leaf/20 focus:outline-none transition-colors resize-none"
-            {...register('farmAbout')}
-          />
-          <div className="flex justify-between mt-1">
-            {errors.farmAbout && <p className="text-error text-xs flex items-center gap-1"><AlertCircle className="w-3 h-3" />{errors.farmAbout.message}</p>}
-            <span className="text-[11px] text-stone ml-auto">{farmAbout.length} / 500</span>
-          </div>
-        </motion.div>
-
-        {/* Region */}
-        <motion.div custom={2} variants={fadeUp} initial="hidden" animate="visible">
-          <Label htmlFor="region" className="text-sm font-semibold text-charcoal flex items-center gap-1.5">
-            <MapPin className="w-3.5 h-3.5 text-leaf" />
-            {t('farmerRegister.region')} *
-          </Label>
-          <Controller
-            name="region"
-            control={control}
-            render={({ field }) => (
-              <select
-                id="region"
-                className="mt-1.5 w-full rounded-xl border border-fog bg-white px-4 py-3 text-sm focus:border-leaf focus:ring-2 focus:ring-leaf/20 focus:outline-none transition-colors"
-                {...field}
-              >
-                <option value="">{t('farmerRegister.selectRegion')}</option>
-                {regions.map((r) => (
-                  <option key={r} value={r}>{r}</option>
-                ))}
-              </select>
-            )}
-          />
-          {errors.region && <p className="text-error text-xs mt-1 flex items-center gap-1"><AlertCircle className="w-3 h-3" />{errors.region.message}</p>}
-        </motion.div>
-
-        {/* District */}
-        <motion.div custom={3} variants={fadeUp} initial="hidden" animate="visible">
-          <Label htmlFor="district" className="text-sm font-semibold text-charcoal flex items-center gap-1.5">
-            <MapPin className="w-3.5 h-3.5 text-leaf" />
-            {t('farmerRegister.district')} *
-          </Label>
-          <Controller
-            name="district"
-            control={control}
-            render={({ field }) => (
-              <select
-                id="district"
-                className="mt-1.5 w-full rounded-xl border border-fog bg-white px-4 py-3 text-sm focus:border-leaf focus:ring-2 focus:ring-leaf/20 focus:outline-none transition-colors"
-                {...field}
-              >
-                <option value="">{t('farmerRegister.selectDistrict')}</option>
-                {regionDistricts.map((d) => (
-                  <option key={d} value={d}>{d}</option>
-                ))}
-              </select>
-            )}
-          />
-          {errors.district && <p className="text-error text-xs mt-1 flex items-center gap-1"><AlertCircle className="w-3 h-3" />{errors.district.message}</p>}
-        </motion.div>
-
-        {/* Village */}
-        <motion.div custom={4} variants={fadeUp} initial="hidden" animate="visible">
-          <Label htmlFor="village" className="text-sm font-semibold text-charcoal flex items-center gap-1.5">
-            <MapPin className="w-3.5 h-3.5 text-leaf" />
-            {t('farmerRegister.village')} *
-          </Label>
-          <Input
-            id="village"
-            placeholder={t('farmerRegister.villagePlaceholder')}
-            className="mt-1.5 rounded-xl border-fog focus:border-leaf focus:ring-leaf/20"
-            {...register('village')}
-          />
-          {errors.village && <p className="text-error text-xs mt-1 flex items-center gap-1"><AlertCircle className="w-3 h-3" />{errors.village.message}</p>}
-        </motion.div>
-
-        {/* Farm Size */}
-        <motion.div custom={5} variants={fadeUp} initial="hidden" animate="visible">
-          <Label className="text-sm font-semibold text-charcoal">{t('farmerRegister.farmSize')}</Label>
-          <div className="flex gap-2 mt-1.5">
-            <Input
-              type="number"
-              placeholder="5"
-              className="rounded-xl border-fog focus:border-leaf focus:ring-leaf/20 flex-1"
-              {...register('farmSize')}
-            />
-            <Controller
-              name="farmSizeUnit"
-              control={control}
-              render={({ field }) => (
-                <select className="rounded-xl border border-fog bg-white px-3 py-3 text-sm focus:border-leaf focus:outline-none" {...field}>
-                  <option value="acres">acres</option>
-                  <option value="hectares">hectares</option>
-                </select>
-              )}
-            />
-          </div>
-        </motion.div>
-
-        {/* Produce Types */}
-        <motion.div custom={6} variants={fadeUp} initial="hidden" animate="visible">
-          <Label className="text-sm font-semibold text-charcoal mb-2 block">
-            {t('farmerRegister.produceTypes')} *
-          </Label>
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-            {produceOptions.map((opt) => (
-              <button
-                key={opt.id}
-                type="button"
-                onClick={() => toggleProduce(opt.id)}
-                className={cn(
-                  'flex items-center gap-2 px-3 py-2.5 rounded-xl border text-sm transition-all duration-200 text-left',
-                  produceTypes.includes(opt.id)
-                    ? 'border-leaf bg-mint/15 text-forest'
-                    : 'border-fog bg-white text-charcoal hover:bg-cloud'
-                )}
-              >
-                <div className={cn(
-                  'w-4 h-4 rounded border flex items-center justify-center transition-all',
-                  produceTypes.includes(opt.id) ? 'bg-leaf border-leaf' : 'border-stone'
-                )}>
-                  {produceTypes.includes(opt.id) && <Check className="w-3 h-3 text-white" />}
-                </div>
-                {opt.label}
-              </button>
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-[#E2E8F0] mb-2">
+            {t('farmerRegister.district')} <span className="text-red-400">*</span>
+          </label>
+          <select
+            {...register('district')}
+            className="w-full px-4 py-3 bg-[#0F172A] border border-[#334155] rounded-xl text-white focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none transition-colors"
+          >
+            <option value="">{t('farmerRegister.selectDistrict')}</option>
+            {districts.map((d) => (
+              <option key={d} value={d}>{d}</option>
             ))}
-          </div>
-          {errors.produceTypes && <p className="text-error text-xs mt-1 flex items-center gap-1"><AlertCircle className="w-3 h-3" />{errors.produceTypes.message}</p>}
-        </motion.div>
+          </select>
+          {errors.district && (
+            <span className="text-xs text-red-400 mt-1 block">{errors.district.message as string}</span>
+          )}
+        </div>
+      </div>
+
+      {/* Village */}
+      <div>
+        <label className="block text-sm font-medium text-[#E2E8F0] mb-2">
+          {t('farmerRegister.village')} <span className="text-red-400">*</span>
+        </label>
+        <input
+          {...register('village')}
+          className="w-full px-4 py-3 bg-[#0F172A] border border-[#334155] rounded-xl text-white placeholder-[#64748B] focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none transition-colors"
+          placeholder={t('farmerRegister.villagePlaceholder')}
+        />
+        {errors.village && (
+          <span className="text-xs text-red-400 mt-1 block">{errors.village.message as string}</span>
+        )}
+      </div>
+
+      {/* Produce Types */}
+      <div>
+        <label className="block text-sm font-medium text-[#E2E8F0] mb-2">
+          {t('farmerRegister.produceTypes')} <span className="text-red-400">*</span>
+        </label>
+        <div className="flex flex-wrap gap-2">
+          {PRODUCE_OPTIONS.map((type) => {
+            const selected = (watch('produceTypes') || []).includes(type);
+            return (
+              <button
+                key={type}
+                type="button"
+                onClick={() => {
+                  const current = watch('produceTypes') || [];
+                  const updated = selected
+                    ? current.filter((t: string) => t !== type)
+                    : [...current, type];
+                  setValue('produceTypes', updated, { shouldValidate: true });
+                }}
+                className={`px-3 py-1.5 rounded-lg text-sm border transition-all ${
+                  selected
+                    ? 'bg-emerald-500/10 border-emerald-500 text-emerald-400'
+                    : 'bg-[#0F172A] border-[#334155] text-[#94A3B8] hover:border-[#475569]'
+                }`}
+              >
+                {type}
+              </button>
+            );
+          })}
+        </div>
+        {errors.produceTypes && (
+          <span className="text-xs text-red-400 mt-1 block">{errors.produceTypes.message as string}</span>
+        )}
       </div>
 
       {/* Navigation */}
-      <div className="mt-8 flex justify-between">
-        <Button variant="ghost" onClick={onBack} className="text-charcoal hover:bg-cloud font-poppins font-semibold rounded-xl px-6 py-5 text-sm">
-          <ChevronLeft className="w-4 h-4 mr-1" /> {t('farmerRegister.back')}
-        </Button>
-        <Button onClick={onNext} className="bg-leaf hover:bg-forest text-white font-poppins font-semibold rounded-xl px-6 py-5 text-sm">
-          {t('farmerRegister.nextPayment')} <ChevronRight className="w-4 h-4 ml-1" />
-        </Button>
+      <div className="flex gap-3">
+        <button
+          onClick={onBack}
+          className="flex-1 py-3 border border-[#334155] hover:border-[#475569] text-[#E2E8F0] font-medium rounded-xl flex items-center justify-center gap-2 transition-colors"
+        >
+          <ChevronLeft className="w-5 h-5" />
+          {t('farmerRegister.back')}
+        </button>
+        <button
+          onClick={onNext}
+          className="flex-1 py-3 bg-emerald-500 hover:bg-emerald-600 active:bg-emerald-700 text-white font-semibold rounded-xl flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
+        >
+          {t('farmerRegister.nextPayment')}
+          <ChevronRight className="w-5 h-5" />
+        </button>
       </div>
-    </div>
+    </motion.div>
   );
 }
 
-/* ================================================================== */
-/*  STEP 3: PAYMENT SETUP                                               */
-/* ================================================================== */
-
-const paymentCards: { id: PaymentMethod; icon: React.ElementType; title: string; desc: string; note?: string }[] = [
-  { id: 'airtel', icon: Phone, title: 'Airtel Money', desc: 'Receive payments via Airtel Money across East Africa' },
-  { id: 'mtn', icon: Smartphone, title: 'MTN Mobile Money', desc: 'Receive payments via MTN Mobile Money' },
-  { id: 'paypal', icon: Globe, title: 'PayPal', desc: 'Receive international payments via PayPal', note: 'Handle: @LutwamaReagan will process your PayPal payments' },
-  { id: 'bank', icon: Landmark, title: 'Bank Transfer', desc: 'Receive payments via direct bank transfer' },
-];
-
-function Step3Payment({
-  t, register, control, errors, setValue, selectedPaymentMethods, onNext, onBack,
-}: {
-  t: (k: string) => string;
-  register: any;
-  control: any;
-  errors: any;
-  setValue: any;
-  selectedPaymentMethods: PaymentMethod[];
-  onNext: () => void;
-  onBack: () => void;
-}) {
-  const togglePayment = (id: PaymentMethod) => {
-    const current = selectedPaymentMethods;
-    const updated = current.includes(id) ? current.filter((p: string) => p !== id) : [...current, id];
+/* ─── Step 3: Payment Setup ─── */
+function Step3Payment({ register, watch, setValue, errors, onBack, onNext, t }: any) {
+  const pm = watch('paymentMethods') || [];
+  const togglePayment = (method: string) => {
+    const current = watch('paymentMethods') || [];
+    const updated = current.includes(method)
+      ? current.filter((m: string) => m !== method)
+      : [...current, method];
     setValue('paymentMethods', updated, { shouldValidate: true });
   };
 
   return (
-    <div>
-      <h3 className="text-xl md:text-[22px] font-poppins font-semibold text-charcoal mb-1">
-        {t('farmerRegister.step3Title')}
-      </h3>
-      <p className="text-sm text-stone mb-4">{t('farmerRegister.step3Desc')}</p>
-
-      <div className="bg-info/10 rounded-xl p-3 mb-6 text-xs text-info">
-        {t('farmerRegister.paymentInfoNote')}
+    <motion.div
+      initial={{ opacity: 0, x: 50 }}
+      animate={{ opacity: 1, x: 0 }}
+      exit={{ opacity: 0, x: -50 }}
+      className="bg-[#1E293B] border border-[#334155] rounded-2xl p-6 space-y-6"
+    >
+      <div className="text-center mb-6">
+        <h2 className="text-lg font-bold text-white">{t('farmerRegister.step3Title')}</h2>
+        <p className="text-sm text-[#94A3B8]">{t('farmerRegister.step3Desc')}</p>
       </div>
 
-      <div className="space-y-3">
-        {paymentCards.map((card, idx) => {
-          const Icon = card.icon;
-          const isSelected = selectedPaymentMethods.includes(card.id);
-          return (
-            <motion.div
-              key={card.id}
-              custom={idx}
-              variants={fadeUp}
-              initial="hidden"
-              animate="visible"
-              className={cn(
-                'border rounded-xl transition-all duration-200 overflow-hidden',
-                isSelected ? 'border-leaf bg-mint/10' : 'border-fog bg-white hover:border-leaf/40'
-              )}
-            >
+      <p className="text-xs text-[#64748B] bg-[#0F172A] p-3 rounded-lg">{t('farmerRegister.paymentInfoNote')}</p>
+
+      {/* Payment Methods */}
+      <div>
+        <label className="block text-sm font-medium text-[#E2E8F0] mb-3">
+          {t('farmerRegister.paymentMethod')} <span className="text-red-400">*</span>
+        </label>
+        <div className="grid grid-cols-2 gap-3">
+          {(['airtel', 'mtn', 'paypal', 'bank'] as const).map((method) => {
+            const selected = pm.includes(method);
+            const labels: Record<string, string> = {
+              airtel: 'Airtel Money',
+              mtn: 'MTN Mobile Money',
+              paypal: 'PayPal',
+              bank: 'Bank Transfer',
+            };
+            return (
               <button
+                key={method}
                 type="button"
-                onClick={() => togglePayment(card.id)}
-                className="w-full flex items-start gap-3 p-4 text-left"
+                onClick={() => togglePayment(method)}
+                className={`py-3 px-4 rounded-xl text-sm font-medium border transition-all ${
+                  selected
+                    ? 'bg-emerald-500/10 border-emerald-500 text-emerald-400'
+                    : 'bg-[#0F172A] border-[#334155] text-[#94A3B8] hover:border-[#475569]'
+                }`}
               >
-                <div className={cn(
-                  'w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 mt-0.5',
-                  isSelected ? 'border-leaf bg-leaf' : 'border-fog'
-                )}>
-                  {isSelected && <Check className="w-3 h-3 text-white" />}
-                </div>
-                <div className="flex-1">
-                  <div className="flex items-center gap-2">
-                    <Icon className="w-5 h-5 text-leaf" />
-                    <span className="font-poppins font-semibold text-charcoal">{card.title}</span>
-                  </div>
-                  <p className="text-xs text-stone mt-0.5">{card.desc}</p>
-                  {card.note && <p className="text-[11px] text-info mt-0.5">{card.note}</p>}
-                </div>
+                {labels[method]}
               </button>
-
-              <AnimatePresence>
-                {isSelected && (
-                  <motion.div
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: 'auto', opacity: 1 }}
-                    exit={{ height: 0, opacity: 0 }}
-                    transition={{ duration: 0.3 }}
-                    className="overflow-hidden"
-                  >
-                    <div className="px-4 pb-4 pt-0">
-                      {card.id === 'airtel' && (
-                        <div>
-                          <Label className="text-xs font-semibold">{t('farmerRegister.airtelNumber')} *</Label>
-                          <Input placeholder="+256 7XX XXX XXX" className="mt-1 rounded-xl border-fog focus:border-leaf" {...register('airtelNumber')} />
-                        </div>
-                      )}
-                      {card.id === 'mtn' && (
-                        <div>
-                          <Label className="text-xs font-semibold">{t('farmerRegister.mtnNumber')} *</Label>
-                          <Input placeholder="+256 7XX XXX XXX" className="mt-1 rounded-xl border-fog focus:border-leaf" {...register('mtnNumber')} />
-                        </div>
-                      )}
-                      {card.id === 'paypal' && (
-                        <div>
-                          <Label className="text-xs font-semibold">{t('farmerRegister.paypalEmail')} *</Label>
-                          <Input placeholder="your@email.com" className="mt-1 rounded-xl border-fog focus:border-leaf" {...register('paypalEmail')} />
-                        </div>
-                      )}
-                      {card.id === 'bank' && (
-                        <div className="space-y-2">
-                          <div>
-                            <Label className="text-xs font-semibold">{t('farmerRegister.bankName')} *</Label>
-                            <Input placeholder="e.g., Equity Bank" className="mt-1 rounded-xl border-fog focus:border-leaf" {...register('bankName')} />
-                          </div>
-                          <div>
-                            <Label className="text-xs font-semibold">{t('farmerRegister.bankAccountNumber')} *</Label>
-                            <Input placeholder="Account Number" className="mt-1 rounded-xl border-fog focus:border-leaf" {...register('bankAccountNumber')} />
-                          </div>
-                          <div>
-                            <Label className="text-xs font-semibold">{t('farmerRegister.bankAccountName')} *</Label>
-                            <Input placeholder="Account Holder Name" className="mt-1 rounded-xl border-fog focus:border-leaf" {...register('bankAccountName')} />
-                          </div>
-                          <div>
-                            <Label className="text-xs font-semibold">{t('farmerRegister.bankBranch')}</Label>
-                            <Input placeholder="Branch (optional)" className="mt-1 rounded-xl border-fog focus:border-leaf" {...register('bankBranch')} />
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </motion.div>
-          );
-        })}
+            );
+          })}
+        </div>
+        {errors.paymentMethods && (
+          <span className="text-xs text-red-400 mt-1 block">{errors.paymentMethods.message as string}</span>
+        )}
       </div>
 
-      {errors.paymentMethods && <p className="text-error text-xs mt-2 flex items-center gap-1"><AlertCircle className="w-3 h-3" />{errors.paymentMethods.message}</p>}
+      {/* Airtel Number */}
+      {pm.includes('airtel') && (
+        <div>
+          <label className="block text-sm font-medium text-[#E2E8F0] mb-2">
+            {t('farmerRegister.airtelNumber')} <span className="text-red-400">*</span>
+          </label>
+          <input
+            {...register('airtelNumber')}
+            className="w-full px-4 py-3 bg-[#0F172A] border border-[#334155] rounded-xl text-white placeholder-[#64748B] focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none transition-colors"
+            placeholder="e.g., +256 7XX XXX XXX"
+          />
+          {errors.airtelNumber && (
+            <span className="text-xs text-red-400 mt-1 block">{errors.airtelNumber.message as string}</span>
+          )}
+        </div>
+      )}
+
+      {/* MTN Number */}
+      {pm.includes('mtn') && (
+        <div>
+          <label className="block text-sm font-medium text-[#E2E8F0] mb-2">
+            {t('farmerRegister.mtnNumber')} <span className="text-red-400">*</span>
+          </label>
+          <input
+            {...register('mtnNumber')}
+            className="w-full px-4 py-3 bg-[#0F172A] border border-[#334155] rounded-xl text-white placeholder-[#64748B] focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none transition-colors"
+            placeholder="e.g., +256 7XX XXX XXX"
+          />
+          {errors.mtnNumber && (
+            <span className="text-xs text-red-400 mt-1 block">{errors.mtnNumber.message as string}</span>
+          )}
+        </div>
+      )}
+
+      {/* PayPal Email */}
+      {pm.includes('paypal') && (
+        <div>
+          <label className="block text-sm font-medium text-[#E2E8F0] mb-2">
+            {t('farmerRegister.paypalEmail')} <span className="text-red-400">*</span>
+          </label>
+          <input
+            {...register('paypalEmail')}
+            type="email"
+            className="w-full px-4 py-3 bg-[#0F172A] border border-[#334155] rounded-xl text-white placeholder-[#64748B] focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none transition-colors"
+            placeholder="e.g., your@email.com"
+          />
+          {errors.paypalEmail && (
+            <span className="text-xs text-red-400 mt-1 block">{errors.paypalEmail.message as string}</span>
+          )}
+        </div>
+      )}
+
+      {/* Bank Details */}
+      {pm.includes('bank') && (
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-[#E2E8F0] mb-2">
+              {t('farmerRegister.bankName')} <span className="text-red-400">*</span>
+            </label>
+            <input
+              {...register('bankName')}
+              className="w-full px-4 py-3 bg-[#0F172A] border border-[#334155] rounded-xl text-white placeholder-[#64748B] focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none transition-colors"
+              placeholder="e.g., Stanbic Bank"
+            />
+            {errors.bankName && (
+              <span className="text-xs text-red-400 mt-1 block">{errors.bankName.message as string}</span>
+            )}
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-[#E2E8F0] mb-2">
+              {t('farmerRegister.bankAccountNumber')} <span className="text-red-400">*</span>
+            </label>
+            <input
+              {...register('bankAccountNumber')}
+              className="w-full px-4 py-3 bg-[#0F172A] border border-[#334155] rounded-xl text-white placeholder-[#64748B] focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none transition-colors"
+              placeholder="e.g., 0123456789"
+            />
+            {errors.bankAccountNumber && (
+              <span className="text-xs text-red-400 mt-1 block">{errors.bankAccountNumber.message as string}</span>
+            )}
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-[#E2E8F0] mb-2">
+              {t('farmerRegister.bankAccountName')} <span className="text-red-400">*</span>
+            </label>
+            <input
+              {...register('bankAccountName')}
+              className="w-full px-4 py-3 bg-[#0F172A] border border-[#334155] rounded-xl text-white placeholder-[#64748B] focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none transition-colors"
+              placeholder="e.g., Reagan Mitanda Lutwama"
+            />
+            {errors.bankAccountName && (
+              <span className="text-xs text-red-400 mt-1 block">{errors.bankAccountName.message as string}</span>
+            )}
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-[#E2E8F0] mb-2">{t('farmerRegister.bankBranch')}</label>
+            <input
+              {...register('bankBranch')}
+              className="w-full px-4 py-3 bg-[#0F172A] border border-[#334155] rounded-xl text-white placeholder-[#64748B] focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none transition-colors"
+              placeholder="e.g., Kampala Road Branch"
+            />
+          </div>
+        </div>
+      )}
 
       {/* Terms */}
-      <motion.div custom={4} variants={fadeUp} initial="hidden" animate="visible" className="mt-6 flex items-start gap-2">
-        <Controller
-          name="termsAccepted"
-          control={control}
-          render={({ field }) => (
-            <Checkbox
-              id="terms"
-              checked={field.value}
-              onCheckedChange={field.onChange}
-              className="mt-0.5 data-[state=checked]:bg-leaf data-[state=checked]:border-leaf"
-            />
-          )}
+      <div className="flex items-start gap-3">
+        <input
+          {...register('termsAccepted')}
+          type="checkbox"
+          id="terms"
+          className="mt-1 w-4 h-4 rounded border-[#334155] bg-[#0F172A] text-emerald-500 focus:ring-emerald-500"
         />
-        <Label htmlFor="terms" className="text-sm text-charcoal leading-snug cursor-pointer">
-          {t('farmerRegister.termsPrefix')}{' '}
-          <Link to="/" className="text-leaf hover:underline">{t('footer.terms')}</Link>{' '}
-          {t('farmerRegister.termsAnd')}{' '}
-          <Link to="/" className="text-leaf hover:underline">{t('footer.privacy')}</Link> *
-        </Label>
-      </motion.div>
-      {errors.termsAccepted && <p className="text-error text-xs mt-1 flex items-center gap-1"><AlertCircle className="w-3 h-3" />{errors.termsAccepted.message}</p>}
+        <label htmlFor="terms" className="text-sm text-[#94A3B8]">
+          {t('farmerRegister.termsPrefix')} <a href="/terms" className="text-emerald-400 hover:underline">Terms</a> and <a href="/privacy" className="text-emerald-400 hover:underline">Privacy Policy</a>
+        </label>
+      </div>
+      {errors.termsAccepted && (
+        <span className="text-xs text-red-400 block">{errors.termsAccepted.message as string}</span>
+      )}
 
       {/* Navigation */}
-      <div className="mt-8 flex justify-between">
-        <Button variant="ghost" onClick={onBack} className="text-charcoal hover:bg-cloud font-poppins font-semibold rounded-xl px-6 py-5 text-sm">
-          <ChevronLeft className="w-4 h-4 mr-1" /> {t('farmerRegister.back')}
-        </Button>
-        <Button onClick={onNext} className="bg-leaf hover:bg-forest text-white font-poppins font-semibold rounded-xl px-6 py-5 text-sm">
-          {t('farmerRegister.nextReview')} <ChevronRight className="w-4 h-4 ml-1" />
-        </Button>
+      <div className="flex gap-3">
+        <button
+          onClick={onBack}
+          className="flex-1 py-3 border border-[#334155] hover:border-[#475569] text-[#E2E8F0] font-medium rounded-xl flex items-center justify-center gap-2 transition-colors"
+        >
+          <ChevronLeft className="w-5 h-5" />
+          {t('farmerRegister.back')}
+        </button>
+        <button
+          onClick={onNext}
+          className="flex-1 py-3 bg-emerald-500 hover:bg-emerald-600 active:bg-emerald-700 text-white font-semibold rounded-xl flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
+        >
+          {t('farmerRegister.nextReview')}
+          <ChevronRight className="w-5 h-5" />
+        </button>
       </div>
-    </div>
+    </motion.div>
   );
 }
 
-/* ================================================================== */
-/*  STEP 4: REVIEW & SUBMIT                                             */
-/* ================================================================== */
-
-function Step4Review({
-  t, watch, onSubmit, onBack, onEditStep,
-}: {
-  t: (k: string) => string;
-  watch: any;
-  onSubmit: () => void;
-  onBack: () => void;
-  onEditStep: (s: number) => void;
-}) {
-  const country = supportedCountries.find((c) => c.code === watch('country'));
-  const lang = languages.find((l) => l.code === watch('language'));
-  const paymentMethods = (watch('paymentMethods') || []) as PaymentMethod[];
-
+/* ─── Step 4: Review & Submit ─── */
+function Step4Review({ t, watch, onSubmit, onBack, onEditStep }: any) {
   const sections = [
-    {
-      title: t('farmerRegister.reviewPersonal'),
-      step: 1,
-      fields: [
-        { label: t('farmerRegister.fullName'), value: watch('fullName') },
-        { label: t('farmerRegister.phone'), value: watch('phone') },
-        { label: t('farmerRegister.email'), value: watch('email') || '—' },
-        { label: t('farmerRegister.country'), value: country?.name },
-        { label: t('farmerRegister.language'), value: lang?.name },
-      ],
-    },
-    {
-      title: t('farmerRegister.reviewFarm'),
-      step: 2,
-      fields: [
-        { label: t('farmerRegister.farmName'), value: watch('farmName') },
-        { label: t('farmerRegister.farmAbout'), value: watch('farmAbout') },
-        { label: t('farmerRegister.region'), value: watch('region') },
-        { label: t('farmerRegister.district'), value: watch('district') },
-        { label: t('farmerRegister.village'), value: watch('village') },
-        { label: t('farmerRegister.farmSize'), value: watch('farmSize') ? `${watch('farmSize')} ${watch('farmSizeUnit')}` : '—' },
-        { label: t('farmerRegister.produceTypes'), value: (watch('produceTypes') || []).join(', ') },
-      ],
-    },
-    {
-      title: t('farmerRegister.reviewPayment'),
-      step: 3,
-      fields: [
-        ...paymentMethods.map((pm: PaymentMethod) => {
-          if (pm === 'airtel') return { label: 'Airtel Money', value: watch('airtelNumber') };
-          if (pm === 'mtn') return { label: 'MTN Mobile Money', value: watch('mtnNumber') };
-          if (pm === 'paypal') return { label: 'PayPal', value: watch('paypalEmail') };
-          if (pm === 'bank') return { label: 'Bank Transfer', value: `${watch('bankName')} - ${watch('bankAccountName')} (${watch('bankAccountNumber')})` };
-          return { label: pm, value: '' };
-        }),
-      ],
-    },
+    { title: t('farmerRegister.reviewPersonal'), step: 1, fields: [
+      { label: 'Name', value: watch('fullName') },
+      { label: 'Phone', value: watch('phone') },
+      { label: 'Email', value: watch('email') || '—' },
+      { label: 'Country', value: watch('country') },
+      { label: 'Language', value: LANGUAGES.find(l => l.code === watch('language'))?.label },
+    ]},
+    { title: t('farmerRegister.reviewFarm'), step: 2, fields: [
+      { label: 'Farm Name', value: watch('farmName') },
+      { label: 'About', value: watch('farmAbout') },
+      { label: 'Region', value: watch('region') },
+      { label: 'District', value: watch('district') },
+      { label: 'Village', value: watch('village') },
+      { label: 'Produce', value: (watch('produceTypes') || []).join(', ') },
+    ]},
+    { title: t('farmerRegister.reviewPayment'), step: 3, fields: [
+      { label: 'Methods', value: (watch('paymentMethods') || []).join(', ') },
+      ...(watch('airtelNumber') ? [{ label: 'Airtel', value: watch('airtelNumber') }] : []),
+      ...(watch('mtnNumber') ? [{ label: 'MTN', value: watch('mtnNumber') }] : []),
+      ...(watch('paypalEmail') ? [{ label: 'PayPal', value: watch('paypalEmail') }] : []),
+      ...(watch('bankName') ? [{ label: 'Bank', value: `${watch('bankName')} - ${watch('bankAccountNumber')}` }] : []),
+    ]},
   ];
 
   return (
-    <div>
-      <h3 className="text-xl md:text-[22px] font-poppins font-semibold text-charcoal mb-1">
-        {t('farmerRegister.step4Title')}
-      </h3>
-      <p className="text-sm text-stone mb-6">{t('farmerRegister.step4Desc')}</p>
+    <motion.div
+      initial={{ opacity: 0, x: 50 }}
+      animate={{ opacity: 1, x: 0 }}
+      exit={{ opacity: 0, x: -50 }}
+      className="bg-[#1E293B] border border-[#334155] rounded-2xl p-6 space-y-6"
+    >
+      <div className="text-center mb-6">
+        <h2 className="text-lg font-bold text-white">{t('farmerRegister.step4Title')}</h2>
+        <p className="text-sm text-[#94A3B8]">{t('farmerRegister.step4Desc')}</p>
+      </div>
 
-      {/* Profile Photo Preview */}
+      {/* Profile Photo */}
       {watch('profilePhoto') && (
-        <motion.div custom={0} variants={fadeUp} initial="hidden" animate="visible" className="flex flex-col items-center mb-4">
+        <div className="flex justify-center">
           <img
             src={watch('profilePhoto')}
             alt="Profile"
-            className="w-20 h-20 rounded-full object-cover border-2 border-leaf shadow-md"
+            className="w-24 h-24 rounded-full object-cover border-2 border-emerald-500"
           />
-          <span className="text-xs text-stone mt-2">Your profile photo</span>
-        </motion.div>
+        </div>
       )}
 
-      <div className="space-y-4">
-        {sections.map((section, sIdx) => (
-          <motion.div
-            key={sIdx}
-            custom={sIdx}
-            variants={fadeUp}
-            initial="hidden"
-            animate="visible"
-            className="bg-white rounded-xl border border-fog p-4"
-          >
-            <div className="flex items-center justify-between mb-3">
-              <h4 className="font-poppins font-semibold text-charcoal">{section.title}</h4>
-              <button
-                type="button"
-                onClick={() => onEditStep(section.step)}
-                className="text-xs text-leaf hover:underline font-medium"
-              >
-                {t('common.edit')}
-              </button>
-            </div>
-            <div className="space-y-2">
-              {section.fields.map((field, fIdx) => (
-                <div key={fIdx} className="flex flex-col sm:flex-row sm:justify-between sm:gap-4 text-sm">
-                  <span className="text-stone">{field.label}</span>
-                  <span className="text-charcoal font-medium text-right">{field.value || '—'}</span>
-                </div>
-              ))}
-            </div>
-          </motion.div>
-        ))}
-      </div>
+      {/* Review Sections */}
+      {sections.map((section) => (
+        <div key={section.title} className="bg-[#0F172A] rounded-xl p-4">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-sm font-semibold text-[#E2E8F0]">{section.title}</h3>
+            <button
+              onClick={() => onEditStep(section.step)}
+              className="text-xs text-emerald-400 hover:text-emerald-300 transition-colors"
+            >
+              Edit
+            </button>
+          </div>
+          <div className="space-y-2">
+            {section.fields.map((field) => (
+              <div key={field.label} className="flex justify-between text-sm">
+                <span className="text-[#64748B]">{field.label}</span>
+                <span className="text-[#E2E8F0] text-right max-w-[60%] truncate">{field.value}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      ))}
 
-      {/* Submit */}
-      <motion.div
-        custom={3}
-        variants={fadeUp}
-        initial="hidden"
-        animate="visible"
-        className="mt-6"
-      >
-        <Button
+      <p className="text-xs text-[#64748B] text-center">{t('farmerRegister.submitNote')}</p>
+
+      {/* Navigation */}
+      <div className="flex gap-3">
+        <button
+          onClick={onBack}
+          className="flex-1 py-3 border border-[#334155] hover:border-[#475569] text-[#E2E8F0] font-medium rounded-xl flex items-center justify-center gap-2 transition-colors"
+        >
+          <ChevronLeft className="w-5 h-5" />
+          {t('farmerRegister.back')}
+        </button>
+        <button
           onClick={onSubmit}
-          className="w-full bg-leaf hover:bg-forest text-white font-poppins font-semibold rounded-xl h-14 text-base"
+          className="flex-1 py-3 bg-emerald-500 hover:bg-emerald-600 active:bg-emerald-700 text-white font-semibold rounded-xl flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
         >
+          <Check className="w-5 h-5" />
           {t('farmerRegister.submit')}
-        </Button>
-        <p className="text-center text-xs text-stone mt-3">
-          {t('farmerRegister.submitNote')}
-        </p>
-      </motion.div>
-
-      <div className="mt-4 flex justify-start">
-        <Button variant="ghost" onClick={onBack} className="text-charcoal hover:bg-cloud font-poppins font-semibold rounded-xl px-6 py-5 text-sm">
-          <ChevronLeft className="w-4 h-4 mr-1" /> {t('farmerRegister.back')}
-        </Button>
+        </button>
       </div>
-    </div>
-  );
-}
-
-/* ================================================================== */
-/*  SUCCESS VIEW                                                        */
-/* ================================================================== */
-
-/* eslint-disable @typescript-eslint/no-explicit-any */
-function SuccessView({ t }: { t: (k: string) => string }) {
-  return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.95 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 0.6, ease: [0.4, 0, 0.2, 1] as [number,number,number,number] }}
-      className="bg-white rounded-2xl border border-fog p-8 md:p-12 shadow-sm text-center"
-    >
-      <motion.div
-        initial={{ scale: 0 }}
-        animate={{ scale: [0, 1.1, 1] }}
-        transition={{ duration: 0.6, ease: [0.4, 0, 0.2, 1] as [number,number,number,number] }}
-        className="w-20 h-20 rounded-full bg-success/10 flex items-center justify-center mx-auto mb-6"
-      >
-        <Check className="w-10 h-10 text-success" />
-      </motion.div>
-
-      <motion.h2
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.3, duration: 0.5 }}
-        className="text-2xl md:text-[32px] font-poppins font-bold text-charcoal mb-3"
-      >
-        {t('farmerRegister.successTitle')}
-      </motion.h2>
-
-      <motion.p
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.4, duration: 0.5 }}
-        className="text-sm text-stone max-w-md mx-auto mb-6"
-      >
-        {t('farmerRegister.successMessage')}
-      </motion.p>
-
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.5, duration: 0.5 }}
-        className="mb-8"
-      >
-        <span className="font-space-grotesk text-[40px] font-bold text-sun">*220#</span>
-      </motion.div>
-
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.6, duration: 0.5 }}
-        className="flex flex-col sm:flex-row gap-3 justify-center"
-      >
-        <Link
-          to="/ussd"
-          className="inline-flex items-center justify-center bg-leaf hover:bg-forest text-white font-poppins font-semibold rounded-xl px-7 py-3.5 text-sm transition-all hover:scale-[1.02]"
-        >
-          {t('farmerRegister.successCtaUssd')}
-        </Link>
-        <Link
-          to="/"
-          className="inline-flex items-center justify-center text-forest font-poppins font-semibold rounded-xl px-7 py-3.5 text-sm border-2 border-forest hover:bg-forest hover:text-white transition-all"
-        >
-          {t('farmerRegister.successCtaHome')}
-        </Link>
-      </motion.div>
     </motion.div>
   );
 }
