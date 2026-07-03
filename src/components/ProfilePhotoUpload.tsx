@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback } from 'react';
-import { Camera, Upload, X, User } from 'lucide-react';
+import { Camera, Upload, X, User, AlertCircle } from 'lucide-react';
 
 interface ProfilePhotoUploadProps {
   value?: string;
@@ -15,23 +15,76 @@ export default function ProfilePhotoUpload({
   description = 'Take a clear photo of your face. Buyers will see this on your listings.',
 }: ProfilePhotoUploadProps) {
   const [preview, setPreview] = useState<string | undefined>(value);
+  const [error, setError] = useState<string | null>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleFile = useCallback((file: File | null) => {
-    if (!file || !file.type.startsWith('image/')) return;
-    // Convert to base64 so the image persists in localStorage
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      const base64 = reader.result as string;
+  const compressImage = useCallback((file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      const objectUrl = URL.createObjectURL(file);
+
+      img.onload = () => {
+        URL.revokeObjectURL(objectUrl);
+        const canvas = document.createElement('canvas');
+        const maxSize = 400; // max width/height in pixels
+        let width = img.width;
+        let height = img.height;
+
+        if (width > height) {
+          if (width > maxSize) { height = Math.round(height * (maxSize / width)); width = maxSize; }
+        } else {
+          if (height > maxSize) { width = Math.round(width * (maxSize / height)); height = maxSize; }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) {
+          reject(new Error('Could not get canvas context'));
+          return;
+        }
+        ctx.drawImage(img, 0, 0, width, height);
+        // JPEG at 80% quality keeps file small
+        const base64 = canvas.toDataURL('image/jpeg', 0.8);
+        resolve(base64);
+      };
+
+      img.onerror = () => {
+        URL.revokeObjectURL(objectUrl);
+        reject(new Error('Failed to load image'));
+      };
+
+      img.src = objectUrl;
+    });
+  }, []);
+
+  const handleFile = useCallback(async (file: File | null) => {
+    setError(null);
+    if (!file || !file.type.startsWith('image/')) {
+      setError('Please select an image file (JPG, PNG).');
+      return;
+    }
+
+    // Reject if original file is over 5MB before compression
+    if (file.size > 5 * 1024 * 1024) {
+      setError('Photo is too large. Please choose a photo under 5MB, or take a new photo with lower quality.');
+      return;
+    }
+
+    try {
+      const base64 = await compressImage(file);
       setPreview(base64);
       onChange(base64);
-    };
-    reader.readAsDataURL(file);
-  }, [onChange]);
+    } catch (err) {
+      setError('Failed to process photo. Please try another image.');
+      console.error('Photo compression error:', err);
+    }
+  }, [onChange, compressImage]);
 
   const handleClear = useCallback(() => {
     setPreview(undefined);
+    setError(null);
     onChange(undefined);
     if (cameraInputRef.current) cameraInputRef.current.value = '';
     if (fileInputRef.current) fileInputRef.current.value = '';
@@ -53,6 +106,13 @@ export default function ProfilePhotoUpload({
       </div>
       <p className="text-xs text-stone">{description}</p>
 
+      {error && (
+        <div className="flex items-start gap-2 rounded-lg bg-red-50 border border-red-200 p-3 text-xs text-red-600">
+          <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+          <span>{error}</span>
+        </div>
+      )}
+
       {preview ? (
         <div className="relative w-28 h-28 mx-auto">
           <img
@@ -71,7 +131,7 @@ export default function ProfilePhotoUpload({
         </div>
       ) : (
         <div className="flex flex-col items-center gap-3">
-          {/* Hidden inputs - moved outside flex, styled as visually hidden but accessible */}
+          {/* Hidden inputs */}
           <input
             ref={fileInputRef}
             type="file"
@@ -90,7 +150,7 @@ export default function ProfilePhotoUpload({
             aria-label="Take profile photo with camera"
           />
 
-          {/* Upload options - using button elements with onClick for reliability */}
+          {/* Upload options */}
           <div className="flex gap-3">
             <button
               type="button"
