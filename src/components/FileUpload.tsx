@@ -62,12 +62,14 @@ export default function FileUpload({ onOrderReady }: FileUploadProps) {
   });
   const [isDragging, setIsDragging] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
 
   const processFiles = useCallback(async (fileList: FileList | null) => {
     if (!fileList || fileList.length === 0) return;
     setUploading(true);
+    setError(null);
 
     const newFiles: UploadedFile[] = [];
     for (const file of Array.from(fileList)) {
@@ -77,7 +79,16 @@ export default function FileUpload({ onOrderReady }: FileUploadProps) {
         file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' ||
         file.type.startsWith('image/');
 
-      if (!isValid) continue;
+      if (!isValid) {
+        setError(`Skipped "${file.name}" — unsupported file type. Only PDF, Word, and images are allowed.`);
+        continue;
+      }
+
+      // File size limit: 10MB
+      if (file.size > 10 * 1024 * 1024) {
+        setError(`"${file.name}" is too large. Max file size is 10MB.`);
+        continue;
+      }
 
       const pages = await estimatePages(file);
       let preview: string | undefined;
@@ -96,7 +107,9 @@ export default function FileUpload({ onOrderReady }: FileUploadProps) {
       });
     }
 
-    setFiles(prev => [...prev, ...newFiles]);
+    if (newFiles.length > 0) {
+      setFiles(prev => [...prev, ...newFiles]);
+    }
     setUploading(false);
 
     // Reset file inputs so same file can be selected again
@@ -106,16 +119,20 @@ export default function FileUpload({ onOrderReady }: FileUploadProps) {
 
   const handleDrop = useCallback((e: React.DragEvent) => {
     e.preventDefault();
+    e.stopPropagation();
     setIsDragging(false);
     processFiles(e.dataTransfer.files);
   }, [processFiles]);
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
+    e.stopPropagation();
     setIsDragging(true);
   }, []);
 
-  const handleDragLeave = useCallback(() => {
+  const handleDragLeave = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
     setIsDragging(false);
   }, []);
 
@@ -130,7 +147,8 @@ export default function FileUpload({ onOrderReady }: FileUploadProps) {
   const totalPages = files.reduce((sum, f) => sum + f.pages * config.copies, 0);
   const pricePerPage = config.printType === 'bw' ? BW_PRICE : COLOR_PRICE;
   const bindingCost = files.length > 0 ? BINDING_PRICES[config.binding] * files.length : 0;
-  const total = totalPages * pricePerPage + bindingCost;
+  const subtotal = totalPages * pricePerPage;
+  const total = subtotal + bindingCost;
 
   const handleSendToWhatsApp = () => {
     if (files.length === 0) return;
@@ -165,12 +183,12 @@ export default function FileUpload({ onOrderReady }: FileUploadProps) {
         className="hidden"
       />
 
-      {/* Upload Area - uses label for reliable mobile file opening */}
-      <label
-        htmlFor="file-upload-input"
+      {/* Upload Area — CHANGED from <label> to <div> to fix drag-and-drop conflicts */}
+      <div
         onDrop={handleDrop}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
+        onClick={() => fileInputRef.current?.click()}
         className={`relative block border-2 border-dashed rounded-2xl p-8 text-center cursor-pointer transition-all duration-200 select-none ${
           isDragging
             ? 'border-emerald-400 bg-emerald-500/5'
@@ -184,19 +202,28 @@ export default function FileUpload({ onOrderReady }: FileUploadProps) {
           {uploading ? 'Processing files...' : 'Drag & drop files here'}
         </p>
         <p className="text-sm text-[#94A3B8] mb-4 pointer-events-none">or click to browse</p>
-        <p className="text-xs text-[#64748B] pointer-events-none">Supports: PDF, Word, JPG, PNG</p>
-      </label>
+        <p className="text-xs text-[#64748B] pointer-events-none">Supports: PDF, Word, JPG, PNG (max 10MB each)</p>
+      </div>
 
-      {/* Camera Button - uses label for reliable mobile camera opening */}
+      {/* Camera Button */}
       <div className="flex justify-center">
-        <label
-          htmlFor="camera-upload-input"
+        <button
+          type="button"
+          onClick={() => cameraInputRef.current?.click()}
           className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#334155] text-[#E2E8F0] rounded-xl text-sm hover:bg-[#475569] active:bg-[#475569] transition-colors cursor-pointer select-none"
         >
           <Camera className="w-4 h-4" />
           Take a Photo
-        </label>
+        </button>
       </div>
+
+      {/* Error Message */}
+      {error && (
+        <div className="flex items-start gap-2 rounded-lg bg-red-500/10 border border-red-500/20 p-3 text-sm text-red-400">
+          <span className="shrink-0">⚠️</span>
+          <span>{error}</span>
+        </div>
+      )}
 
       {/* File List */}
       {files.length > 0 && (
