@@ -5,9 +5,9 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronLeft, ChevronRight, Check, User, MapPin, CreditCard, ClipboardCheck, Loader2 } from 'lucide-react';
-import { useAuth } from '@/hooks/useAuth';
+import { useAuthStore } from '@/store';
 import ProfilePhotoUpload from '@/components/ProfilePhotoUpload';
-import { countries } from '@/data/countries';
+import { countriesData, getDistrictsForCountry, supportedCountries } from '@/data/districts';
 import { useTranslation } from 'react-i18next';
 
 /* ─── validation schemas ─── */
@@ -94,7 +94,7 @@ const STEPS = [
 
 export default function FarmerRegister() {
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { login } = useAuthStore();
   const { t } = useTranslation();
   const [step, setStep] = useState(1);
   const [direction, setDirection] = useState(0);
@@ -486,7 +486,7 @@ function Step1Personal({ register, errors, watch, setValue, onNext, t }: any) {
             className="w-full px-4 py-3 bg-[#0F172A] border border-[#334155] rounded-xl text-white focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 outline-none transition-colors"
           >
             <option value="">{t('farmerRegister.selectCountry')}</option>
-            {countries.map((c) => (
+            {supportedCountries.map((c) => (
               <option key={c.code} value={c.name}>{c.name}</option>
             ))}
           </select>
@@ -559,7 +559,8 @@ function Step1Personal({ register, errors, watch, setValue, onNext, t }: any) {
 /* ─── Step 2: Farm Details ─── */
 function Step2Farm({ register, errors, watch, setValue, onBack, onNext, t }: any) {
   const country = watch('country');
-  const districts = countries.find((c) => c.name === country)?.districts || [];
+  const countryCode = supportedCountries.find((c) => c.name === country)?.code;
+  const districts = countryCode ? getDistrictsForCountry(countryCode) : [];
 
   return (
     <motion.div
