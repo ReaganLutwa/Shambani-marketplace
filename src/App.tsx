@@ -1,6 +1,8 @@
 import { HashRouter, Routes, Route } from 'react-router-dom';
 import { Suspense, lazy } from 'react';
 import Layout from '@/components/Layout';
+import ShambaNiChatbot from '@/components/ShambaNiChatbot/ShambaNiChatbot';
+import { CookieConsentBanner, PrivacyPolicy, TermsOfService } from '@/components/LegalPages/LegalPages';
 
 // Lazy load pages for code splitting
 const Home = lazy(() => import('@/pages/Home'));
@@ -12,6 +14,8 @@ const Cart = lazy(() => import('@/pages/Cart'));
 const About = lazy(() => import('@/pages/About'));
 const PrintDrop = lazy(() => import('@/pages/PrintDrop'));
 const AdminDashboard = lazy(() => import('@/pages/AdminDashboard'));
+const ForBuyers = lazy(() => import('@/pages/ForBuyers'));
+const BuyerRegistration = lazy(() => import('@/components/BuyerRegistration/BuyerRegistration'));
 
 function PageLoader() {
   return (
@@ -31,13 +35,19 @@ export default function App() {
             <Route path="/browse" element={<Browse />} />
             <Route path="/product/:id" element={<ProductDetail />} />
             <Route path="/farmer-register" element={<FarmerRegister />} />
+            <Route path="/buyer-register" element={<BuyerRegistration />} />
+            <Route path="/for-buyers" element={<ForBuyers />} />
             <Route path="/ussd" element={<Ussd />} />
             <Route path="/cart" element={<Cart />} />
             <Route path="/about" element={<About />} />
             <Route path="/print" element={<PrintDrop />} />
+            <Route path="/privacy" element={<PrivacyPolicy />} />
+            <Route path="/terms" element={<TermsOfService />} />
             <Route path="/admin/*" element={<AdminDashboard />} />
           </Routes>
         </Suspense>
+        <ShambaNiChatbot />
+        <CookieConsentBanner />
       </Layout>
     </HashRouter>
   );
