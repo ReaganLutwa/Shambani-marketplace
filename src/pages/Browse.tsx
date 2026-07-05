@@ -1,9 +1,10 @@
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Search, X, ChevronDown, SlidersHorizontal, RotateCcw, Printer, MessageCircle, ExternalLink } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { products } from '@/data/products';
 import { categories } from '@/data/categories';
+import { PRODUCT_CATEGORIES, getSubcategories } from '@/data/productCategories';
 import { supportedCountries, getDistrictsForCountry } from '@/data/districts';
 import ProductCard from '@/components/ProductCard';
 import { Link } from 'react-router-dom';
@@ -26,6 +27,8 @@ export default function Browse() {
   const { t } = useTranslation();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
+  const [selectedSubcategory, setSelectedSubcategory] = useState('');
+  const [subcategoryOptions, setSubcategoryOptions] = useState<{id: string, name: string, unit: string}[]>([]);
   const [selectedCountry, setSelectedCountry] = useState('');
   const [selectedDistrict, setSelectedDistrict] = useState('');
   const [sortBy, setSortBy] = useState<SortOption>('featured');
@@ -36,6 +39,17 @@ export default function Browse() {
     () => (selectedCountry ? getDistrictsForCountry(selectedCountry) : []),
     [selectedCountry]
   );
+
+  // Subcategory options update
+  useEffect(() => {
+    if (selectedCategory && selectedCategory !== 'all') {
+      const subs = getSubcategories(selectedCategory);
+      setSubcategoryOptions(subs);
+    } else {
+      setSubcategoryOptions([]);
+    }
+    setSelectedSubcategory('');
+  }, [selectedCategory]);
 
   const allCategories = [allCategory, ...categories];
 
@@ -58,6 +72,11 @@ export default function Browse() {
     // Category filter
     if (selectedCategory !== 'all') {
       result = result.filter((p) => p.category === selectedCategory);
+    }
+
+    // Subcategory filter
+    if (selectedSubcategory) {
+      result = result.filter((p) => p.subcategory === selectedSubcategory);
     }
 
     // Country filter
@@ -92,7 +111,7 @@ export default function Browse() {
     }
 
     return result;
-  }, [searchQuery, selectedCategory, selectedCountry, selectedDistrict, sortBy, t]);
+  }, [searchQuery, selectedCategory, selectedSubcategory, selectedCountry, selectedDistrict, sortBy, t]);
 
   const hasActiveFilters =
     searchQuery || selectedCategory !== 'all' || selectedCountry || selectedDistrict || sortBy !== 'featured';
@@ -100,6 +119,7 @@ export default function Browse() {
   const handleClearFilters = useCallback(() => {
     setSearchQuery('');
     setSelectedCategory('all');
+    setSelectedSubcategory('');
     setSelectedCountry('');
     setSelectedDistrict('');
     setSortBy('featured');
@@ -224,6 +244,39 @@ export default function Browse() {
               </button>
             ))}
           </motion.div>
+
+          {/* Subcategory Dropdown */}
+          <AnimatePresence>
+            {selectedCategory !== 'all' && subcategoryOptions.length > 0 && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ duration: 0.2 }}
+                className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-hide"
+              >
+                <span className="text-xs text-stone whitespace-nowrap font-medium">Select product:</span>
+                <select
+                  value={selectedSubcategory}
+                  onChange={(e) => setSelectedSubcategory(e.target.value)}
+                  className="appearance-none pl-3 pr-8 py-1.5 bg-leaf/10 border border-leaf/30 rounded-lg text-sm text-forest focus:outline-none focus:border-leaf cursor-pointer hover:bg-leaf/20 transition-colors"
+                >
+                  <option value="">All {t(categories.find(c => c.id === selectedCategory)?.nameKey || 'products')}</option>
+                  {subcategoryOptions.map((sub) => (
+                    <option key={sub.id} value={sub.id}>{sub.name}</option>
+                  ))}
+                </select>
+                {selectedSubcategory && (
+                  <button
+                    onClick={() => setSelectedSubcategory('')}
+                    className="text-xs text-stone hover:text-error transition-colors"
+                  >
+                    Clear
+                  </button>
+                )}
+              </motion.div>
+            )}
+          </AnimatePresence>
 
           {/* Filter Controls Row */}
           <div className="flex items-center gap-2 flex-wrap">
