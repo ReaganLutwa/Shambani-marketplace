@@ -3,6 +3,7 @@ export interface Product {
   name: string;
   category: string;
   categoryKey: string;
+  subcategory?: string;
   image: string;
   farmer: string;
   farmerPhoto?: string;
@@ -22,6 +23,7 @@ export const products: Product[] = [
   {
     id: '1',
     name: 'Fresh Eggs',
+    subcategory: 'eggs',
     category: 'livestock',
     categoryKey: 'categories.livestock',
     image: 'prod-eggs.jpg',
@@ -41,6 +43,7 @@ export const products: Product[] = [
   {
     id: '2',
     name: 'Free-Range Chicken',
+    subcategory: 'chicken_broilers',
     category: 'livestock',
     categoryKey: 'categories.livestock',
     image: 'prod-chicken.jpg',
@@ -135,6 +138,7 @@ export const products: Product[] = [
   {
     id: '7',
     name: 'Sweet Potatoes',
+    subcategory: 'sweet_potatoes',
     category: 'roots',
     categoryKey: 'categories.roots',
     image: 'produce-roots.jpg',
@@ -153,6 +157,7 @@ export const products: Product[] = [
   {
     id: '8',
     name: 'Fresh Milk',
+    subcategory: 'fresh_milk',
     category: 'dairy',
     categoryKey: 'categories.dairy',
     image: 'produce-dairy.jpg',
@@ -172,6 +177,7 @@ export const products: Product[] = [
   {
     id: '9',
     name: 'Pineapples',
+    subcategory: 'pineapples',
     category: 'fruits',
     categoryKey: 'categories.fruits',
     image: 'produce-fruits.jpg',
