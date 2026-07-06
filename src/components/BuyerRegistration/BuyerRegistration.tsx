@@ -124,32 +124,26 @@ export default function BuyerRegistration() {
     setIsSubmitting(true);
     
     try {
-      // API call to register buyer
-      const response = await fetch('/api/buyers/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          buyerType,
-          ...formData,
-          registeredAt: new Date().toISOString(),
-          status: 'pending_verification'
-        })
-      });
+      // Save buyer data to localStorage (no backend on GitHub Pages)
+      const buyerData = {
+        id: 'buyer_' + Date.now(),
+        buyerType,
+        ...formData,
+        registeredAt: new Date().toISOString(),
+        status: 'pending_verification'
+      };
       
-      if (response.ok) {
-        setSuccess(true);
-        // Send welcome email/SMS
-        await fetch('/api/notifications/welcome', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email: formData.email, phone: formData.phone, name: formData.contactName })
-        });
-      } else {
-        const data = await response.json();
-        setErrors({ submit: data.message || 'Registration failed. Please try again.' });
-      }
+      // Get existing buyers or empty array
+      const existingBuyers = JSON.parse(localStorage.getItem('shambani_buyers') || '[]');
+      existingBuyers.push(buyerData);
+      localStorage.setItem('shambani_buyers', JSON.stringify(existingBuyers));
+      
+      // Also save as current user
+      localStorage.setItem('shambani_current_buyer', JSON.stringify(buyerData));
+      
+      setSuccess(true);
     } catch (error) {
-      setErrors({ submit: 'Network error. Please check your connection.' });
+      setErrors({ submit: 'Something went wrong. Please try again.' });
     } finally {
       setIsSubmitting(false);
     }
@@ -179,7 +173,7 @@ export default function BuyerRegistration() {
             <p><strong>Verification Time:</strong> 24-48 hours</p>
           </div>
           <div className="success-actions">
-            <button className="btn-primary" onClick={() => window.location.href = '/browse-produce'}>
+            <button className="btn-primary" onClick={() => window.location.href = '/browse'}>
               Browse Produce Now
             </button>
             <button className="btn-secondary" onClick={() => window.location.href = '/'}>
