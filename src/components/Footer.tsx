@@ -24,7 +24,7 @@ export default function Footer() {
   return (
     <footer className="bg-night text-cream/80">
       <div className="container-main py-16">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-10 lg:gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-10 lg:gap-6">
           {/* Brand Column */}
           <div className="sm:col-span-2 lg:col-span-1">
             <Link to="/" className="inline-block mb-4">
@@ -44,6 +44,11 @@ export default function Footer() {
               <li>
                 <Link to="/browse" className="text-sm text-cream/70 hover:text-white transition-colors duration-200">
                   {t('nav.browse')}
+                </Link>
+              </li>
+              <li>
+                <Link to="/for-buyers" className="text-sm text-mint hover:text-white transition-colors duration-200">
+                  For Buyers
                 </Link>
               </li>
               <li>
@@ -106,6 +111,35 @@ export default function Footer() {
             </ul>
           </div>
 
+          {/* For Buyers - NEW */}
+          <div>
+            <h4 className="text-cream font-poppins font-semibold text-sm mb-4 tracking-wide">
+              For Buyers
+            </h4>
+            <ul className="space-y-2.5">
+              <li>
+                <Link to="/for-buyers" className="text-sm text-mint hover:text-white transition-colors duration-200">
+                  Why Buy on ShambaNi
+                </Link>
+              </li>
+              <li>
+                <Link to="/buyer-register" className="text-sm text-cream/70 hover:text-white transition-colors duration-200">
+                  Register as Buyer
+                </Link>
+              </li>
+              <li>
+                <Link to="/browse" className="text-sm text-cream/70 hover:text-white transition-colors duration-200">
+                  Browse Produce
+                </Link>
+              </li>
+              <li>
+                <Link to="/" className="text-sm text-cream/70 hover:text-white transition-colors duration-200">
+                  Institutional Buyers
+                </Link>
+              </li>
+            </ul>
+          </div>
+
           {/* My Projects / Ecosystem */}
           <div>
             <h4 className="text-cream font-poppins font-semibold text-sm mb-4 tracking-wide">
@@ -137,7 +171,7 @@ export default function Footer() {
             </ul>
           </div>
 
-          {/* Payments & Contact */}
+          {/* Contact - UPDATED: Phone/email hidden, legal links added */}
           <div>
             <h4 className="text-cream font-poppins font-semibold text-sm mb-4 tracking-wide">
               {t('footer.paymentsLegal')}
@@ -145,23 +179,25 @@ export default function Footer() {
             <ul className="space-y-2.5">
               <li><span className="text-sm text-cream/70">Airtel Money</span></li>
               <li><span className="text-sm text-cream/70">MTN Mobile Money</span></li>
-              <li><span className="text-sm text-cream/70">PayPal (@LutwamaReagan)</span></li>
+              <li><span className="text-sm text-cream/70">PayPal</span></li>
               <li><span className="text-sm text-cream/70">{t('admin.payments')}</span></li>
               <li className="pt-2 border-t border-white/10 mt-2">
-                <span className="text-xs text-cream/50 block">WhatsApp</span>
-                <a href="https://wa.me/256708813419" target="_blank" rel="noopener noreferrer" className="text-sm text-mint hover:text-white transition-colors">
-                  +256 708 813 419
-                </a>
+                <span className="text-xs text-cream/50 block">Support</span>
+                <Link to="/" className="text-sm text-mint hover:text-white transition-colors">
+                  Live Chat (bottom right)
+                </Link>
               </li>
               <li>
                 <span className="text-xs text-cream/50 block">Email</span>
-                <a href="mailto:ryglutwa0@gmail.com" className="text-sm text-cream/70 hover:text-white transition-colors">
-                  ryglutwa0@gmail.com
-                </a>
+                <span className="text-sm text-cream/70">support@shambani-market.africa</span>
               </li>
               <li>
                 <span className="text-xs text-cream/50 block">Location</span>
                 <span className="text-sm text-cream/70">Mpigi, Uganda</span>
+              </li>
+              <li className="pt-2 border-t border-white/10 mt-2">
+                <Link to="/privacy" className="text-xs text-cream/50 hover:text-white transition-colors block">Privacy Policy</Link>
+                <Link to="/terms" className="text-xs text-cream/50 hover:text-white transition-colors block mt-1">Terms of Service</Link>
               </li>
             </ul>
           </div>

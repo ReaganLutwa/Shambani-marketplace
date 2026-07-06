@@ -6,15 +6,16 @@ import { useLangStore } from '@/store';
 import { useCartStore } from '@/store';
 
 const languages = [
-  { code: 'en' as const, label: 'EN', flag: '\uD83C\uDDEC\uD83C\uDDE7' }, // GB - English
-  { code: 'sw' as const, label: 'SW', flag: '\uD83C\uDDF9\uD83C\uDDFF' }, // TZ - Swahili
-  { code: 'rw' as const, label: 'RW', flag: '\uD83C\uDDF7\uD83C\uDDFC' }, // RW - Kinyarwanda
-  { code: 'lg' as const, label: 'LG', flag: '\uD83C\uDDFA\uD83C\uDDEC' }, // UG - Luganda
+  { code: 'en' as const, label: 'EN', flag: '\uD83C\uDDEC\uD83C\uDDE7' },
+  { code: 'sw' as const, label: 'SW', flag: '\uD83C\uDDF9\uD83C\uDDFF' },
+  { code: 'rw' as const, label: 'RW', flag: '\uD83C\uDDF7\uD83C\uDDFC' },
+  { code: 'lg' as const, label: 'LG', flag: '\uD83C\uDDFA\uD83C\uDDEC' },
 ];
 
 const navLinks = [
   { to: '/browse', key: 'nav.browse' },
   { to: '/farmer-register', key: 'nav.farmers' },
+  { to: '/for-buyers', key: 'For Buyers', isNew: true },
   { to: '/#how-it-works', key: 'nav.howItWorks' },
   { to: '/ussd', key: 'nav.ussd' },
   { to: '/about', key: 'nav.about' },
@@ -54,9 +55,14 @@ export default function Navbar() {
             <Link
               key={link.to}
               to={link.to}
-              className="relative px-3 py-2 text-sm font-medium text-charcoal hover:text-forest transition-colors group"
+              className={`relative px-3 py-2 text-sm font-medium transition-colors group ${
+                link.isNew ? 'text-leaf hover:text-forest' : 'text-charcoal hover:text-forest'
+              }`}
             >
-              {t(link.key)}
+              {link.isNew ? link.key : t(link.key)}
+              {link.isNew && (
+                <span className="bg-leaf text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full leading-none ml-1">NEW</span>
+              )}
               <span className="absolute bottom-0 left-3 right-3 h-0.5 bg-leaf scale-x-0 group-hover:scale-x-100 transition-transform duration-250 origin-left" />
             </Link>
           ))}
@@ -81,22 +87,20 @@ export default function Navbar() {
           </Link>
         </div>
 
-        {/* Right Section */}
+        {/* Right Side Actions */}
         <div className="flex items-center gap-2">
-          {/* Language Selector */}
+          {/* Language Switcher */}
           <div className="relative">
             <button
               onClick={() => setLangOpen(!langOpen)}
-              className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium text-charcoal hover:bg-cloud transition-colors"
+              className="flex items-center gap-1 px-2 py-1.5 text-sm font-medium text-charcoal hover:text-forest transition-colors"
             >
-              <span className="text-base">
-                {languages.find((l) => l.code === currentLang)?.flag}
-              </span>
-              <span className="hidden sm:inline">{currentLang.toUpperCase()}</span>
+              <span className="text-base">{languages.find((l) => l.code === currentLang)?.flag}</span>
+              <span className="hidden sm:inline">{languages.find((l) => l.code === currentLang)?.label}</span>
               <ChevronDown className={`w-4 h-4 transition-transform ${langOpen ? 'rotate-180' : ''}`} />
             </button>
             {langOpen && (
-              <div className="absolute right-0 top-full mt-2 bg-white rounded-xl shadow-lg border border-fog py-1.5 min-w-[140px] z-50">
+              <div className="absolute right-0 top-full mt-1 bg-white rounded-xl shadow-lg border border-fog py-1 min-w-[140px] z-50">
                 {languages.map((lang) => (
                   <button
                     key={lang.code}
@@ -104,17 +108,14 @@ export default function Navbar() {
                       setLanguage(lang.code);
                       setLangOpen(false);
                     }}
-                    className={`w-full flex items-center gap-2 px-4 py-2.5 text-sm hover:bg-cloud transition-colors ${
-                      currentLang === lang.code ? 'text-forest font-medium' : 'text-charcoal'
+                    className={`w-full flex items-center gap-2 px-4 py-2 text-sm transition-colors ${
+                      currentLang === lang.code
+                        ? 'bg-leaf/10 text-leaf font-medium'
+                        : 'text-charcoal hover:bg-gray-50'
                     }`}
                   >
                     <span className="text-base">{lang.flag}</span>
-                    <span>{lang.label}</span>
-                    {currentLang === lang.code && (
-                      <svg className="w-4 h-4 ml-auto text-leaf" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                      </svg>
-                    )}
+                    {lang.label}
                   </button>
                 ))}
               </div>
@@ -124,28 +125,20 @@ export default function Navbar() {
           {/* Cart */}
           <Link
             to="/cart"
-            className="relative p-2 rounded-lg text-charcoal hover:bg-cloud transition-colors"
+            className="relative p-2 text-charcoal hover:text-forest transition-colors"
           >
             <ShoppingCart className="w-5 h-5" />
             {totalItems > 0 && (
-              <span className="absolute -top-0.5 -right-0.5 bg-leaf text-white text-[10px] font-bold rounded-full w-4.5 h-4.5 flex items-center justify-center">
+              <span className="absolute -top-0.5 -right-0.5 bg-leaf text-white text-[10px] font-bold w-4.5 h-4.5 rounded-full flex items-center justify-center">
                 {totalItems}
               </span>
             )}
           </Link>
 
-          {/* Sign In */}
-          <Link
-            to="/"
-            className="hidden md:inline-flex items-center px-5 py-2.5 bg-leaf text-white text-sm font-poppins font-semibold rounded-xl hover:bg-forest hover:scale-[1.02] transition-all duration-200"
-          >
-            {t('nav.signIn')}
-          </Link>
-
-          {/* Mobile Hamburger */}
+          {/* Mobile Menu Toggle */}
           <button
             onClick={() => setMobileOpen(!mobileOpen)}
-            className="lg:hidden p-2 rounded-lg text-charcoal hover:bg-cloud transition-colors"
+            className="lg:hidden p-2 text-charcoal hover:text-forest transition-colors"
           >
             {mobileOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
@@ -154,46 +147,42 @@ export default function Navbar() {
 
       {/* Mobile Menu */}
       {mobileOpen && (
-        <div className="lg:hidden bg-white border-t border-fog shadow-lg">
-          <div className="container-main py-4 flex flex-col gap-1">
+        <div className="lg:hidden bg-[rgba(250,248,243,0.98)] backdrop-blur-xl border-t border-fog">
+          <div className="container-main py-4 space-y-1">
             {navLinks.map((link) => (
               <Link
                 key={link.to}
                 to={link.to}
                 onClick={() => setMobileOpen(false)}
-                className="px-4 py-3 text-base font-medium text-charcoal hover:text-forest hover:bg-cloud rounded-lg transition-colors"
+                className={`block px-4 py-3 text-sm font-medium rounded-lg transition-colors ${
+                  link.isNew
+                    ? 'text-leaf hover:bg-leaf/10'
+                    : 'text-charcoal hover:bg-gray-100'
+                }`}
               >
-                {t(link.key)}
+                {link.isNew ? link.key : t(link.key)}
+                {link.isNew && (
+                  <span className="bg-leaf text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full leading-none ml-2">NEW</span>
+                )}
               </Link>
             ))}
-            {/* PrintDrop Mobile */}
             <Link
               to="/print"
               onClick={() => setMobileOpen(false)}
-              className="px-4 py-3 text-base font-medium text-leaf hover:text-forest hover:bg-cloud rounded-lg transition-colors flex items-center gap-2"
+              className="block px-4 py-3 text-sm font-medium text-leaf hover:bg-leaf/10 rounded-lg transition-colors flex items-center gap-2"
             >
               <Printer className="w-4 h-4" />
               PrintDrop
-              <span className="bg-leaf text-white text-[10px] font-bold px-2 py-0.5 rounded-full">NEW</span>
+              <span className="bg-leaf text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full">NEW</span>
             </Link>
-            {/* Admin Mobile */}
             <Link
               to="/admin"
               onClick={() => setMobileOpen(false)}
-              className="px-4 py-3 text-base font-medium text-stone hover:text-forest hover:bg-cloud rounded-lg transition-colors flex items-center gap-2"
+              className="block px-4 py-3 text-sm font-medium text-stone hover:bg-gray-100 rounded-lg transition-colors flex items-center gap-2"
             >
               <Settings className="w-4 h-4" />
-              Admin Dashboard
+              Admin
             </Link>
-            <div className="mt-2 pt-2 border-t border-fog">
-              <Link
-                to="/"
-                onClick={() => setMobileOpen(false)}
-                className="block text-center px-5 py-3 bg-leaf text-white font-poppins font-semibold rounded-xl"
-              >
-                {t('nav.signIn')}
-              </Link>
-            </div>
           </div>
         </div>
       )}
