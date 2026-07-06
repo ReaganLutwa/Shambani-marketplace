@@ -123,8 +123,8 @@ export default function ForBuyers() {
             ShambaNi brings the market to you.
           </p>
           <div className="hero-buttons">
-            <a href="/buyer-register" className="btn-primary">Register as Buyer</a>
-            <a href="/browse" className="btn-secondary">Browse Produce</a>
+            <Link to="/buyer-register" className="btn-primary">Register as Buyer</Link>
+            <Link to="/browse" className="btn-secondary">Browse Produce</Link>
           </div>
           <div className="hero-trust">
             <span>✓ No registration fees</span>
@@ -173,7 +173,7 @@ export default function ForBuyers() {
               <span className="type-icon">{t.icon}</span>
               <h3>{t.title}</h3>
               <p>{t.desc}</p>
-              <a href="/buyer-register" className="type-cta">{t.cta} →</a>
+              <Link to="/buyer-register" className="type-cta">{t.cta} →</Link>
             </div>
           ))}
         </div>
@@ -230,8 +230,8 @@ export default function ForBuyers() {
         <h2>Start Buying Fresh Today</h2>
         <p>Join thousands of buyers across East Africa who source directly from farmers.</p>
         <div className="cta-buttons">
-          <a href="/buyer-register" className="btn-primary-large">Create Buyer Account</a>
-          <a href="/browse" className="btn-outline-large">Browse Available Produce</a>
+          <Link to="/buyer-register" className="btn-primary-large">Create Buyer Account</Link>
+          <Link to="/browse" className="btn-outline-large">Browse Available Produce</Link>
         </div>
         <p className="cta-note">Registration takes under 2 minutes. No credit card required.</p>
       </section>
