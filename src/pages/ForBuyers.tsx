@@ -6,7 +6,7 @@
  * File: src/pages/ForBuyers.jsx
  */
 
-import React from 'react';
+import { Link } from 'react-router-dom';
 import './ForBuyers.css';
 
 const BUYER_BENEFITS = [
@@ -124,7 +124,7 @@ export default function ForBuyers() {
           </p>
           <div className="hero-buttons">
             <a href="/buyer-register" className="btn-primary">Register as Buyer</a>
-            <a href="/browse-produce" className="btn-secondary">Browse Produce</a>
+            <a href="/browse" className="btn-secondary">Browse Produce</a>
           </div>
           <div className="hero-trust">
             <span>✓ No registration fees</span>
@@ -231,7 +231,7 @@ export default function ForBuyers() {
         <p>Join thousands of buyers across East Africa who source directly from farmers.</p>
         <div className="cta-buttons">
           <a href="/buyer-register" className="btn-primary-large">Create Buyer Account</a>
-          <a href="/browse-produce" className="btn-outline-large">Browse Available Produce</a>
+          <a href="/browse" className="btn-outline-large">Browse Available Produce</a>
         </div>
         <p className="cta-note">Registration takes under 2 minutes. No credit card required.</p>
       </section>
