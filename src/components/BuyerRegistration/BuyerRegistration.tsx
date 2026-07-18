@@ -9,6 +9,7 @@
 
 import React, { useState } from 'react';
 import './BuyerRegistration.css';
+import { getDistrictsForCountry } from '@/data/districts';
 
 const BUYER_TYPES = [
   { id: 'school', label: 'School / Educational Institution', icon: '🏫' },
@@ -154,10 +155,8 @@ export default function BuyerRegistration() {
     'Spices', 'Nuts & Seeds', 'Root Crops', 'Poultry', 'Fish'
   ];
 
-  const ugandaDistricts = [
-    'Kampala', 'Wakiso', 'Mukono', 'Jinja', 'Masaka', 'Mbarara', 'Gulu', 'Lira',
-    'Arua', 'Fort Portal', 'Mbale', 'Soroti', 'Hoima', 'Kabale', 'Kasese'
-  ];
+  // Use the shared Uganda district list so pilot districts like Mpigi are included.
+  const ugandaDistricts = getDistrictsForCountry('UG');
 
   if (success) {
     return (
