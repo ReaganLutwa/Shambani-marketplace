@@ -16,6 +16,7 @@ const PrintDrop = lazy(() => import('@/pages/PrintDrop'));
 const AdminDashboard = lazy(() => import('@/pages/AdminDashboard'));
 const ForBuyers = lazy(() => import('@/pages/ForBuyers'));
 const BuyerRegistration = lazy(() => import('@/components/BuyerRegistration/BuyerRegistration'));
+const OpsDemo = lazy(() => import('@/pages/OpsDemo'));
 
 function PageLoader() {
   return (
@@ -37,6 +38,7 @@ export default function App() {
             <Route path="/farmer-register" element={<FarmerRegister />} />
             <Route path="/buyer-register" element={<BuyerRegistration />} />
             <Route path="/for-buyers" element={<ForBuyers />} />
+            <Route path="/operations" element={<OpsDemo />} />
             <Route path="/ussd" element={<Ussd />} />
             <Route path="/cart" element={<Cart />} />
             <Route path="/about" element={<About />} />
