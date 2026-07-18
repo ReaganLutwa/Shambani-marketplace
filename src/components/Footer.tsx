@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { useLangStore } from '@/store';
-import { Printer, ExternalLink, Settings } from 'lucide-react';
+import { ExternalLink } from 'lucide-react';
 
 const languages = [
   { code: 'en' as const, label: 'English', flag: '\uD83C\uDDFA\uD83C\uDDFC' },
@@ -51,19 +51,7 @@ export default function Footer() {
                   For Buyers
                 </Link>
               </li>
-              <li>
-                <Link to="/print" className="text-sm text-mint hover:text-white transition-colors duration-200 flex items-center gap-1.5">
-                  <Printer className="w-3 h-3" />
-                  PrintDrop
-                  <span className="bg-leaf/30 text-mint text-[9px] font-bold px-1.5 py-0.5 rounded-full">NEW</span>
-                </Link>
-              </li>
-              <li>
-                <Link to="/admin" className="text-sm text-amber-300 hover:text-white transition-colors duration-200 flex items-center gap-1.5">
-                  <Settings className="w-3 h-3" />
-                  Admin Dashboard
-                </Link>
-              </li>
+
               <li>
                 <Link to="/#how-it-works" className="text-sm text-cream/70 hover:text-white transition-colors duration-200">
                   {t('nav.howItWorks')}

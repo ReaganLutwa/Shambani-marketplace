@@ -150,7 +150,9 @@ const initialVerifications: VerificationFarmer[] = [
   ...storedVerifications,
 ];
 
-const ADMIN_PASSWORD = 'admin123';
+// Public GitHub Pages build: no real secrets may be shipped in frontend code.
+// This dashboard is a sample-data demo until a backend with server-side auth exists.
+const ADMIN_PUBLIC_DEMO = true;
 
 /* ─── Login Screen ─── */
 function LoginScreen({ onLogin }: { onLogin: () => void }) {
@@ -175,21 +177,13 @@ function LoginScreen({ onLogin }: { onLogin: () => void }) {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (locked) return;
-    if (password.toLowerCase() === ADMIN_PASSWORD.toLowerCase()) {
-      sessionStorage.setItem('shambani_admin', 'true');
+    if (ADMIN_PUBLIC_DEMO) {
+      sessionStorage.setItem('shambani_admin_demo_demo', 'true');
       setError('');
       onLogin();
-    } else {
-      const newAttempts = attempts + 1;
-      setAttempts(newAttempts);
-      if (newAttempts >= 3) {
-        setLocked(true);
-        setLockTimer(60);
-        setError('Too many failed attempts. Locked for 60 seconds.');
-      } else {
-        setError(`Invalid password. ${3 - newAttempts} attempts remaining.`);
-      }
+      return;
     }
+    setError('Admin sign-in is disabled until server-side authentication is connected.');
   };
 
   return (
@@ -199,20 +193,20 @@ function LoginScreen({ onLogin }: { onLogin: () => void }) {
           <div className="w-16 h-16 bg-green-600 rounded-xl flex items-center justify-center mx-auto mb-4">
             <Shield className="w-8 h-8 text-white" />
           </div>
-          <h1 className="text-2xl font-bold text-gray-900">ShambaNi Admin</h1>
-          <p className="text-gray-500 mt-1">Sign in to manage your marketplace</p>
+          <h1 className="text-2xl font-bold text-gray-900">ShambaNi Admin Demo</h1>
+          <p className="text-gray-500 mt-1">Public sample-data dashboard. Real admin tools need a secure backend.</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">Password</label>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Demo access</label>
             <div className="relative">
               <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
               <input
                 type={showPassword ? 'text' : 'password'}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="Enter admin password"
+                placeholder="Type anything to open the public demo"
                 disabled={locked}
                 className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none transition-all disabled:bg-gray-100"
               />
@@ -250,7 +244,7 @@ function LoginScreen({ onLogin }: { onLogin: () => void }) {
             className="w-full bg-green-600 hover:bg-green-700 disabled:bg-gray-300 text-white font-semibold py-3 rounded-lg transition-colors flex items-center justify-center gap-2"
           >
             <Lock className="w-5 h-5" />
-            {locked ? `Locked (${lockTimer}s)` : 'Sign In'}
+            {locked ? `Locked (${lockTimer}s)` : 'Open Public Demo'}
           </button>
         </form>
 
@@ -267,7 +261,7 @@ function LoginScreen({ onLogin }: { onLogin: () => void }) {
 /* ─── Main Admin Dashboard ─── */
 export default function AdminDashboard() {
   const [isLoggedIn, setIsLoggedIn] = useState(() =>
-    sessionStorage.getItem('shambani_admin') === 'true'
+    sessionStorage.getItem('shambani_admin_demo') === 'true'
   );
   const [activeTab, setActiveTab] = useState('dashboard');
 
@@ -287,7 +281,7 @@ export default function AdminDashboard() {
   const [searchProducts, setSearchProducts] = useState('');
 
   const handleLogout = useCallback(() => {
-    sessionStorage.removeItem('shambani_admin');
+    sessionStorage.removeItem('shambani_admin_demo');
     setIsLoggedIn(false);
   }, []);
 
@@ -417,6 +411,11 @@ export default function AdminDashboard() {
               <Shield className="w-4 h-4 text-green-600" />
             </div>
           </div>
+        </div>
+
+        <div className="bg-amber-50 border-b border-amber-200 px-8 py-3 text-sm text-amber-800 flex items-start gap-2">
+          <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+          <span><strong>Public demo mode:</strong> sample data only. Do not enter real customer, farmer, ID, or payment information here until ShambaNi has a secure backend.</span>
         </div>
 
         <div className="p-8">

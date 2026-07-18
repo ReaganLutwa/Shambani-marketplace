@@ -235,7 +235,7 @@ export function getSubcategories(categoryId: string): ProductSubcategory[] {
   return PRODUCT_CATEGORIES.find(c => c.id === categoryId)?.subcategories || [];
 }
 
-export function getAllSubcategories(): ProductSubcategory[] {
+export function getAllSubcategories(): (ProductSubcategory & { categoryId: string; categoryName: string })[] {
   return PRODUCT_CATEGORIES.flatMap(c => 
     c.subcategories.map(s => ({ ...s, categoryId: c.id, categoryName: c.name }))
   );

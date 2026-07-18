@@ -31,7 +31,7 @@ const PROCUREMENT_VOLUMES = [
 export default function BuyerRegistration() {
   const [step, setStep] = useState(1);
   const [buyerType, setBuyerType] = useState('');
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<any>({
     organizationName: '',
     contactName: '',
     email: '',
@@ -48,13 +48,13 @@ export default function BuyerRegistration() {
     confirmPassword: '',
     agreeTerms: false
   });
-  const [errors, setErrors] = useState({});
+  const [errors, setErrors] = useState<any>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
 
   const isInstitutional = ['school', 'hospital', 'restaurant', 'hotel', 'company', 'ngo', 'government'].includes(buyerType);
 
-  const handleInputChange = (e) => {
+  const handleInputChange = (e: any) => {
     const { name, value, type, checked } = e.target;
     setFormData(prev => ({
       ...prev,
@@ -66,7 +66,7 @@ export default function BuyerRegistration() {
     }
   };
 
-  const handleCategoryToggle = (category) => {
+  const handleCategoryToggle = (category: string) => {
     setFormData(prev => ({
       ...prev,
       productCategories: prev.productCategories.includes(category)
@@ -76,7 +76,7 @@ export default function BuyerRegistration() {
   };
 
   const validateStep = () => {
-    const newErrors = {};
+    const newErrors: any = {};
     
     if (step === 1) {
       if (!buyerType) newErrors.buyerType = 'Please select your buyer type';

@@ -13,12 +13,12 @@ const BUYER_BENEFITS = [
   {
     icon: '🌱',
     title: 'Farm-Fresh Produce',
-    desc: 'Buy directly from verified farmers. No middlemen means fresher produce at better prices.'
+    desc: 'Buy directly from pilot farmers. Fewer middlemen can mean fresher produce at fairer prices.'
   },
   {
     icon: '✅',
     title: 'Verified Suppliers',
-    desc: 'Every farmer is identity-verified with NIRA ID. See ratings, reviews, and farm photos before you buy.'
+    desc: 'Farmer verification is being rolled out step by step: phone/location checks first, then ID and farm review as the pilot grows.'
   },
   {
     icon: '💰',
@@ -28,7 +28,7 @@ const BUYER_BENEFITS = [
   {
     icon: '📱',
     title: 'Multiple Payment Options',
-    desc: 'Pay with MTN Mobile Money, Airtel Money, PayPal, or bank transfer. Secure escrow until delivery.'
+    desc: 'Pay with MTN Mobile Money, Airtel Money, PayPal, or bank transfer. Payment instructions are confirmed before delivery.'
   },
   {
     icon: '🚚',
@@ -38,7 +38,7 @@ const BUYER_BENEFITS = [
   {
     icon: '📊',
     title: 'Order Tracking & Reports',
-    desc: 'Track all orders, download purchase reports, and manage procurement budgets in one dashboard.'
+    desc: 'During the pilot, order updates are coordinated by SMS, WhatsApp, or phone while the full dashboard is prepared.'
   }
 ];
 
@@ -90,7 +90,7 @@ const HOW_IT_WORKS = [
   {
     step: '2',
     title: 'Browse Verified Farmers',
-    desc: 'Search by product, district, or farmer rating. View profiles with photos and reviews.'
+    desc: 'Search by product, district, or farmer profile. Pilot profiles are reviewed step by step as real farmers onboard.'
   },
   {
     step: '3',
@@ -100,7 +100,7 @@ const HOW_IT_WORKS = [
   {
     step: '4',
     title: 'Pay Securely',
-    desc: 'Payment is held in escrow. The farmer only gets paid after you confirm delivery.'
+    desc: 'ShambaNi confirms payment instructions first. The farmer is paid after delivery confirmation.'
   },
   {
     step: '5',
@@ -118,9 +118,7 @@ export default function ForBuyers() {
           <span className="hero-badge">For Buyers</span>
           <h1>Fresh From the Farm — Direct to Your Door</h1>
           <p>
-            Connect with verified farmers across Uganda, Kenya, Tanzania, and Rwanda. 
-            Whether you run a school, hospital, restaurant, or just want quality food for your family — 
-            ShambaNi brings the market to you.
+            Starting with pilot districts in Uganda, ShambaNi connects buyers with farmers being onboarded and reviewed step by step. Whether you run a school, hospital, restaurant, or want quality food for your family — ShambaNi brings the market closer.
           </p>
           <div className="hero-buttons">
             <Link to="/buyer-register" className="btn-primary">Register as Buyer</Link>
@@ -128,8 +126,8 @@ export default function ForBuyers() {
           </div>
           <div className="hero-trust">
             <span>✓ No registration fees</span>
-            <span>✓ Verified farmers only</span>
-            <span>✓ Secure escrow payments</span>
+            <span>✓ Pilot verification process</span>
+            <span>✓ Clear payment confirmation</span>
           </div>
         </div>
         <div className="hero-visual">
@@ -228,7 +226,7 @@ export default function ForBuyers() {
       {/* CTA */}
       <section className="buyers-cta">
         <h2>Start Buying Fresh Today</h2>
-        <p>Join thousands of buyers across East Africa who source directly from farmers.</p>
+        <p>Join the first pilot buyers helping prove a fairer farm market in Uganda before East African expansion.</p>
         <div className="cta-buttons">
           <Link to="/buyer-register" className="btn-primary-large">Create Buyer Account</Link>
           <Link to="/browse" className="btn-outline-large">Browse Available Produce</Link>
@@ -248,11 +246,11 @@ export default function ForBuyers() {
           </div>
           <div className="faq-item">
             <h4>How do I know the farmers are trustworthy?</h4>
-            <p>Every farmer is verified with their National ID (NIRA). You can see their profile photo, farm details, sales history, and buyer ratings before placing an order.</p>
+            <p>During the pilot, farmers are reviewed in phases: phone/location first, then ID and farm evidence where required. You should still confirm price, quantity, quality and delivery terms before paying.</p>
           </div>
           <div className="faq-item">
             <h4>What if the produce quality is poor?</h4>
-            <p>Inspect your delivery before confirming receipt. If quality doesn't match the listing, reject the delivery and your payment stays in escrow. Report issues within 24 hours.</p>
+            <p>Inspect your delivery before final confirmation. If quality does not match the agreed listing, report it within 24 hours and do not complete the final payment step until ShambaNi helps resolve it.</p>
           </div>
           <div className="faq-item">
             <h4>Can I set up recurring orders?</h4>
@@ -260,7 +258,7 @@ export default function ForBuyers() {
           </div>
           <div className="faq-item">
             <h4>Do you deliver outside Uganda?</h4>
-            <p>ShambaNi operates in Uganda, Kenya, Tanzania, and Rwanda. Delivery arrangements are made directly between buyer and farmer. Cross-border logistics can be coordinated for bulk orders.</p>
+            <p>The first pilot is Uganda-focused, starting with Mpigi and Wakiso. Cross-border expansion is planned after the pilot proves reliable delivery and payment coordination.</p>
           </div>
         </div>
       </section>

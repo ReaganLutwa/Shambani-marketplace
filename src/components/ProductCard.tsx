@@ -110,7 +110,7 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
             <div className="flex items-center gap-1 min-w-0">
               <span className="text-sm text-stone truncate">{product.farmer}</span>
               {product.farmerVerified && (
-                <BadgeCheck className="w-4 h-4 text-leaf shrink-0" title="Verified Farmer" />
+                <BadgeCheck className="w-4 h-4 text-leaf shrink-0" aria-label="Verified Farmer" />
               )}
             </div>
           </div>

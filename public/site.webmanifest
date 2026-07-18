@@ -1,0 +1,16 @@
+{
+  "name": "ShambaNi Farmers Marketplace",
+  "short_name": "ShambaNi",
+  "description": "Connecting lower farmers to ready buyers across East Africa.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#FAF8F3",
+  "theme_color": "#2E7D32",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}

@@ -88,7 +88,7 @@ export const DISTRICTS = {
     ],
     central: [
       'Kiambu', 'Thika', 'Ruiru', 'Kikuyu', 'Limuru', 'Gatundu', 'Kabete',
-      'Kiambaa', 'Lari', 'Juja', 'Nyandarua', 'Nyeri', 'Murang'a',
+      'Kiambaa', 'Lari', 'Juja', 'Nyandarua', 'Nyeri', "Murang'a",
       'Kirinyaga', 'Embu', 'Meru', 'Laikipia'
     ],
     coast: [

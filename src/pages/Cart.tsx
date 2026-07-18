@@ -357,7 +357,7 @@ export default function Cart() {
                   </div>
                   <div className="flex items-center gap-1 text-xs text-stone">
                     <Lock className="w-3.5 h-3.5" />
-                    <span>SSL</span>
+                    <span>No card stored</span>
                   </div>
                 </div>
               </div>
@@ -549,9 +549,9 @@ export default function Cart() {
                           )}
                           {isSelected && method.id === 'bank' && (
                             <div className="mt-2 p-3 bg-cloud rounded-lg text-xs text-charcoal space-y-1">
-                              <p><strong>{t('cart.bankName')}</strong> Equity Bank</p>
-                              <p><strong>{t('cart.accountName')}</strong> ShambaNi Ltd</p>
-                              <p><strong>{t('cart.accountNumber')}</strong> 1234567890</p>
+                              <p><strong>{t('cart.bankName')}</strong> Shared after order approval</p>
+                              <p><strong>{t('cart.accountName')}</strong> ShambaNi / approved business account</p>
+                              <p><strong>{t('cart.accountNumber')}</strong> Provided with payment instructions</p>
                             </div>
                           )}
                           {isSelected && (method.id === 'airtel' || method.id === 'mtn') && (

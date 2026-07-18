@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { motion, useInView, AnimatePresence } from 'framer-motion';
@@ -6,7 +6,6 @@ import {
   Package, ShoppingCart, Truck, CheckCircle,
   Smartphone, Globe, Landmark, Phone,
   Star, MapPin, ChevronLeft, ChevronRight,
-  Printer, MessageCircle, ExternalLink,
 } from 'lucide-react';
 import { products, categories, testimonials } from '@/data';
 import { useCartStore } from '@/store';
@@ -29,36 +28,6 @@ const staggerItem = {
   hidden: { opacity: 0, y: 30 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.4, 0, 0.2, 1] as [number, number, number, number] } },
 };
-
-/* ───────── Stat Counter Component ───────── */
-function AnimatedCounter({ target, suffix = '', duration = 1.5, delay = 0 }: { target: number; suffix?: string; duration?: number; delay?: number }) {
-  const [count, setCount] = useState(0);
-  const ref = useRef<HTMLSpanElement>(null);
-  const isInView = useInView(ref, { once: true });
-
-  useEffect(() => {
-    if (!isInView) return;
-    const timeout = setTimeout(() => {
-      let start = 0;
-      const increment = target / (duration * 60);
-      const timer = setInterval(() => {
-        start += increment;
-        if (start >= target) {
-          setCount(target);
-          clearInterval(timer);
-        } else {
-          setCount(Math.floor(start));
-        }
-      }, 1000 / 60);
-      return () => clearInterval(timer);
-    }, delay * 1000);
-    return () => clearTimeout(timeout);
-  }, [isInView, target, duration, delay]);
-
-  return <span ref={ref}>{count.toLocaleString()}{suffix}</span>;
-}
-
-
 
 /* ───────── Star Rating ───────── */
 function StarRating({ rating }: { rating: number }) {
@@ -230,14 +199,14 @@ export default function Home() {
           <div className="container-main py-6 md:py-0 md:h-[100px]">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-0 md:h-full items-center">
               {[
-                { value: 0, suffix: '+', label: t('stats.farmers') },
-                { value: 1, suffix: '+', label: t('stats.districts') },
-                { value: 0, suffix: '+', label: t('stats.buyers') },
-                { value: 4, suffix: '', label: t('stats.countries') },
-              ].map((stat, i) => (
+                { value: 'Pilot', label: 'Mpigi & Wakiso first' },
+                { value: '20', label: 'Farmer onboarding target' },
+                { value: '5', label: 'Institutional buyer target' },
+                { value: '4', label: t('stats.countries') },
+              ].map((stat) => (
                 <div key={stat.label} className="text-center">
                   <div className="font-space font-bold text-2xl md:text-4xl tracking-[-0.02em]">
-                    {stat.value.toLocaleString()}{stat.suffix}
+                    {stat.value}
                   </div>
                   <div className="text-xs md:text-[13px] font-medium text-white/70 uppercase tracking-wide mt-1">
                     {stat.label}
@@ -247,48 +216,6 @@ export default function Home() {
             </div>
           </div>
         </motion.div>
-      </section>
-
-      {/* ═══════ PRINTDROP WELCOME BANNER ═══════ */}
-      <section
-        className="relative overflow-hidden"
-        style={{ background: 'linear-gradient(135deg, #0f2818, #1a4d2e)' }}
-      >
-        <div className="container-main py-5">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center shrink-0">
-                <Printer className="w-6 h-6 text-white" />
-              </div>
-              <div>
-                <h3 className="text-white font-poppins font-bold text-base">
-                  {t('printDrop.bannerTitle')}
-                </h3>
-                <p className="text-white/70 text-sm">
-                  {t('printDrop.bannerSubtitle')}
-                </p>
-              </div>
-            </div>
-            <div className="flex items-center gap-3 shrink-0">
-              <Link
-                to="/print"
-                className="inline-flex items-center gap-2 px-5 py-2.5 bg-white text-forest font-poppins font-semibold text-sm rounded-xl hover:bg-mint transition-all duration-200"
-              >
-                {t('printDrop.bannerCta')}
-                <ExternalLink className="w-4 h-4" />
-              </Link>
-              <a
-                href="https://wa.me/256708813419"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-5 py-2.5 border border-white/30 text-white font-poppins font-semibold text-sm rounded-xl hover:bg-white/10 transition-all duration-200"
-              >
-                <MessageCircle className="w-4 h-4" />
-                <span className="hidden sm:inline">WhatsApp</span>
-              </a>
-            </div>
-          </div>
-        </div>
       </section>
 
       {/* ═══════ SECTION 2: PRODUCE CATEGORIES ═══════ */}
@@ -476,7 +403,7 @@ export default function Home() {
             >
               <div className="relative max-w-[280px] md:max-w-[320px] rotate-[-3deg]">
                 <img
-                  src="ussd-phone-mockup.png"
+                  src="ussd-phone-mockup.webp"
                   alt="USSD *220# feature phone"
                   className="w-full h-auto drop-shadow-2xl"
                 />

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
-import { Menu, X, ChevronDown, ShoppingCart, Printer, Settings } from 'lucide-react';
+import { Menu, X, ChevronDown, ShoppingCart } from 'lucide-react';
 import { useLangStore } from '@/store';
 import { useCartStore } from '@/store';
 
@@ -66,25 +66,7 @@ export default function Navbar() {
               <span className="absolute bottom-0 left-3 right-3 h-0.5 bg-leaf scale-x-0 group-hover:scale-x-100 transition-transform duration-250 origin-left" />
             </Link>
           ))}
-          {/* PrintDrop Link */}
-          <Link
-            to="/print"
-            className="relative px-3 py-2 text-sm font-medium text-leaf hover:text-forest transition-colors group flex items-center gap-1.5"
-          >
-            <Printer className="w-3.5 h-3.5" />
-            PrintDrop
-            <span className="bg-leaf text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full leading-none">NEW</span>
-            <span className="absolute bottom-0 left-3 right-3 h-0.5 bg-leaf scale-x-0 group-hover:scale-x-100 transition-transform duration-250 origin-left" />
-          </Link>
-          {/* Admin Link */}
-          <Link
-            to="/admin"
-            className="relative px-3 py-2 text-sm font-medium text-stone hover:text-forest transition-colors group flex items-center gap-1.5"
-          >
-            <Settings className="w-3.5 h-3.5" />
-            Admin
-            <span className="absolute bottom-0 left-3 right-3 h-0.5 bg-leaf scale-x-0 group-hover:scale-x-100 transition-transform duration-250 origin-left" />
-          </Link>
+
         </div>
 
         {/* Right Side Actions */}
@@ -166,23 +148,7 @@ export default function Navbar() {
                 )}
               </Link>
             ))}
-            <Link
-              to="/print"
-              onClick={() => setMobileOpen(false)}
-              className="block px-4 py-3 text-sm font-medium text-leaf hover:bg-leaf/10 rounded-lg transition-colors flex items-center gap-2"
-            >
-              <Printer className="w-4 h-4" />
-              PrintDrop
-              <span className="bg-leaf text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full">NEW</span>
-            </Link>
-            <Link
-              to="/admin"
-              onClick={() => setMobileOpen(false)}
-              className="block px-4 py-3 text-sm font-medium text-stone hover:bg-gray-100 rounded-lg transition-colors flex items-center gap-2"
-            >
-              <Settings className="w-4 h-4" />
-              Admin
-            </Link>
+
           </div>
         </div>
       )}
