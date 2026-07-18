@@ -51,6 +51,11 @@ export default function Footer() {
                   For Buyers
                 </Link>
               </li>
+              <li>
+                <Link to="/operations" className="text-sm text-mint hover:text-white transition-colors duration-200">
+                  Operations & Oversight
+                </Link>
+              </li>
 
               <li>
                 <Link to="/#how-it-works" className="text-sm text-cream/70 hover:text-white transition-colors duration-200">
