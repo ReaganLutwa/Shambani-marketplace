@@ -25,7 +25,7 @@ export const countriesData: Record<string, CountryData> = {
           'Kampala', 'Wakiso', 'Mukono', 'Mpigi', 'Masaka', 'Luwero', 'Mityana',
           'Mubende', 'Nakasongola', 'Kayunga', 'Buikwe', 'Bukomansimbi', 'Butambala',
           'Buvuma', 'Gomba', 'Kalangala', 'Kalungu', 'Kassanda', 'Kiboga', 'Kyankwanzi',
-          'Lwengo', 'Lyantonde', 'M verbal a', 'Nakaseke', 'Rakai', 'Sembabule',
+          'Lwengo', 'Lyantonde', 'Nakaseke', 'Rakai', 'Sembabule',
         ],
       },
       {
