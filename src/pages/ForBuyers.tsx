@@ -27,8 +27,8 @@ const BUYER_BENEFITS = [
   },
   {
     icon: '📱',
-    title: 'Multiple Payment Options',
-    desc: 'Pay with MTN Mobile Money, Airtel Money, PayPal, or bank transfer. Payment instructions are confirmed before delivery.'
+    title: 'Proposed Payment Options',
+    desc: 'No payment service is live. A controlled pilot would use a Bank of Uganda-licensed provider under written terms.'
   },
   {
     icon: '🚚',
@@ -52,7 +52,7 @@ const BUYER_TYPES = [
   {
     icon: '🏥',
     title: 'Hospitals',
-    desc: 'Patient meals, staff cafeterias. HACCP-compliant suppliers with quality-assured fresh produce.',
+    desc: 'Potential pilot use for patient meals and staff cafeterias, subject to supplier and food-safety checks.',
     cta: 'Register as Hospital'
   },
   {
@@ -70,13 +70,13 @@ const BUYER_TYPES = [
   {
     icon: '🏢',
     title: 'Companies',
-    desc: 'Corporate cafeterias and canteens. Bulk orders with invoicing and credit terms available.',
+    desc: 'Potential pilot use for cafeterias and canteens. Invoicing and credit terms are not yet available.',
     cta: 'Register as Company'
   },
   {
     icon: '🏠',
     title: 'Individuals & Families',
-    desc: 'Buy fresh produce for your home. Small orders welcome. Same-day delivery in select areas.',
+    desc: 'Potential future use for household orders. Ordering and delivery are not yet live.',
     cta: 'Register as Individual'
   }
 ];
@@ -89,23 +89,23 @@ const HOW_IT_WORKS = [
   },
   {
     step: '2',
-    title: 'Browse Verified Farmers',
+    title: 'Browse Sample Farmer Profiles',
     desc: 'Search by product, district, or farmer profile. Pilot profiles are reviewed step by step as real farmers onboard.'
   },
   {
     step: '3',
     title: 'Place Your Order',
-    desc: 'Select products, quantities, and delivery preferences. Get instant price quotes.'
+    desc: 'During the pilot, participants would confirm products, quantities and delivery terms manually.'
   },
   {
     step: '4',
-    title: 'Pay Securely',
-    desc: 'ShambaNi confirms payment instructions first. The farmer is paid after delivery confirmation.'
+    title: 'Confirm Payment Terms',
+    desc: 'A licensed provider and written pilot process must be approved before any payment is accepted.'
   },
   {
     step: '5',
     title: 'Receive & Confirm',
-    desc: 'Inspect your delivery. Confirm receipt to release payment. Rate your experience.'
+    desc: 'The proposed pilot would document delivery, buyer acceptance and any dispute before closure.'
   }
 ];
 
@@ -146,7 +146,7 @@ export default function ForBuyers() {
       <section className="buyers-benefits">
         <div className="section-header">
           <h2>Why Buy on ShambaNi?</h2>
-          <p>The smarter way to source fresh produce across East Africa</p>
+          <p>A Uganda-focused workflow being prepared for controlled validation</p>
         </div>
         <div className="benefits-grid">
           {BUYER_BENEFITS.map((b, i) => (

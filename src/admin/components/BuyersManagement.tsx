@@ -7,7 +7,7 @@
  * GitHub: shambani-market/shambani-market.africa
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import './BuyersManagement.css';
 
 // ===== BUYER TYPE BADGES =====

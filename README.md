@@ -1,103 +1,62 @@
-# ShambaNi - East Africa's Farmers Marketplace
+# ShambaNi Marketplace
 
-A platform connecting smallholder farmers directly with buyers across Uganda, Kenya, Tanzania, and Rwanda. Built with React, TypeScript, Tailwind CSS, and Vite.
+ShambaNi is a Uganda-focused **pre-pilot prototype** for testing how farmers and institutional buyers could coordinate produce listings, orders and delivery records. The public site is a front-end demonstration built with React, TypeScript, Tailwind CSS and Vite.
 
-## Features
+## Current status
 
-- **Multi-Language Support**: English, Kiswahili, Runyarwanda (Kinyarwanda), Luganda
-- **Admin Dashboard**: Full management panel for payments, orders, farmers, products, analytics
-- **District Coverage**: Uganda (111 districts), Kenya (47 counties), Tanzania (31 regions), Rwanda (30 districts)
-- **USSD Access**: *144# feature for farmers without smartphones
-- **Payment Methods**: PayPal (@LutwamaReagan), Airtel Money, MTN Mobile Money, Bank Transfer
-- **Marketplace**: Browse, search, filter produce by category, district, and country
-- **Cart & Checkout**: Full shopping cart with 2.5% platform fee
-- **Farmer Registration**: 4-step wizard with cascading district selection
-- **Responsive Design**: Works on all devices
+The following are **not live**: production registration, identity verification, ordering, payments, escrow, SMS delivery and USSD access. Product listings, people, reviews, dashboards and metrics are sample data. ShambaNi has not been allocated a USSD short code and does not claim regulatory approval or government endorsement.
 
-## Tech Stack
+The controlled-pilot proposal is documented in [`docs/GOVERNMENT-APPLICATION-CHECKLIST.md`](docs/GOVERNMENT-APPLICATION-CHECKLIST.md). Technical USSD dependencies are documented in [`docs/USSD-PILOT-ARCHITECTURE.md`](docs/USSD-PILOT-ARCHITECTURE.md).
 
-- React 19 + TypeScript + Vite
-- Tailwind CSS + shadcn/ui
-- HashRouter (GitHub Pages compatible)
-- i18next (4 languages)
-- Zustand (state management)
-- Framer Motion (animations)
+## Safe prototype controls
 
-## Deployment to GitHub Pages
+- Registration screens do not collect passwords, identity documents, banking details or mobile-money details.
+- Checkout is disabled until a controlled pilot and licensed payment-provider process exist.
+- The USSD page is an interactive menu demonstration only.
+- The operations dashboard is explicitly marked as sample data.
+- Privacy and prototype terms describe the actual implementation state.
 
-### Option 1: Auto-Deploy via GitHub Actions (Recommended)
+## Technology
 
-1. **Create a GitHub repository** (e.g., `shambani-marketplace`)
-2. **Push this code** to your repository:
-   ```bash
-   git remote add origin https://github.com/reaganlutwa/shambani-marketplace.git
-   git branch -M main
-   git push -u origin main
-   ```
-3. **Enable GitHub Pages**:
-   - Go to your repo on GitHub
-   - Click **Settings** → **Pages**
-   - Under "Build and deployment", select **GitHub Actions**
-4. The workflow will automatically build and deploy on every push
+- React 19 and TypeScript
+- Vite and Tailwind CSS
+- HashRouter for GitHub Pages
+- i18next with English, Luganda, Kiswahili and Kinyarwanda copy
+- GitHub Actions build and deployment
 
-### Option 2: Manual Deploy
-
-1. Build the project:
-   ```bash
-   npm install
-   npm run build
-   ```
-2. The `dist/` folder contains the built files
-3. Copy the contents of `dist/` to your `gh-pages` branch or hosting provider
-
-### After Deployment
-
-Your site will be live at:
-```
-https://shambani-market.africa
-```
-
-## Admin Dashboard Access
-
-Navigate to `/#/admin` to access the admin dashboard.
-
-Default admin features:
-- Review and approve farmer registrations
-- Manage orders and payments
-- View analytics and reports
-- Configure platform settings (2.5% fee, payment methods)
-- PayPal handle: @LutwamaReagan
-
-## Pages
-
-| Route | Page |
-|-------|------|
-| `/` | Homepage |
-| `/#/browse` | Browse Produce |
-| `/#/product/:id` | Product Detail |
-| `/#/farmer-register` | Farmer Registration |
-| `/#/ussd` | USSD *144# Feature |
-| `/#/cart` | Cart & Checkout |
-| `/#/about` | About / Mission |
-| `/#/admin` | Admin Dashboard |
-
-## Development
+## Local development
 
 ```bash
-# Install dependencies
-npm install
-
-# Start dev server
+npm ci
 npm run dev
-
-# Build for production
-npm run build
-
-# Preview production build
-npm run preview
 ```
 
-## License
+Verification:
+
+```bash
+npm run lint
+npm run build
+```
+
+## Main routes
+
+| Route | Purpose |
+|---|---|
+| `/#/` | Public prototype overview |
+| `/#/browse` | Sample produce catalogue |
+| `/#/farmer-register` | Paused-registration notice and pilot interest |
+| `/#/buyer-register` | Paused-registration notice and pilot interest |
+| `/#/ussd` | Proposed USSD menu simulator |
+| `/#/operations` | Sample pilot controls and audit-trail demonstration |
+| `/#/privacy` | Pre-pilot privacy notice |
+| `/#/terms` | Prototype terms |
+
+## Deployment
+
+The GitHub Pages workflow uses the committed lockfile, runs linting and the full TypeScript/Vite build, then deploys the generated `dist` directory. In repository settings, select **GitHub Actions** as the Pages source.
+
+## Before any live pilot
+
+Do not activate registration, identity checks, payments or USSD until the documented legal, security, telecom, provider and operating gates have been completed and evidenced. Never place credentials, national IDs, passwords, PINs or private participant data in the frontend or repository.
 
 Copyright 2026 ShambaNi. All rights reserved.
-# ShambaNi Deployment Trigger

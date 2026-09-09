@@ -6,37 +6,37 @@ import {
 } from 'lucide-react';
 
 const stats = [
-  { label: 'Pilot farmers onboarded', value: '128', note: 'sample data', icon: Users },
-  { label: 'Verification queue', value: '17', note: 'phone/location first', icon: ClipboardCheck },
-  { label: 'Orders this week', value: '46', note: 'sample data', icon: ShoppingBasket },
-  { label: 'Buyer service fees', value: 'UGX 412,500', note: '2.5% buyer-paid', icon: BadgeDollarSign },
+  { label: 'Farmer validation target', value: '20', note: 'proposed pilot target', icon: Users },
+  { label: 'Buyer validation target', value: '5', note: 'proposed pilot target', icon: ClipboardCheck },
+  { label: 'Completed-order target', value: '10', note: 'manually evidenced', icon: ShoppingBasket },
+  { label: 'Proposed service fee', value: '2.5%', note: 'not currently collected', icon: BadgeDollarSign },
 ];
 
 const queue = [
   { id: 'F-1042', district: 'Mpigi', crop: 'Tomatoes', status: 'Pending review', tone: 'amber' },
-  { id: 'F-1037', district: 'Wakiso', crop: 'Matooke', status: 'Phone verified', tone: 'blue' },
-  { id: 'F-1029', district: 'Mpigi', crop: 'Eggs', status: 'Approved', tone: 'green' },
+  { id: 'F-1037', district: 'Wakiso', crop: 'Matooke', status: 'Phone check step', tone: 'blue' },
+  { id: 'F-1029', district: 'Mpigi', crop: 'Eggs', status: 'Review complete', tone: 'green' },
   { id: 'F-1018', district: 'Wakiso', crop: 'Cabbage', status: 'Needs farm photo', tone: 'red' },
 ];
 
 const districts = [
-  { name: 'Mpigi', farmers: 74, orders: 26 },
-  { name: 'Wakiso', farmers: 54, orders: 20 },
+  { name: 'Mpigi', farmers: 12, orders: 6 },
+  { name: 'Wakiso', farmers: 8, orders: 4 },
 ];
 
 const lifecycle = [
   'Order request received',
   'ShambaNi confirms buyer, quantity, delivery and total',
-  'Buyer pays listed price + delivery + 2.5% service fee',
+  'Licensed payment-provider process is followed under written pilot terms',
   'Delivery is confirmed with the farmer and buyer',
   'Farmer receives listed price; fee is recorded in ledger',
 ];
 
 const audit = [
-  { time: '09:12', actor: 'ShambaNi Ops', action: 'Approved farmer F-1029 after phone/location review' },
+  { time: '09:12', actor: 'ShambaNi Ops', action: 'Completed sample phone/location review for farmer F-1029' },
   { time: '10:03', actor: 'System', action: 'Order #SN-1188 moved to payment confirmation' },
   { time: '11:27', actor: 'District Partner', action: 'Added pickup note for Mpigi Saturday market' },
-  { time: '12:40', actor: 'ShambaNi Ops', action: 'Recorded buyer service fee UGX 7,500 on order #SN-1191' },
+  { time: '12:40', actor: 'ShambaNi Ops', action: 'Recorded sample fee calculation on order #SN-1191' },
 ];
 
 function StatusPill({ tone, children }: { tone: string; children: ReactNode }) {
@@ -62,16 +62,16 @@ export default function OpsDemo() {
             Operations & Oversight for a trusted farmers marketplace
           </h1>
           <p className="mt-5 max-w-3xl text-cream/75 text-lg leading-relaxed">
-            This page shows how ShambaNi administers farmer verification, orders, buyer-paid service fees,
+            This page shows how ShambaNi proposes to administer farmer verification, orders, buyer-paid service fees,
             delivery confirmation, disputes and district reporting — without exposing real farmer IDs,
             phone numbers or payment secrets.
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <Link to="/farmer-register" className="inline-flex items-center gap-2 bg-leaf text-white px-5 py-3 rounded-xl font-semibold hover:bg-forest transition-colors">
-              Join pilot farmers <ArrowRight className="w-4 h-4" />
+              Register pilot interest <ArrowRight className="w-4 h-4" />
             </Link>
             <Link to="/for-buyers" className="inline-flex items-center gap-2 border border-white/25 text-cream px-5 py-3 rounded-xl font-semibold hover:bg-white/10 transition-colors">
-              Become a pilot buyer
+              Review the buyer pilot
             </Link>
           </div>
         </div>
@@ -152,7 +152,7 @@ export default function OpsDemo() {
             <h2 className="font-poppins font-bold text-xl">Controls that matter</h2>
             <div className="mt-5 space-y-4 text-sm">
               <div className="flex gap-3"><Lock className="w-4 h-4 text-leaf mt-0.5" /><span>No hardcoded admin password, no public IDs, no API secrets in frontend code.</span></div>
-              <div className="flex gap-3"><CheckCircle2 className="w-4 h-4 text-leaf mt-0.5" /><span>Buyer-paid 2.5% service fee is shown before payment confirmation.</span></div>
+              <div className="flex gap-3"><CheckCircle2 className="w-4 h-4 text-leaf mt-0.5" /><span>Proposed 2.5% service fee would be disclosed before a pilot order is confirmed.</span></div>
               <div className="flex gap-3"><Clock3 className="w-4 h-4 text-leaf mt-0.5" /><span>Delivery confirmation happens before farmer payout is marked complete.</span></div>
               <div className="flex gap-3"><AlertTriangle className="w-4 h-4 text-amber-600 mt-0.5" /><span>Disputes pause payout until quality/quantity is resolved.</span></div>
               <div className="flex gap-3"><FileDown className="w-4 h-4 text-leaf mt-0.5" /><span>Exports planned: CSV/PDF district reports for partners and auditors.</span></div>

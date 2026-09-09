@@ -91,7 +91,7 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
             {product.name}
           </h3>
 
-          {/* Farmer row with photo and verified badge */}
+          {/* Fictional sample farmer row */}
           <div className="flex items-center gap-2 mb-2">
             {product.farmerPhoto ? (
               <img
@@ -110,7 +110,7 @@ export default function ProductCard({ product, index = 0 }: ProductCardProps) {
             <div className="flex items-center gap-1 min-w-0">
               <span className="text-sm text-stone truncate">{product.farmer}</span>
               {product.farmerVerified && (
-                <BadgeCheck className="w-4 h-4 text-leaf shrink-0" aria-label="Verified Farmer" />
+                <BadgeCheck className="w-4 h-4 text-stone shrink-0" aria-label="Sample profile" />
               )}
             </div>
           </div>

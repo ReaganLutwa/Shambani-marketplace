@@ -206,7 +206,7 @@ export const PRODUCT_CATEGORIES: ProductCategory[] = [
 ];
 
 // ===== USSD MENU GENERATOR =====
-// Generates text menus for *220# service
+// Generates text menus for the proposed USSD service; no short code is allocated.
 
 export function generateUSSDCategoryMenu(): string {
   let menu = "ShambaNi\nSelect Category:\n";

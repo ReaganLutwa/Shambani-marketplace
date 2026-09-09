@@ -29,13 +29,14 @@ jobs:
         with:
           node-version: 20
 
-      - name: Fix lock file and install
-        run: |
-          rm -f package-lock.json
-          npm install
+      - name: Install locked dependencies
+        run: npm ci
 
-      - name: Build
-        run: npx vite build
+      - name: Lint
+        run: npm run lint
+
+      - name: Type-check and build
+        run: npm run build
 
       - name: Create CNAME for custom domain
         run: echo 'shambani-market.africa' > ./dist/CNAME

@@ -55,15 +55,14 @@ function LineChart({ data, color = '#10B981' }: { data: number[]; color?: string
 // Pie/donut chart using SVG
 function DonutChart({ segments }: { segments: { label: string; value: number; color: string }[] }) {
   const total = segments.reduce((s, seg) => s + seg.value, 0);
-  let cumulative = 0;
   const radius = 50;
   const cx = 60;
   const cy = 60;
 
-  const arcs = segments.map((seg) => {
+  const arcs = segments.map((seg, index) => {
+    const cumulative = segments.slice(0, index).reduce((sum, item) => sum + item.value, 0);
     const startAngle = (cumulative / total) * 2 * Math.PI - Math.PI / 2;
-    cumulative += seg.value;
-    const endAngle = (cumulative / total) * 2 * Math.PI - Math.PI / 2;
+    const endAngle = ((cumulative + seg.value) / total) * 2 * Math.PI - Math.PI / 2;
     const x1 = cx + radius * Math.cos(startAngle);
     const y1 = cy + radius * Math.sin(startAngle);
     const x2 = cx + radius * Math.cos(endAngle);

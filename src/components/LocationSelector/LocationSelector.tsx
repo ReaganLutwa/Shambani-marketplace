@@ -139,6 +139,8 @@ export default function LocationSelector({ value, onChange, showVillage = true }
       currency: selectedCountry?.currency || 'UGX',
       phoneCode: selectedCountry?.phoneCode || '+256'
     });
+  // The parent callback is intentionally invoked only when a selected value changes.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [country, region, district, village]);
 
   const handleCountryChange = (e) => {

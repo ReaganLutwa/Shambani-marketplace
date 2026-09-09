@@ -170,10 +170,9 @@ export default function Footer() {
               {t('footer.paymentsLegal')}
             </h4>
             <ul className="space-y-2.5">
-              <li><span className="text-sm text-cream/70">Airtel Money</span></li>
-              <li><span className="text-sm text-cream/70">MTN Mobile Money</span></li>
-              <li><span className="text-sm text-cream/70">PayPal</span></li>
-              <li><span className="text-sm text-cream/70">{t('admin.payments')}</span></li>
+              <li><span className="text-sm text-cream/70">Payments are not yet live</span></li>
+              <li><span className="text-sm text-cream/70">Licensed provider required</span></li>
+              <li><span className="text-sm text-cream/70">No escrow is active</span></li>
               <li className="pt-2 border-t border-white/10 mt-2">
                 <span className="text-xs text-cream/50 block">Support</span>
                 <Link to="/" className="text-sm text-mint hover:text-white transition-colors">

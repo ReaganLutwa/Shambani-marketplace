@@ -413,7 +413,7 @@ export default function ProductDetail() {
                       <p className="text-xs text-stone mb-2">{t('product.memberSince')}</p>
                       <div className="flex items-center gap-1 justify-center md:justify-start text-sprout">
                         <Check className="w-3.5 h-3.5" />
-                        <span className="text-xs font-medium">{t('product.verifiedFarmer')}</span>
+                        <span className="text-xs font-medium">Sample farmer profile</span>
                       </div>
                     </div>
 

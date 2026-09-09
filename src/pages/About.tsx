@@ -55,7 +55,7 @@ export default function About() {
       <StorySection t={t} />
       <CoverageMap t={t} />
       <WhyDifferent t={t} />
-      <ImpactStats t={t} />
+      <ImpactStats />
       <PaymentPartners t={t} />
       <HowItWorks t={t} />
       <VisionSection t={t} />
@@ -115,14 +115,13 @@ function HeroSection({ t }: { t: (k: string) => string }) {
           className="flex items-center justify-center gap-8 md:gap-12"
         >
           {[
-            { num: 4, label: t('aboutPage.heroStat1') },
-            { num: 200, suffix: '+', label: t('aboutPage.heroStat2') },
+            { num: 1, label: 'Country focus' },
+            { num: 2, label: 'Proposed districts' },
             { num: 4, label: t('aboutPage.heroStat3') },
           ].map((stat, i) => (
             <div key={i} className="text-center">
               <div className="font-space-grotesk text-3xl md:text-4xl font-bold text-white">
-                {i === 1 ? <AnimatedCounter target={200} suffix="+" /> : stat.num}
-                {stat.suffix && i !== 1 ? stat.suffix : null}
+                {stat.num}
               </div>
               <div className="text-[13px] text-white/60 mt-1">{stat.label}</div>
             </div>
@@ -212,10 +211,10 @@ function StorySection({ t }: { t: (k: string) => string }) {
 
 function CoverageMap({ t }: { t: (k: string) => string }) {
   const countries = [
-    { flag: '\uD83C\uDDFA\uD83C\uDDEC', name: 'Uganda', subtitle: t('aboutPage.ugandaSubtitle'), details: '111 districts \u2022 English / Luganda / Swahili \u2022 UGX', stats: '800+ farmers \u2022 2,100+ orders', borderColor: 'border-l-leaf' },
-    { flag: '\uD83C\uDDF0\uD83C\uDDEA', name: 'Kenya', subtitle: '', details: '47 counties \u2022 English / Swahili \u2022 KES', stats: '250+ farmers \u2022 680+ orders', borderColor: 'border-l-[#388E3C]' },
-    { flag: '\uD83C\uDDF9\uD83C\uDDFF', name: 'Tanzania', subtitle: '', details: '31 regions \u2022 Swahili / English \u2022 TZS', stats: '120+ farmers \u2022 310+ orders', borderColor: 'border-l-[#43A047]' },
-    { flag: '\uD83C\uDDF7\uD83C\uDDFC', name: 'Rwanda', subtitle: '', details: '30 districts \u2022 Kinyarwanda / English / French \u2022 RWF', stats: '80+ farmers \u2022 180+ orders', borderColor: 'border-l-[#4CAF50]' },
+    { flag: '\uD83C\uDDFA\uD83C\uDDEC', name: 'Uganda', subtitle: t('aboutPage.ugandaSubtitle'), details: 'Mpigi and Wakiso proposed \u2022 English / Luganda / Kiswahili', stats: 'Pre-pilot \u2022 20-farmer validation target', borderColor: 'border-l-leaf' },
+    { flag: '\uD83C\uDDF0\uD83C\uDDEA', name: 'Kenya', subtitle: 'Future consideration', details: 'No active operations or participants', stats: 'Expansion depends on Uganda pilot evidence', borderColor: 'border-l-[#388E3C]' },
+    { flag: '\uD83C\uDDF9\uD83C\uDDFF', name: 'Tanzania', subtitle: 'Future consideration', details: 'No active operations or participants', stats: 'Expansion depends on Uganda pilot evidence', borderColor: 'border-l-[#43A047]' },
+    { flag: '\uD83C\uDDF7\uD83C\uDDFC', name: 'Rwanda', subtitle: 'Future consideration', details: 'No active operations or participants', stats: 'Expansion depends on Uganda pilot evidence', borderColor: 'border-l-[#4CAF50]' },
   ];
 
   return (
@@ -250,12 +249,9 @@ function CoverageMap({ t }: { t: (k: string) => string }) {
               alt="East Africa Map"
               className="w-full h-auto rounded-2xl"
             />
-            {/* Pulsing pins on capital cities */}
+            {/* Regional vision map; only Uganda is in current scope. */}
             {[
               { top: '28%', left: '35%', label: 'Kampala' },
-              { top: '35%', left: '18%', label: 'Nairobi' },
-              { top: '60%', left: '30%', label: 'Dodoma' },
-              { top: '50%', left: '22%', label: 'Kigali' },
             ].map((pin, i) => (
               <motion.div
                 key={i}
@@ -366,12 +362,12 @@ function WhyDifferent({ t }: { t: (k: string) => string }) {
 /*  IMPACT STATS                                                        */
 /* ================================================================== */
 
-function ImpactStats({ t }: { t: (k: string) => string }) {
+function ImpactStats() {
   const stats = [
-    { target: 245, suffix: 'M+', prefix: 'UGX ', label: t('aboutPage.impactStat1') },
-    { target: 1200, suffix: '+', prefix: '', label: t('aboutPage.impactStat2') },
-    { target: 3800, suffix: '+', prefix: '', label: t('aboutPage.impactStat3') },
-    { target: 200, suffix: '+', prefix: '', label: t('aboutPage.impactStat4') },
+    { target: 20, suffix: '', prefix: '', label: 'Farmer validation target' },
+    { target: 5, suffix: '', prefix: '', label: 'Buyer validation target' },
+    { target: 10, suffix: '', prefix: '', label: 'Completed-order target' },
+    { target: 0, suffix: '', prefix: '', label: 'Critical incident target' },
   ];
 
   return (
@@ -385,10 +381,10 @@ function ImpactStats({ t }: { t: (k: string) => string }) {
           className="text-center mb-12"
         >
           <p className="text-mint uppercase tracking-[0.1em] text-sm font-semibold mb-2">
-            {t('aboutPage.impactEyebrow')}
+            Proposed validation
           </p>
           <h2 className="text-2xl md:text-[40px] font-poppins font-bold text-white">
-            {t('aboutPage.impactTitle')}
+            Targets — not achievements
           </h2>
         </motion.div>
 

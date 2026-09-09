@@ -11,7 +11,6 @@ import {
 } from '@/components/ui/accordion';
 import { cn } from '@/lib/utils';
 
-/* eslint-disable @typescript-eslint/no-unused-vars */
 
 /* ================================================================== */
 /*  MENU DATA                                                           */
@@ -122,21 +121,31 @@ export default function Ussd() {
 /* ================================================================== */
 
 function HeroSection({ t }: { t: (k: string) => string }) {
+  const particles = [
+    { size: 18, left: 14, top: 22, duration: 3.4, delay: 0.1 },
+    { size: 26, left: 27, top: 72, duration: 4.1, delay: 0.8 },
+    { size: 14, left: 39, top: 14, duration: 3.7, delay: 1.2 },
+    { size: 22, left: 51, top: 83, duration: 4.6, delay: 0.4 },
+    { size: 30, left: 63, top: 31, duration: 3.9, delay: 1.6 },
+    { size: 16, left: 74, top: 66, duration: 4.3, delay: 0.2 },
+    { size: 24, left: 86, top: 18, duration: 3.5, delay: 1.0 },
+    { size: 20, left: 91, top: 78, duration: 4.8, delay: 1.8 },
+  ];
   return (
     <section className="relative min-h-[100dvh] bg-gradient-to-br from-forest to-leaf overflow-hidden">
       {/* Decorative floating circles */}
-      {[...Array(8)].map((_, i) => (
+      {particles.map((particle, i) => (
         <motion.div
           key={i}
           className="absolute rounded-full bg-mint/[0.12]"
           style={{
-            width: 12 + Math.random() * 20,
-            height: 12 + Math.random() * 20,
-            left: `${10 + Math.random() * 80}%`,
-            top: `${10 + Math.random() * 80}%`,
+            width: particle.size,
+            height: particle.size,
+            left: `${particle.left}%`,
+            top: `${particle.top}%`,
           }}
           animate={{ y: [0, -20, 0] }}
-          transition={{ duration: 3 + Math.random() * 2, repeat: Infinity, delay: Math.random() * 2 }}
+          transition={{ duration: particle.duration, repeat: Infinity, delay: particle.delay }}
         />
       ))}
 
@@ -182,7 +191,7 @@ function HeroSection({ t }: { t: (k: string) => string }) {
                 className="font-space-grotesk text-[48px] md:text-[72px] font-bold text-sun inline-block"
                 style={{ textShadow: '0 0 60px rgba(255,179,0,0.4)' }}
               >
-                *220#
+                CODE PENDING
               </span>
             </motion.div>
 
@@ -234,7 +243,7 @@ function HowItWorks({ t }: { t: (k: string) => string }) {
       title: t('ussdPage.step1Title'),
       desc: t('ussdPage.step1Desc'),
       align: 'left' as const,
-      miniScreen: '*220#',
+      miniScreen: 'Pilot code\npending approval',
     },
     {
       number: '2',
@@ -340,7 +349,7 @@ function PhoneSimulator({ t }: { t: (k: string) => string }) {
       if (i >= text.length) clearInterval(interval);
     }, 15);
     return () => clearInterval(interval);
-  }, [screen]);
+  }, [screen, currentMenu.title, currentMenu.options]);
 
   const handleKey = useCallback((key: string) => {
     const option = currentMenu.options.find((o) => o.key === key);
@@ -650,7 +659,7 @@ function CtaBanner({ t }: { t: (k: string) => string }) {
             className="font-space-grotesk text-[36px] md:text-[48px] font-bold text-sun inline-block mb-8"
             style={{ textShadow: '0 0 40px rgba(255,179,0,0.3)' }}
           >
-            *220#
+            CODE PENDING
           </span>
         </motion.div>
 

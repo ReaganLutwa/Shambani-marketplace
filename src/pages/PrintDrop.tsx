@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import {
   Printer, MessageCircle, Calculator, CheckCircle, Truck,
-  ChevronRight, ExternalLink, Phone, Mail, MapPin,
+  ChevronRight, Phone, Mail, MapPin,
   FileText, Palette, Building2, PackageCheck, Upload,
 } from 'lucide-react';
 import { Link } from 'react-router-dom';

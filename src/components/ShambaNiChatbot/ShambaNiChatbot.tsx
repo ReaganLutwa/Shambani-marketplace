@@ -81,46 +81,46 @@ const TRANSLATIONS = {
   }
 };
 
-// Knowledge base responses
+// Pre-pilot knowledge base. It intentionally avoids asking for identity or payment data.
 const KNOWLEDGE_BASE = {
   en: {
-    'register': "To register as a farmer:\n1. Visit shambani-market.africa\n2. Click 'List Your Farm'\n3. Fill your profile with photo and NIRA ID\n4. Add your farm details\n5. Wait for verification (usually 24-48 hours)",
-    'buyer register': "To register as a buyer:\n1. Visit shambani-market.africa\n2. Click 'Sign In' then 'Register as Buyer'\n3. Choose your type: School, Hospital, Restaurant, Hotel, or Individual\n4. Fill organization details\n5. Verify your email/phone",
-    'payment': "ShambaNi accepts:\n- MTN Mobile Money\n- Airtel Money\n- PayPal (for international buyers)\n- Bank transfer (for institutional buyers)",
-    'commission': "ShambaNi charges only 2.5% per transaction. This is much lower than traditional middlemen who take 30-40%.",
-    'ussd': "Dial *220# on any phone to access ShambaNi via USSD. No smartphone needed! You can list produce, check orders, and receive payments.",
-    'verify': "Verification requires:\n- Profile photo\n- NIRA ID document photo\n- Mobile money registered in your name\nOur admin team reviews within 24-48 hours.",
-    'delivery': "Delivery is arranged directly between farmer and buyer. ShambaNi provides verified contact details. For bulk orders, we can connect you with local logistics partners.",
-    'price': "Farmers set their own prices on ShambaNi. Buyers can compare prices from multiple farmers and negotiate directly.",
-    'school': "Schools can register as institutional buyers to purchase fresh produce directly from verified farmers. Contact us for bulk pricing and scheduled delivery arrangements.",
-    'hospital': "Hospitals can register as institutional buyers to source fresh, quality-assured produce from verified farmers. We support HACCP-compliant suppliers.",
-    'help': "I can help with:\n- Farmer/buyer registration\n- Listing produce\n- Orders and delivery\n- Payment methods\n- Account verification\n- Technical issues\n\nWhat do you need help with?"
+    'register': "Registration is paused while ShambaNi completes its secure backend and data-protection readiness. You may email pilot interest, but do not send a national ID, bank details, mobile-money PIN or password.",
+    'buyer register': "Buyer registration is paused during the pre-pilot stage. Institutions may email a brief expression of interest without confidential procurement, identity or payment information.",
+    'payment': "No payment method, escrow account or payout service is currently live. A controlled pilot would use a Bank of Uganda-licensed provider under a written agreement. Never share a mobile-money PIN.",
+    'commission': "A 2.5% buyer service fee is a proposed pilot business model, not a charge currently being collected.",
+    'ussd': "The USSD screen is a menu prototype only. ShambaNi has no active short code; service can begin only after UCC and telecom or licensed-aggregator approval and backend testing.",
+    'verify': "Identity verification is not currently active. ShambaNi will not collect national-ID images until a lawful purpose, privacy controls, secure storage and an approved review process are in place.",
+    'delivery': "No delivery network is currently integrated. Pilot deliveries would be manually agreed, documented and confirmed by participating farmers and buyers.",
+    'price': "All current listings and prices are sample data for product demonstration; they are not live offers.",
+    'school': "Schools may express interest in a controlled pilot. Registration, ordering and scheduled delivery are not yet live.",
+    'hospital': "Hospitals may express interest in a controlled pilot. ShambaNi does not currently certify suppliers or claim food-safety compliance.",
+    'help': "I can explain the pre-pilot status, proposed USSD flow, sample marketplace, data-protection plan and pilot-interest process. Registration, orders, payments and verification are not live."
   },
   lg: {
-    'register': "Okwewandiisa ng'omulimi:\n1. Genda ku shambani-market.africa\n2. Koona 'List Your Farm'\n3. Jjawo ebikwatako ne foto ne NIRA ID\n4. Ggatako ebikwata ku kyalo kyo\n5. Lindirira okukakasibwa (enkola 24-48)",
-    'buyer register': "Okwewandiisa ng'omuguzi:\n1. Genda ku shambani-market.africa\n2. Koona 'Sign In' olwo 'Register as Buyer'\n3. Londako ekika kyo: Essomero, eddwaliro, eky'okulya, hoteli, oba omuntu\n4. Jjawo ebikwata ku kitebe\n5. Kakasa email/essimu yo",
-    'payment': "ShambaNi ekkiriza:\n- MTN Mobile Money\n- Airtel Money\n- PayPal (abaguzi ab'awaka)\n- Okusindika mu banki (abaguzi ab'ebitebe)",
-    'commission': "ShambaNi etta 2.5% ku buli musango. Eno ntono nnyo okusinga abazibisa abatwala 30-40%.",
-    'ussd': "Dya *220# ku ffoni yonna okweyambisa ShambaNi mu USSD. Tekyetaaga smartphone! Osobola okuteeka ebintu, okulaba ebiragiro, n'okufuna ssente.",
-    'verify': "Okukakasa kyetaaga:\n- Foto yo\n- Foto ya NIRA ID yo\n- Mobile money erinnya lyo\nAbakulu baffe bakola mu maaso ga 24-48.",
-    'delivery': "Okutwala ebintu kutegekebwa wakati w'omulimi n'omuguzi. ShambaNi ewabba obubaka obukakasiddwa. Ku biragiro ebingi, tuyinza okukuyungako n'abakola okutwala ebintu.",
-    'price': "Abalimi beetegeka ebbeeyi zaabwe ku ShambaNi. Abaguzi basobola okugerageranya ebbeeyi okuva ku balimi ab'enjawulo n'okuteesa ku butereevu.",
-    'school': "Amasomero gasobola okwewandiisa ng'abaguzi ab'ebitebe okugula ebintu ebirungi okuva ku balimi abakakasiddwa. Tukwatagane ku bbeeyi ez'obungi n'okutwala ebintu.",
-    'hospital': "Eddwaliro lisobola okwewandiisa okufuna ebintu ebirungi okuva ku balimi abakakasiddwa. Tuyamba n'abakola ebintu ebituukana ne HACCP.",
-    'help': "Nnyinza kukuyamba ku:\n- Okwewandiisa kw'omulimi/omuguzi\n- Okuteeka ebintu ku mboli\n- Ebiragiro n'okutwala\n- Engeri z'okusasula\n- Okukakasa akawunti\n- Ebizibu ebyenjawulo\n\nOnyagala buyambi ki?"
+    'register': "Okwewandiisa kuyimiriziddwa nga ShambaNi emaliriza backend ey'obukuumi n'eby'okukuuma ebikwata ku bantu. Osobola okusindika email okulaga nti oyagala okwetaba, naye tosindika NIN, bya bbanka, PIN oba password.",
+    'buyer register': "Okwewandiisa kw'abaguzi kuyimiriziddwa mu kiseera kino. Ebibiina bisobola okulaga obwagazi ku email nga tebissindise byama.",
+    'payment': "Tewali nsasula, escrow oba payout ekola kati. Okugezesa kujja kukozesa omuweereza akkiriziddwa Bank of Uganda. Togabana PIN ya mobile money.",
+    'commission': "Ebitundu 2.5% bisuubirwa mu nteekateeka y'okugezesa; tebisoloozebwa kati.",
+    'ussd': "USSD eno kyakulabirako kya menu kyokka. ShambaNi terina short code ekola; yeetaaga UCC, telecom oba aggregator akkiriziddwa n'okugezesa backend.",
+    'verify': "Okukakasa endagamuntu tekunnatandika. ShambaNi tejja kukunganya bifaananyi bya NIN nga amateeka, ekyama n'obukuumi tebinnakakasibwa.",
+    'delivery': "Tewali network y'okutuusa ebintu eyungiddwa kati. Mu kugezesa, omulimi n'omuguzi bajja kukakasa enteekateeka mu buwandiike.",
+    'price': "Ebintu n'ebbeeyi ebiri ku mukutu byakulabirako; si bya kutunda ddala.",
+    'school': "Amasomero gasobola okulaga obwagazi mu kugezesa. Okwewandiisa, oda n'okutuusa tebinnatandika.",
+    'hospital': "Amalwaliro gasobola okulaga obwagazi mu kugezesa. ShambaNi tekakasa ba supplier oba food-safety compliance kati.",
+    'help': "Nsobola okunnyonnyola embeera y'ekyakulabirako, USSD etegekeddwa, eby'okukuuma data n'engeri y'okulaga obwagazi. Okwewandiisa, oda, ensasula n'okukakasa tebinnatandika."
   },
   sw: {
-    'register': "Kujiandikisha kama mkulima:\n1. Tembelea shambani-market.africa\n2. Bofya 'List Your Farm'\n3. Jaza wasifu wako na picha na NIRA ID\n4. Ongeza maelezo ya shamba lako\n5. Subiri uthibitisho (kawaida masaa 24-48)",
-    'buyer register': "Kujiandikisha kama mnunuzi:\n1. Tembelea shambani-market.africa\n2. Bofya 'Sign In' kisha 'Register as Buyer'\n3. Chagua aina yako: Shule, Hospitali, Mkahawa, Hoteli, au Mtu\n4. Jaza maelezo ya shirika\n5. Thibitisha barua pepe/simu yako",
-    'payment': "ShambaNi inakubali:\n- MTN Mobile Money\n- Airtel Money\n- PayPal (kwa wanunuzi wa kimataifa)\n- Uhamisho wa benki (kwa wanunuzi wa taasisi)",
-    'commission': "ShambaNi inachaji 2.5% tu kwa kila muamala. Hii ni chini sana ukilinganisha na wafanyabiashara wa kienyeji wanaochukua 30-40%.",
-    'ussd': "Piga *220# kwenye simu yoyote kufikia ShambaNi kupitia USSD. Hahitaji smartphone! Unaweza kuweka mazao, angalia maagizo, na kupokea malipo.",
-    'verify': "Uthibitishaji unahitaji:\n- Picha ya wasifu\n- Picha ya hati ya NIRA ID\n- Mobile money iliyosajiliwa kwa jina lako\nWafanyakazi wetu wanagalia ndani ya masaa 24-48.",
-    'delivery': "Usafirishaji unapangwa moja kwa moja kati ya mkulima na mnunuzi. ShambaNi inatoa maelezo yaliyothibitishwa ya mawasiliano. Kwa maagizo ya jumla, tunaweza kukuunganisha na washirika wa usafirishaji.",
-    'price': "Wakulima wanaweka bei zao wenyewe kwenye ShambaNi. Wanunuzi wanaweza kulinganisha bei kutoka kwa wakulima wengi na kupiga mswapo moja kwa moja.",
-    'school': "Shule zinaweza kujiandikisha kama wanunuzi wa kitaasisi kununua mazao moja kwa moja kutoka kwa wakulima waliohalalishwa. Wasiliana nasi kwa bei za jumla na upangaji wa usafirishaji.",
-    'hospital': "Hospitali zinaweza kujiandikisha kama wanunuzi wa kitaasisi kupata mazao mazuri kutoka kwa wakulima waliohalalishwa. Tunasaidia wasambazaji wanaofuata HACCP.",
-    'help': "Ninaweza kukusaidia na:\n- Usajili wa mkulima/mnunuzi\n- Kuweka mazao\n- Maagizo na usafirishaji\n- Njia za malipo\n- Uthibitishaji wa akaunti\n- Masuala ya kiufundi\n\nUnahitaji msaada wa nini?"
+    'register': "Usajili umesitishwa wakati ShambaNi inakamilisha backend salama na maandalizi ya ulinzi wa data. Unaweza kutuma nia kwa barua pepe, lakini usitume kitambulisho, taarifa za benki, PIN au nenosiri.",
+    'buyer register': "Usajili wa wanunuzi umesitishwa katika hatua hii. Taasisi zinaweza kutuma nia bila taarifa za siri.",
+    'payment': "Hakuna malipo, escrow au payout inayofanya kazi sasa. Jaribio litatumia mtoa huduma aliyeidhinishwa na Bank of Uganda. Usitoe PIN ya mobile money.",
+    'commission': "Ada ya mnunuzi ya 2.5% ni pendekezo la jaribio; haikusanywi sasa.",
+    'ussd': "Skrini ya USSD ni mfano wa menu tu. ShambaNi haina short code inayofanya kazi; inahitaji idhini ya UCC, telecom au aggregator na upimaji wa backend.",
+    'verify': "Uthibitishaji wa utambulisho haujaanza. ShambaNi haitakusanya picha za kitambulisho mpaka sheria, faragha na hifadhi salama viwe tayari.",
+    'delivery': "Hakuna mtandao wa usafirishaji uliounganishwa. Katika jaribio, mkulima na mnunuzi watakubaliana na kuthibitisha kwa maandishi.",
+    'price': "Bidhaa na bei za sasa ni data za mfano; si ofa halisi.",
+    'school': "Shule zinaweza kutuma nia ya kushiriki jaribio. Usajili, oda na usafirishaji bado havijaanza.",
+    'hospital': "Hospitali zinaweza kutuma nia ya kushiriki jaribio. ShambaNi haijathibitisha wasambazaji au madai ya usalama wa chakula.",
+    'help': "Ninaweza kueleza hali ya prototype, mpango wa USSD, soko la mfano, ulinzi wa data na nia ya jaribio. Usajili, oda, malipo na uthibitishaji havijaanza."
   }
 };
 
@@ -138,7 +138,7 @@ function getResponse(message, lang, userType) {
   if (lowerMsg.includes('commission') || lowerMsg.includes('fee') || lowerMsg.includes('charge') || lowerMsg.includes('tta') || lowerMsg.includes('chaji')) {
     return kb['commission'];
   }
-  if (lowerMsg.includes('ussd') || lowerMsg.includes('*220#') || lowerMsg.includes('phone') || lowerMsg.includes('simu')) {
+  if (lowerMsg.includes('ussd') || lowerMsg.includes('short code') || lowerMsg.includes('phone') || lowerMsg.includes('simu')) {
     return kb['ussd'];
   }
   if (lowerMsg.includes('verify') || lowerMsg.includes('kakasa') || lowerMsg.includes('thibitisha') || lowerMsg.includes('id')) {
@@ -171,9 +171,9 @@ function getResponse(message, lang, userType) {
   
   // Default response
   const defaults = {
-    en: "I'm not sure I understand. You can ask me about:\n- How to register\n- Payment methods\n- Delivery\n- Prices\n- Account verification\n- USSD (*220#)\n\nOr type 'help' for all options.",
-    lg: "Sitetegedde bulungi. Osobola okunzibua ku:\n- Okwewandiisa\n- Engeri z'okusasula\n- Okutwala ebintu\n- Ebbeeyi\n- Okukakasa akawunti\n- USSD (*220#)\n\nOba wandika 'help' okulaba ebintu byonna.",
-    sw: "Sifahamu vizuri. Unaweza kuniuliza kuhusu:\n- Usajili\n- Njia za malipo\n- Usafirishaji\n- Bei\n- Uthibitishaji wa akaunti\n- USSD (*220#)\n\nAu andika 'help' kwa chaguzi zote."
+    en: "Ask me about the pre-pilot status, sample listings, proposed USSD flow, data protection or pilot interest. Type 'help' for a summary.",
+    lg: "Buuza ku mbeera y'ekyakulabirako, USSD etegekeddwa, okukuuma data oba okwetaba mu kugezesa. Wandika 'help'.",
+    sw: "Uliza kuhusu hali ya prototype, USSD iliyopangwa, ulinzi wa data au nia ya jaribio. Andika 'help'."
   };
   return defaults[lang] || defaults.en;
 }

@@ -1,10 +1,10 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback, type ComponentType } from 'react';
 import {
   LayoutDashboard, Users, ShoppingCart, Package, Printer, CreditCard,
   BarChart3, Settings, LogOut, Eye, EyeOff, Lock, CheckCircle, XCircle,
-  Clock, ChevronRight, TrendingUp, TrendingDown, DollarSign, Download,
-  Store, AlertCircle, Search, Filter, ArrowUpDown, Plus, Trash2, Edit,
-  FileText, Image, Phone, Mail, MapPin, Shield, Bell, BadgeCheck, UserCircle
+  Clock, ChevronRight, TrendingUp, TrendingDown, DollarSign,
+  Store, AlertCircle, Search,
+  Phone, Mail, MapPin, Shield, Bell, BadgeCheck
 } from 'lucide-react';
 
 /* ─── Types ─── */
@@ -76,18 +76,8 @@ interface Withdrawal {
   requested: string;
 }
 
-/* ─── Mock Data ─── */
-/* Load real farmers from localStorage + mock data */
-const storedFarmers = typeof window !== 'undefined' ? JSON.parse(localStorage.getItem('shambani_farmers') || '[]') : [];
-const storedVerifications: VerificationFarmer[] = typeof window !== 'undefined' ? storedFarmers.map((f: any) => ({
-  id: f.id,
-  name: f.name,
-  phone: f.phone,
-  location: f.district || f.village || 'Uganda',
-  profilePhoto: f.profilePhoto || '',
-  status: f.status === 'approved' ? 'verified' : 'pending',
-  submitted: f.joined,
-})) : [];
+/* ─── Fictional sample data only ─── */
+const storedVerifications: VerificationFarmer[] = [];
 
 const initialFarmers: Farmer[] = [
   { id: 1, name: 'John Okello', phone: '+256 701 234 567', location: 'Gulu', status: 'approved', products: 12, joined: '2024-01-15' },
@@ -95,15 +85,6 @@ const initialFarmers: Farmer[] = [
   { id: 3, name: 'Peter Ochien', phone: '+256 703 456 789', location: 'Mbale', status: 'approved', products: 8, joined: '2024-02-10' },
   { id: 4, name: 'Grace Nakato', phone: '+256 704 567 890', location: 'Jinja', status: 'pending', products: 0, joined: '2024-04-05' },
   { id: 5, name: 'David Ouma', phone: '+256 705 678 901', location: 'Arua', status: 'approved', products: 15, joined: '2024-01-28' },
-  ...storedFarmers.map((f: any, i: number) => ({
-    id: f.id || 100 + i,
-    name: f.name,
-    phone: f.phone,
-    location: f.district || f.village || 'Uganda',
-    status: f.status as 'pending' | 'approved' | 'rejected',
-    products: 0,
-    joined: f.joined,
-  })),
 ];
 
 const initialOrders: Order[] = [
@@ -159,26 +140,11 @@ function LoginScreen({ onLogin }: { onLogin: () => void }) {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
-  const [attempts, setAttempts] = useState(0);
-  const [locked, setLocked] = useState(false);
-  const [lockTimer, setLockTimer] = useState(0);
-
-  useEffect(() => {
-    if (locked && lockTimer > 0) {
-      const t = setTimeout(() => setLockTimer(lockTimer - 1), 1000);
-      return () => clearTimeout(t);
-    }
-    if (locked && lockTimer === 0) {
-      setLocked(false);
-      setAttempts(0);
-    }
-  }, [locked, lockTimer]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (locked) return;
     if (ADMIN_PUBLIC_DEMO) {
-      sessionStorage.setItem('shambani_admin_demo_demo', 'true');
+      sessionStorage.setItem('shambani_admin_demo', 'true');
       setError('');
       onLogin();
       return;
@@ -207,7 +173,6 @@ function LoginScreen({ onLogin }: { onLogin: () => void }) {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Type anything to open the public demo"
-                disabled={locked}
                 className="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent outline-none transition-all disabled:bg-gray-100"
               />
               <button
@@ -225,26 +190,17 @@ function LoginScreen({ onLogin }: { onLogin: () => void }) {
               <AlertCircle className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
               <div className="text-sm text-red-600 flex-1">
                 <p>{error}</p>
-                {locked && (
-                  <button
-                    type="button"
-                    onClick={() => { setLocked(false); setAttempts(0); setLockTimer(0); setError(''); }}
-                    className="text-green-600 hover:text-green-700 underline mt-1 text-xs font-medium"
-                  >
-                    Reset Lock
-                  </button>
-                )}
               </div>
             </div>
           )}
 
           <button
             type="submit"
-            disabled={locked || !password}
+            disabled={!password}
             className="w-full bg-green-600 hover:bg-green-700 disabled:bg-gray-300 text-white font-semibold py-3 rounded-lg transition-colors flex items-center justify-center gap-2"
           >
             <Lock className="w-5 h-5" />
-            {locked ? `Locked (${lockTimer}s)` : 'Open Public Demo'}
+            Open Public Demo
           </button>
         </form>
 
@@ -1106,7 +1062,7 @@ export default function AdminDashboard() {
 }
 
 /* ─── Sub-components ─── */
-function StatCard({ title, value, icon: Icon, trend, color }: { title: string; value: string | number; icon: any; trend: string; color: string }) {
+function StatCard({ title, value, icon: Icon, trend, color }: { title: string; value: string | number; icon: ComponentType<{ className?: string }>; trend: string; color: string }) {
   const colorClasses: Record<string, string> = {
     green: 'bg-green-50 text-green-600',
     blue: 'bg-blue-50 text-blue-600',
@@ -1129,7 +1085,7 @@ function StatCard({ title, value, icon: Icon, trend, color }: { title: string; v
   );
 }
 
-function ActionCard({ icon: Icon, text, action, onClick, color }: { icon: any; text: string; action: string; onClick: () => void; color: string }) {
+function ActionCard({ icon: Icon, text, action, onClick, color }: { icon: ComponentType<{ className?: string }>; text: string; action: string; onClick: () => void; color: string }) {
   const btnColors: Record<string, string> = {
     amber: 'bg-amber-100 text-amber-700 hover:bg-amber-200',
     blue: 'bg-blue-100 text-blue-700 hover:bg-blue-200',

@@ -202,7 +202,7 @@ export default function Home() {
                 { value: 'Pilot', label: 'Mpigi & Wakiso first' },
                 { value: '20', label: 'Farmer onboarding target' },
                 { value: '5', label: 'Institutional buyer target' },
-                { value: '4', label: t('stats.countries') },
+                { value: '4', label: 'Prototype languages' },
               ].map((stat) => (
                 <div key={stat.label} className="text-center">
                   <div className="font-space font-bold text-2xl md:text-4xl tracking-[-0.02em]">
@@ -404,7 +404,7 @@ export default function Home() {
               <div className="relative max-w-[280px] md:max-w-[320px] rotate-[-3deg]">
                 <img
                   src="ussd-phone-mockup.webp"
-                  alt="USSD *220# feature phone"
+                  alt="Proposed USSD menu on a feature phone"
                   className="w-full h-auto drop-shadow-2xl"
                 />
                 {/* Floating particles */}

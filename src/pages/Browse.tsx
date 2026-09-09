@@ -1,10 +1,10 @@
-import { useState, useMemo, useCallback, useEffect } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Search, X, ChevronDown, SlidersHorizontal, RotateCcw, Printer, MessageCircle, ExternalLink } from 'lucide-react';
+import { Search, X, ChevronDown, SlidersHorizontal, RotateCcw, Printer, ExternalLink } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { products } from '@/data/products';
 import { categories } from '@/data/categories';
-import { PRODUCT_CATEGORIES, getSubcategories } from '@/data/productCategories';
+import { getSubcategories } from '@/data/productCategories';
 import { supportedCountries, getDistrictsForCountry } from '@/data/districts';
 import ProductCard from '@/components/ProductCard';
 import { Link } from 'react-router-dom';
@@ -28,7 +28,6 @@ export default function Browse() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [selectedSubcategory, setSelectedSubcategory] = useState('');
-  const [subcategoryOptions, setSubcategoryOptions] = useState<{id: string, name: string, unit: string}[]>([]);
   const [selectedCountry, setSelectedCountry] = useState('');
   const [selectedDistrict, setSelectedDistrict] = useState('');
   const [sortBy, setSortBy] = useState<SortOption>('featured');
@@ -40,16 +39,10 @@ export default function Browse() {
     [selectedCountry]
   );
 
-  // Subcategory options update
-  useEffect(() => {
-    if (selectedCategory && selectedCategory !== 'all') {
-      const subs = getSubcategories(selectedCategory);
-      setSubcategoryOptions(subs);
-    } else {
-      setSubcategoryOptions([]);
-    }
-    setSelectedSubcategory('');
-  }, [selectedCategory]);
+  const subcategoryOptions = useMemo(
+    () => selectedCategory !== 'all' ? getSubcategories(selectedCategory) : [],
+    [selectedCategory]
+  );
 
   const allCategories = [allCategory, ...categories];
 
@@ -233,7 +226,10 @@ export default function Browse() {
             {allCategories.map((cat) => (
               <button
                 key={cat.id}
-                onClick={() => setSelectedCategory(cat.id)}
+                onClick={() => {
+                  setSelectedCategory(cat.id);
+                  setSelectedSubcategory('');
+                }}
                 className={`shrink-0 px-4 py-2 rounded-full text-sm font-medium font-poppins transition-all duration-200 whitespace-nowrap ${
                   selectedCategory === cat.id
                     ? 'bg-forest text-white shadow-md'

@@ -14,6 +14,7 @@ import {
   Smartphone,
   Globe,
   Landmark,
+  AlertTriangle,
   Minus,
   Plus,
 } from 'lucide-react';
@@ -22,6 +23,7 @@ import { useCartStore } from '@/store';
 import { supportedCountries, getDistrictsForCountry } from '@/data/districts';
 
 const easing = [0.4, 0, 0.2, 1] as [number, number, number, number];
+const PILOT_ORDERING_ENABLED = false;
 
 const paymentMethods = [
   {
@@ -299,6 +301,14 @@ export default function Cart() {
               className="lg:sticky lg:top-[100px] self-start"
             >
               <div className="bg-white rounded-2xl border border-fog p-6">
+                {!PILOT_ORDERING_ENABLED && (
+                  <div className="mb-5 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-950">
+                    <div className="flex items-start gap-2">
+                      <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
+                      <p><strong>Sample cart only.</strong> Online ordering and payment are paused until the pilot backend and payment-provider process are approved.</p>
+                    </div>
+                  </div>
+                )}
                 <h3 className="font-poppins font-semibold text-charcoal text-lg mb-4">
                   {t('cart.orderSummary')}
                 </h3>
@@ -335,9 +345,10 @@ export default function Cart() {
 
                 <button
                   onClick={() => setStep('shipping')}
-                  className="w-full h-[52px] flex items-center justify-center gap-2 bg-leaf text-white font-poppins font-semibold rounded-xl hover:bg-forest hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 shadow-[0_4px_16px_rgba(46,125,50,0.3)] mb-3"
+                  disabled={!PILOT_ORDERING_ENABLED}
+                  className="w-full h-[52px] flex items-center justify-center gap-2 bg-leaf text-white font-poppins font-semibold rounded-xl hover:bg-forest hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 shadow-[0_4px_16px_rgba(46,125,50,0.3)] mb-3 disabled:cursor-not-allowed disabled:bg-stone/60 disabled:shadow-none disabled:hover:scale-100"
                 >
-                  {t('cart.checkout')}
+                  {PILOT_ORDERING_ENABLED ? t('cart.checkout') : 'Checkout opens with the controlled pilot'}
                   <ChevronRight className="w-4 h-4" />
                 </button>
 
